@@ -11,7 +11,7 @@ def run_testcase():
 
     # forcing
     os.system("python ../../testing/DATA/domain_sc_71.35_-156.5/get_domain.py")
-    
+
     # run MPAS-Seaice
     os.system("../../../seaice_model")
 
