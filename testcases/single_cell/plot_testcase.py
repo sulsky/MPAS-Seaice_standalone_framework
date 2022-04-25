@@ -29,7 +29,7 @@ def plot_testcase():
     surfaceTemperatureCell = filein.variables["surfaceTemperatureCell"][:]
 
     filein.close()
-    
+
     axis.plot(surfaceTemperatureCell,color="green")
     axis.set_ylabel("Temperature (C)")
     axis.set_xlabel("Time step")
