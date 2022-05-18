@@ -9,6 +9,7 @@ except ImportError:
 
 def run_model():
 
+    MPAS_SEAICE_EXECUTABLE = os.environ.get('MPAS_SEAICE_EXECUTABLE')
     MPAS_SEAICE_TESTCASES_RUN_COMMAND = os.environ.get('MPAS_SEAICE_TESTCASES_RUN_COMMAND')
     if (MPAS_SEAICE_TESTCASES_RUN_COMMAND is None):
         MPAS_SEAICE_TESTCASES_RUN_COMMAND = ""
@@ -24,6 +25,9 @@ def run_model():
         for operatorMethod in operatorMethods:
 
             print("  Operator Method: ", operatorMethod)
+
+            if (not os.path.isdir("output")):
+                os.mkdir("output")
 
             if (operatorMethod == "wachspress"):
                 nmlPatch = {"velocity_solver": {"config_strain_scheme":"variational",
@@ -43,7 +47,7 @@ def run_model():
             os.system("ln -s namelist.seaice.%s namelist.seaice" %(operatorMethod))
             os.system("ln -s streams.seaice.strain streams.seaice")
 
-            os.system("%s ../../../seaice_model" %(MPAS_SEAICE_TESTCASES_RUN_COMMAND))
+            os.system("%s %s" %(MPAS_SEAICE_TESTCASES_RUN_COMMAND, MPAS_SEAICE_EXECUTABLE))
 
             os.system("mv output output_%s_%s" %(gridType, operatorMethod))
 

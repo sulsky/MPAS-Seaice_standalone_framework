@@ -484,7 +484,7 @@ plot_subfigure_patch(axes[1,2], nVertices, vertexDegree, interiorVertex, cellsOn
 plot_subfigure_patch(axes[0,3], nVertices, vertexDegree, interiorVertex, cellsOnVertex, xCell, yCell, uDiffWeak   , \
                      True, \
                      True, \
-                     r'$\Delta u/u_{max}$ Weak', \
+                     r'$\Delta u/u_{max}$ FV', \
                      "(d)", \
                      uDiffMin, uDiffMax, \
                      limitPatches=True, \
@@ -494,7 +494,7 @@ plot_subfigure_patch(axes[0,3], nVertices, vertexDegree, interiorVertex, cellsOn
 plot_subfigure_patch(axes[1,3], nVertices, vertexDegree, interiorVertex, cellsOnVertex, xCell, yCell, divDiffWeak , \
                      True, \
                      True, \
-                     r'$\Delta (\nabla \cdot \sigma)_{u}$ Weak', \
+                     r'$\Delta (\nabla \cdot \sigma)_{u}$ FV', \
                      "(h)", \
                      divDiffMin, divDiffMax, \
                      limitPatches=True, \

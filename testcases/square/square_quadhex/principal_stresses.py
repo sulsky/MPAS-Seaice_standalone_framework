@@ -202,11 +202,11 @@ plot_yield_curve(axes[0,0], sig1CICE,         sig2CICE,         "CICE",         
 
 plot_yield_curve(axes[0,1], sig1MPASQuadWach, sig2MPASQuadWach, "Quad MPAS Wachs.", "(b)", False)
 plot_yield_curve(axes[0,2], sig1MPASQuadPWL,  sig2MPASQuadPWL,  "Quad MPAS PWL",    "(c)", False)
-plot_yield_curve(axes[0,3], sig1MPASQuadWeak, sig2MPASQuadWeak, "Quad MPAS Weak",   "(d)", False)
+plot_yield_curve(axes[0,3], sig1MPASQuadWeak, sig2MPASQuadWeak, "Quad MPAS FV",     "(d)", False)
 
 plot_yield_curve(axes[1,1], sig1MPASHexWach,  sig2MPASHexWach,  "Hex MPAS Wachs.",  "(e)", False)
 plot_yield_curve(axes[1,2], sig1MPASHexPWL,   sig2MPASHexPWL,   "Hex MPAS PWL",     "(f)", False)
-plot_yield_curve(axes[1,3], sig1MPASHexWeak,  sig2MPASHexWeak,  "Hex MPAS Weak",    "(g)", False)
+plot_yield_curve(axes[1,3], sig1MPASHexWeak,  sig2MPASHexWeak,  "Hex MPAS FV",      "(g)", False)
 
 axes[1,0].get_xaxis().set_visible(False)
 axes[1,0].get_yaxis().set_visible(False)

@@ -39,23 +39,31 @@ def average_variational_strains():
                 nVertices = len(fileModify.dimensions["nVertices"])
                 nCells = len(fileModify.dimensions["nCells"])
                 vertexDegree = len(fileModify.dimensions["vertexDegree"])
+                maxEdges = len(fileModify.dimensions["maxEdges"])
                 nTimes = len(fileModify.dimensions["Time"])
 
                 areaCell = fileModify.variables["areaCell"][:]
 
+                nEdgesOnCell = fileModify.variables["nEdgesOnCell"][:]
                 cellsOnVertex = fileModify.variables["cellsOnVertex"][:]
                 cellVerticesAtVertex = fileModify.variables["cellVerticesAtVertex"][:]
+                verticesOnCell = fileModify.variables["verticesOnCell"][:]
 
                 cellsOnVertex[:] -= 1
                 cellVerticesAtVertex[:] -= 1
+                verticesOnCell[:] -= 1
 
                 strain11var = fileModify.variables["strain11var"][:]
                 strain22var = fileModify.variables["strain22var"][:]
                 strain12var = fileModify.variables["strain12var"][:]
 
-                strain11varAvg = np.zeros((nTimes,nVertices))
-                strain22varAvg = np.zeros((nTimes,nVertices))
-                strain12varAvg = np.zeros((nTimes,nVertices))
+                strain11varAvgVertex = np.zeros((nTimes,nVertices))
+                strain22varAvgVertex = np.zeros((nTimes,nVertices))
+                strain12varAvgVertex = np.zeros((nTimes,nVertices))
+
+                strain11varAvg = np.zeros((nTimes,nCells,maxEdges))
+                strain22varAvg = np.zeros((nTimes,nCells,maxEdges))
+                strain12varAvg = np.zeros((nTimes,nCells,maxEdges))
 
                 for iTime in range(0, nTimes):
 
@@ -79,25 +87,50 @@ def average_variational_strains():
                                 strain12avg = strain12avg + areaCell[iCell] * strain12var[iTime,iCell,iVertexOnCell]
                                 denominator = denominator + areaCell[iCell]
 
-                        strain11varAvg[iTime,iVertex] = strain11avg / denominator
-                        strain22varAvg[iTime,iVertex] = strain22avg / denominator
-                        strain12varAvg[iTime,iVertex] = strain12avg / denominator
-                        #print(iTime,iVertex,strain11varAvg[iTime,iVertex],strain11avg,float(nCellsSum))
+                        strain11varAvgVertex[iTime,iVertex] = strain11avg / denominator
+                        strain22varAvgVertex[iTime,iVertex] = strain22avg / denominator
+                        strain12varAvgVertex[iTime,iVertex] = strain12avg / denominator
+
+                for iCell in range(0,nCells):
+                    for iVertexOnCell in range(0,nEdgesOnCell[iCell]):
+                        iVertex = verticesOnCell[iCell,iVertexOnCell]
+                        strain11varAvg[iTime,iCell,iVertexOnCell] = strain11varAvgVertex[iTime,iVertex]
+                        strain22varAvg[iTime,iCell,iVertexOnCell] = strain22varAvgVertex[iTime,iVertex]
+                        strain12varAvg[iTime,iCell,iVertexOnCell] = strain12varAvgVertex[iTime,iVertex]
+
 
                 try:
-                    var = fileModify.createVariable("strain11varAvg","d",dimensions=["Time","nVertices"])
+                    var = fileModify.createVariable("strain11varAvgVertex","d",dimensions=["Time","nVertices"])
+                except:
+                    var = fileModify.variables["strain11varAvgVertex"]
+                var[:] = strain11varAvgVertex[:]
+
+                try:
+                    var = fileModify.createVariable("strain22varAvgVertex","d",dimensions=["Time","nVertices"])
+                except:
+                    var = fileModify.variables["strain22varAvgVertex"]
+                var[:] = strain22varAvgVertex[:]
+
+                try:
+                    var = fileModify.createVariable("strain12varAvgVertex","d",dimensions=["Time","nVertices"])
+                except:
+                    var = fileModify.variables["strain12varAvgVertex"]
+                var[:] = strain12varAvgVertex[:]
+
+                try:
+                    var = fileModify.createVariable("strain11varAvg","d",dimensions=["Time","nCells","maxEdges"])
                 except:
                     var = fileModify.variables["strain11varAvg"]
                 var[:] = strain11varAvg[:]
 
                 try:
-                    var = fileModify.createVariable("strain22varAvg","d",dimensions=["Time","nVertices"])
+                    var = fileModify.createVariable("strain22varAvg","d",dimensions=["Time","nCells","maxEdges"])
                 except:
                     var = fileModify.variables["strain22varAvg"]
                 var[:] = strain22varAvg[:]
 
                 try:
-                    var = fileModify.createVariable("strain12varAvg","d",dimensions=["Time","nVertices"])
+                    var = fileModify.createVariable("strain12varAvg","d",dimensions=["Time","nCells","maxEdges"])
                 except:
                     var = fileModify.variables["strain12varAvg"]
                 var[:] = strain12varAvg[:]

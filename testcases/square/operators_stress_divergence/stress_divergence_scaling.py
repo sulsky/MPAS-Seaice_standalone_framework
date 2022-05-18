@@ -587,7 +587,7 @@ def stress_divergence_scaling():
 
     legendLabels = {"wachspress":"Wachs.",
                     "pwl":"PWL",
-                    "weak":"Weak"}
+                    "weak":"FV"}
 
     markers = {"wachspress":"+",
                "pwl":"x",

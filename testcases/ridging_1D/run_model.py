@@ -4,11 +4,16 @@ import os
 
 def run_model():
 
+    MPAS_SEAICE_EXECUTABLE = os.environ.get('MPAS_SEAICE_EXECUTABLE')
+
+    if (not os.path.isdir("output")):
+        os.mkdir("output")
+
     os.system("rm -rf namelist.seaice streams.seaice")
     os.system("ln -s namelist.seaice.ridging_1D namelist.seaice")
     os.system("ln -s streams.seaice.ridging_1D streams.seaice")
 
-    os.system("../../../seaice_model")
+    os.system("%s" %(MPAS_SEAICE_EXECUTABLE))
 
 #-------------------------------------------------------------------------------
 

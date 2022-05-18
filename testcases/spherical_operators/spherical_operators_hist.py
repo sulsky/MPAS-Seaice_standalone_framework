@@ -128,9 +128,9 @@ def strain_hist(axis):
     # Weak Wachs
     fileWeakWachs = Dataset("./strain/output_weakwachs_40962/output.2000.nc","r")
 
-    strain11weakWachs = fileWeakWachs.variables["strain11varAvg"][0,:]
-    strain22weakWachs = fileWeakWachs.variables["strain22varAvg"][0,:]
-    strain12weakWachs = fileWeakWachs.variables["strain12varAvg"][0,:]
+    strain11weakWachs = fileWeakWachs.variables["strain11varAvgVertex"][0,:]
+    strain22weakWachs = fileWeakWachs.variables["strain22varAvgVertex"][0,:]
+    strain12weakWachs = fileWeakWachs.variables["strain12varAvgVertex"][0,:]
 
     strain11weakWachsDiff = strain11weakWachs - strain11VertexAnalytical
     strain22weakWachsDiff = strain22weakWachs - strain22VertexAnalytical
@@ -177,7 +177,7 @@ def strain_hist(axis):
     axis.set_xlabel("Abs. error")
     axis.set_ylabel("Frequency")
 
-    axis.legend(["Wachs.","PWL","Weak"], frameon=False, fontsize=8)
+    axis.legend(["Wachs.","PWL","FV"], frameon=False, fontsize=8)
 
     axis.set_xlim([0,0.125])
 
@@ -186,7 +186,7 @@ def strain_hist(axis):
 def stress_divergence_hist(axis):
 
     # grid
-    fileGrid = Dataset("./stress_divergence/x1.40962.grid.nc","r")
+    fileGrid = Dataset("./stress_divergence/grid.40962.nc","r")
 
     nVertices = len(fileGrid.dimensions["nVertices"])
 
@@ -319,7 +319,7 @@ def stress_divergence_hist(axis):
     axis.set_ylabel(None)
     #axis.set_ylabel("Frequency")
 
-    axis.legend(["Wachs.","PWL","Wachs. Alt","PWL Alt","Weak"], frameon=False, fontsize=8)
+    axis.legend(["Wachs.","PWL","Wachs. Alt","PWL Alt","FV"], frameon=False, fontsize=8)
 
     axis.set_xlim([0,1.0])
 

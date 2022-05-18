@@ -4,6 +4,7 @@ import os
 
 def run_model():
 
+    MPAS_SEAICE_EXECUTABLE = os.environ.get('MPAS_SEAICE_EXECUTABLE')
     MPAS_SEAICE_TESTCASES_RUN_COMMAND = os.environ.get('MPAS_SEAICE_TESTCASES_RUN_COMMAND')
     if (MPAS_SEAICE_TESTCASES_RUN_COMMAND is None):
         MPAS_SEAICE_TESTCASES_RUN_COMMAND = ""
@@ -13,6 +14,9 @@ def run_model():
     for islandType in islandTypes:
 
         print("Island type: ", islandType)
+
+        if (not os.path.isdir("output")):
+            os.mkdir("output")
 
         os.system("rm grid.nc")
         os.system("rm ic.nc")
@@ -25,7 +29,7 @@ def run_model():
         os.system("ln -s namelist.seaice.ridging_island namelist.seaice")
         os.system("ln -s streams.seaice.ridging_island streams.seaice")
 
-        os.system("%s ../../../seaice_model" %(MPAS_SEAICE_TESTCASES_RUN_COMMAND))
+        os.system("%s %s" %(MPAS_SEAICE_TESTCASES_RUN_COMMAND, MPAS_SEAICE_EXECUTABLE))
 
         os.system("mv output output_%s" %(islandType))
 

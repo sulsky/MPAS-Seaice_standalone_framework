@@ -308,9 +308,9 @@ def spherical_operators_map():
     # Weak Wachs
     fileWeakWachs = Dataset("./strain/output_weakwachs_40962/output.2000.nc","r")
 
-    strain11weakWachs = fileWeakWachs.variables["strain11varAvg"][0,:]
-    strain22weakWachs = fileWeakWachs.variables["strain22varAvg"][0,:]
-    strain12weakWachs = fileWeakWachs.variables["strain12varAvg"][0,:]
+    strain11weakWachs = fileWeakWachs.variables["strain11varAvgVertex"][0,:]
+    strain22weakWachs = fileWeakWachs.variables["strain22varAvgVertex"][0,:]
+    strain12weakWachs = fileWeakWachs.variables["strain12varAvgVertex"][0,:]
 
     strain11weakWachsDiff = strain11weakWachs - strain11VertexAnalytical
     strain22weakWachsDiff = strain22weakWachs - strain22VertexAnalytical
@@ -506,13 +506,13 @@ def spherical_operators_map():
 
     # Weak
     plot_subfigure(axes[4,0], fig, nCells, nEdgesOnCell, verticesOnCell, xVertex, yVertex, zVertex, latCell, strain11weakWeakDiff[:]*1e2, minStrainWeakDiff*1e2, maxStrainWeakDiff*1e2, -1.0, 1.0, -1.0, 1.0, \
-                   False, False, r'(p) $\dot{\epsilon}_{11}$ Weak ($\times 10^{-2}$)', None, False)
+                   False, False, r'(p) $\dot{\epsilon}_{11}$ FV ($\times 10^{-2}$)', None, False)
     plot_subfigure(axes[4,1], fig, nCells, nEdgesOnCell, verticesOnCell, xVertex, yVertex, zVertex, latCell, strain11weakWeakDiff[:]*1e2, minStrainWeakDiff*1e2, maxStrainWeakDiff*1e2, xDetailMin, xDetailMax, yDetailMin, yDetailMax, \
-                   False, False, r'(q) $\dot{\epsilon}_{11}$ Weak ($\times 10^{-2}$)', None, True)
+                   False, False, r'(q) $\dot{\epsilon}_{11}$ FV ($\times 10^{-2}$)', None, True)
     plot_subfigure(axes[4,2], fig, nVertices, vertexDegreeArr, cellsOnVertex, xCell, yCell, zCell, latVertex, stressDivergenceUWeakDiff, minStressDivDiff, maxStressDivDiff, -1.0, 1.0, -1.0, 1.0, \
-                   False, False, r'(r) $(\nabla \cdot \sigma)_{u^\prime}$ Weak', None, False)
+                   False, False, r'(r) $(\nabla \cdot \sigma)_{u^\prime}$ FV', None, False)
     plot_subfigure(axes[4,3], fig, nVertices, vertexDegreeArr, cellsOnVertex, xCell, yCell, zCell, latVertex, stressDivergenceUWeakDiff, minStressDivDiff, maxStressDivDiff, xDetailMin, xDetailMax, yDetailMin, yDetailMax, \
-                   False, False, r'(s) $(\nabla \cdot \sigma)_{u^\prime}$ Weak', None, True, cbticks=[-0.8,-0.4,0.0,0.4,0.8], cbticklabels=["-0.8","-0.4","0.0","0.4","0.8"])
+                   False, False, r'(s) $(\nabla \cdot \sigma)_{u^\prime}$ FV', None, True, cbticks=[-0.8,-0.4,0.0,0.4,0.8], cbticklabels=["-0.8","-0.4","0.0","0.4","0.8"])
 
 
 
