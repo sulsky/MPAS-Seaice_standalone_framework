@@ -44,9 +44,9 @@ def get_norm_vertex(filenameIC, filename, latitudeLimit):
 
     areaTriangle = fileMPAS.variables["areaTriangle"][:]
 
-    strain11varAvg = fileMPAS.variables["strain11varAvg"][0,:]
-    strain22varAvg = fileMPAS.variables["strain22varAvg"][0,:]
-    strain12varAvg = fileMPAS.variables["strain12varAvg"][0,:]
+    strain11varAvg = fileMPAS.variables["strain11varAvgVertex"][0,:]
+    strain22varAvg = fileMPAS.variables["strain22varAvgVertex"][0,:]
+    strain12varAvg = fileMPAS.variables["strain12varAvgVertex"][0,:]
 
     normE11 = L2_norm_vertex(strain11varAvg, strain11VertexAnalytical, nVertices, latVertex, areaTriangle, latitudeLimit)
     normE22 = L2_norm_vertex(strain22varAvg, strain22VertexAnalytical, nVertices, latVertex, areaTriangle, latitudeLimit)

@@ -158,9 +158,9 @@ def get_norm_var_avg(filenameIC, filename):
 
     areaTriangle = fileMPAS.variables["areaTriangle"][:]
 
-    strain11varAvg = fileMPAS.variables["strain11varAvg"][0,:]
-    strain22varAvg = fileMPAS.variables["strain22varAvg"][0,:]
-    strain12varAvg = fileMPAS.variables["strain12varAvg"][0,:]
+    strain11varAvg = fileMPAS.variables["strain11varAvgVertex"][0,:]
+    strain22varAvg = fileMPAS.variables["strain22varAvgVertex"][0,:]
+    strain12varAvg = fileMPAS.variables["strain12varAvgVertex"][0,:]
 
     useVertex = get_use_vertex(filename)
 

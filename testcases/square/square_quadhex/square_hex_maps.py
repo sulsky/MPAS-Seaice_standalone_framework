@@ -383,7 +383,7 @@ im1 = plot_subfigure_patch(axes[1,1], nVertices, vertexDegree, interiorVertex, c
 plot_subfigure_patch(axes[0,2], nVertices, vertexDegree, interiorVertex, cellsOnVertex, xCell, yCell, uDiffWeak   , \
                      True, \
                      True, \
-                     r'$\Delta u/u_{max}$ Weak', \
+                     r'$\Delta u/u_{max}$ FV', \
                      "(c)", \
                      uDiffMin, uDiffMax, \
                      limitPatches=True, \
@@ -393,7 +393,7 @@ plot_subfigure_patch(axes[0,2], nVertices, vertexDegree, interiorVertex, cellsOn
 plot_subfigure_patch(axes[1,2], nVertices, vertexDegree, interiorVertex, cellsOnVertex, xCell, yCell, divDiffWeak , \
                      True, \
                      True, \
-                     r'$\Delta (\nabla \cdot \sigma)_{u}$ Weak', \
+                     r'$\Delta (\nabla \cdot \sigma)_{u}$ FV', \
                      "(f)", \
                      divDiffMin, divDiffMax, \
                      limitPatches=True, \

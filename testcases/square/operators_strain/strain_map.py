@@ -160,9 +160,9 @@ def strain_map():
 
     interiorCell = fileWach.variables["interiorCell"][0,:]
 
-    strain11varAvgWachs = fileWach.variables["strain11varAvg"][0,:]
-    strain22varAvgWachs = fileWach.variables["strain22varAvg"][0,:]
-    strain12varAvgWachs = fileWach.variables["strain12varAvg"][0,:]
+    strain11varAvgWachs = fileWach.variables["strain11varAvgVertex"][0,:]
+    strain22varAvgWachs = fileWach.variables["strain22varAvgVertex"][0,:]
+    strain12varAvgWachs = fileWach.variables["strain12varAvgVertex"][0,:]
 
     strain11varAvgWachsDiff = (strain11varAvgWachs - strain11VertexAnalytical)
     strain22varAvgWachsDiff = (strain22varAvgWachs - strain22VertexAnalytical)
@@ -191,9 +191,9 @@ def strain_map():
     # PWL
     filePWL = Dataset("./output_hex_pwl_0082x0094/output.2000.nc","r")
 
-    strain11varAvgPWL = filePWL.variables["strain11varAvg"][0,:]
-    strain22varAvgPWL = filePWL.variables["strain22varAvg"][0,:]
-    strain12varAvgPWL = filePWL.variables["strain12varAvg"][0,:]
+    strain11varAvgPWL = filePWL.variables["strain11varAvgVertex"][0,:]
+    strain22varAvgPWL = filePWL.variables["strain22varAvgVertex"][0,:]
+    strain12varAvgPWL = filePWL.variables["strain12varAvgVertex"][0,:]
 
     strain11varAvgPWLDiff = (strain11varAvgPWL - strain11VertexAnalytical)
     strain22varAvgPWLDiff = (strain22varAvgPWL - strain22VertexAnalytical)

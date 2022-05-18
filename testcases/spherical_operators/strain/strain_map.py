@@ -150,9 +150,9 @@ def strain_map():
     # Wachspress
     fileWach = Dataset("./output_wachspress_40962/output.2000.nc","r")
 
-    strain11varWachspress = fileWach.variables["strain11varAvg"][0,:]
-    strain22varWachspress = fileWach.variables["strain22varAvg"][0,:]
-    strain12varWachspress = fileWach.variables["strain12varAvg"][0,:]
+    strain11varWachspress = fileWach.variables["strain11varAvgVertex"][0,:]
+    strain22varWachspress = fileWach.variables["strain22varAvgVertex"][0,:]
+    strain12varWachspress = fileWach.variables["strain12varAvgVertex"][0,:]
 
     strain11varWachspressDiff = strain11varWachspress - strain11VertexAnalytical
     strain22varWachspressDiff = strain22varWachspress - strain22VertexAnalytical
@@ -168,9 +168,9 @@ def strain_map():
     # PWL
     filePWL = Dataset("./output_pwl_40962/output.2000.nc","r")
 
-    strain11varPWL = filePWL.variables["strain11varAvg"][0,:]
-    strain22varPWL = filePWL.variables["strain22varAvg"][0,:]
-    strain12varPWL = filePWL.variables["strain12varAvg"][0,:]
+    strain11varPWL = filePWL.variables["strain11varAvgVertex"][0,:]
+    strain22varPWL = filePWL.variables["strain22varAvgVertex"][0,:]
+    strain12varPWL = filePWL.variables["strain12varAvgVertex"][0,:]
 
     strain11varPWLDiff = strain11varPWL - strain11VertexAnalytical
     strain22varPWLDiff = strain22varPWL - strain22VertexAnalytical
@@ -204,9 +204,9 @@ def strain_map():
     # Weak Wachs
     fileWeakWachs = Dataset("./output_weakwachs_40962/output.2000.nc","r")
 
-    strain11weakWachs = fileWeakWachs.variables["strain11varAvg"][0,:]
-    strain22weakWachs = fileWeakWachs.variables["strain22varAvg"][0,:]
-    strain12weakWachs = fileWeakWachs.variables["strain12varAvg"][0,:]
+    strain11weakWachs = fileWeakWachs.variables["strain11varAvgVertex"][0,:]
+    strain22weakWachs = fileWeakWachs.variables["strain22varAvgVertex"][0,:]
+    strain12weakWachs = fileWeakWachs.variables["strain12varAvgVertex"][0,:]
 
     strain11weakWachsDiff = strain11weakWachs - strain11VertexAnalytical
     strain22weakWachsDiff = strain22weakWachs - strain22VertexAnalytical
