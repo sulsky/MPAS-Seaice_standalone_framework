@@ -49,9 +49,6 @@ def run_model():
 
                 print("    Grid: ", grid)
 
-                if (not os.path.isdir("output")):
-                    os.mkdir("output")
-
                 os.system("rm grid.nc")
                 os.system("rm ic.nc")
                 os.system("ln -s grid_%s_%s.nc grid.nc" %(gridType,grid))

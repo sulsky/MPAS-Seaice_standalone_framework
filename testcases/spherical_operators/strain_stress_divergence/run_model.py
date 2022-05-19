@@ -25,9 +25,6 @@ def run_model():
 
             print("  Gridsize: ", gridSize)
 
-            if (not os.path.isdir("output")):
-                os.mkdir("output")
-
             os.system("rm grid.nc ic.nc")
             os.system("ln -s grid.%i.nc grid.nc" %(gridSize))
             os.system("ln -s ic_%i.nc ic.nc" %(gridSize))
