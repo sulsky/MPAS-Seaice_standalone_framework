@@ -18,6 +18,8 @@ parser = argparse.ArgumentParser(description='Test MPAS-Seaice')
 
 parser.add_argument("-d", "--dev",           required=True,  dest="mpasDevelopmentDir",                 help="MPAS development directory to test")
 parser.add_argument("-b", "--base",          required=False, dest="mpasBaseDir",                        help="MPAS base directory to compare against")
+parser.add_argument("--sd", "--SADev",       required=True,  dest="SAFrameDirDev",                      help="")
+parser.add_argument("--sb", "--SABase",      required=False, dest="SAFrameDirBase",                     help="")
 parser.add_argument("-t", "--testsuite",     required=False, dest="testSuite",                          help="Input test suite xml file")
 parser.add_argument("-o", "--domainsdir",    required=False, dest="domainsDir",                         help="Domains directory")
 parser.add_argument("-a", "--avail",         required=False, dest="avail",         action='store_true', help="Print available tests to stdout")
@@ -58,6 +60,9 @@ if (args.mpasBaseDir != None):
         sys.exit()
 
     mpasBaseDir = os.path.abspath(args.mpasBaseDir)
+
+SAFrameDirDev  = os.path.abspath(args.SAFrameDirDev)
+SAFrameDirBase = os.path.abspath(args.SAFrameDirBase)
 
 # test suite
 if (args.testSuite == None):
@@ -130,9 +135,29 @@ for configuration in testsuite:
 
                     test_function = getattr(module, testAvail["name"])
                     if (testAvail["needsBase"]):
-                        failed = test_function(mpasDevelopmentDir, mpasBaseDir, domainsDir, domain.get('name'), configuration.get('name'), options, args.check, args.oversubscribe, args.np1, args.np2)
+                        failed = test_function(mpasDevelopmentDir,
+                                               mpasBaseDir,
+                                               SAFrameDirDev,
+                                               SAFrameDirBase,
+                                               domainsDir,
+                                               domain.get('name'),
+                                               configuration.get('name'),
+                                               options,
+                                               args.check,
+                                               args.oversubscribe,
+                                               args.np1,
+                                               args.np2)
                     else:
-                        failed = test_function(mpasDevelopmentDir,              domainsDir, domain.get('name'), configuration.get('name'), options, args.check, args.oversubscribe, args.np1, args.np2)
+                        failed = test_function(mpasDevelopmentDir,
+                                               SAFrameDirDev,
+                                               domainsDir,
+                                               domain.get('name'),
+                                               configuration.get('name'),
+                                               options,
+                                               args.check,
+                                               args.oversubscribe,
+                                               args.np1,
+                                               args.np2)
 
                     nTests = nTests + 1
                     nFails = nFails + failed

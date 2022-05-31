@@ -5,7 +5,16 @@ from testing_utils import *
 
 #-------------------------------------------------------------------------
 
-def parallelism(mpasDevelopmentDir, domainsDir, domain, configuration, options, check, oversubscribe, np1, np2):
+def parallelism(mpasDevelopmentDir,
+                SAFrameDirDev,
+                domainsDir,
+                domain,
+                configuration,
+                options,
+                check,
+                oversubscribe,
+                np1,
+                np2):
 
     # find available directory name
     iTest = 1
@@ -42,7 +51,17 @@ def parallelism(mpasDevelopmentDir, domainsDir, domain, configuration, options, 
     streamChanges = [{"streamName":"restart", "attributeName":"output_interval", "newValue":"24:00:00"}, \
                      {"streamName":"output" , "attributeName":"output_interval", "newValue":"none"}]
 
-    if (run_model("development1", mpasDevelopmentDir, domainsDir, domain, configuration, nmlChanges, streamChanges, nProcs, logfile, oversubscribe) != 0):
+    if (run_model("development1",
+                  mpasDevelopmentDir,
+                  SAFrameDirDev,
+                  domainsDir,
+                  domain,
+                  configuration,
+                  nmlChanges,
+                  streamChanges,
+                  nProcs,
+                  logfile,
+                  oversubscribe) != 0):
         run_failed("parallelism")
         os.chdir("..")
         return 1
@@ -65,7 +84,17 @@ def parallelism(mpasDevelopmentDir, domainsDir, domain, configuration, options, 
     streamChanges = [{"streamName":"restart", "attributeName":"output_interval", "newValue":"24:00:00"}, \
                      {"streamName":"output" , "attributeName":"output_interval", "newValue":"none"}]
 
-    if (run_model("development2", mpasDevelopmentDir, domainsDir, domain, configuration, nmlChanges, streamChanges, nProcs, logfile, oversubscribe) != 0):
+    if (run_model("development2",
+                  mpasDevelopmentDir,
+                  SAFrameDirDev,
+                  domainsDir,
+                  domain,
+                  configuration,
+                  nmlChanges,
+                  streamChanges,
+                  nProcs,
+                  logfile,
+                  oversubscribe) != 0):
         run_failed("parallelism")
         os.chdir("..")
         return 1
