@@ -193,7 +193,7 @@ def create_test_directory(directory):
 
 #-------------------------------------------------------------------------
 
-def run_model(runName, mpasDir, domainsDir, domain, configuration, nmlChanges, streamChanges, nProcs, logfile, oversubscribe):
+def run_model(runName, mpasDir, SAFrameDir, domainsDir, domain, configuration, nmlChanges, streamChanges, nProcs, logfile, oversubscribe):
 
     # create development directory
     os.mkdir(runName)
@@ -206,10 +206,10 @@ def run_model(runName, mpasDir, domainsDir, domain, configuration, nmlChanges, s
     get_domain(domainsDir, domain)
 
     # create namelist file
-    create_new_namelist(mpasDir+"/testing_and_setup/configurations/"+configuration+"/namelist.seaice", "namelist.seaice", nmlChanges)
+    create_new_namelist(SAFrameDir+"/configurations/"+configuration+"/namelist.seaice", "namelist.seaice", nmlChanges)
 
     # create streams file
-    create_new_streams(mpasDir+"/testing_and_setup/configurations/"+configuration+"/streams.seaice", "streams.seaice", streamChanges)
+    create_new_streams(SAFrameDir+"/configurations/"+configuration+"/streams.seaice", "streams.seaice", streamChanges)
 
     # run the model
     returnCode = execute_model(nProcs, logfile, oversubscribe)

@@ -4,7 +4,18 @@ from testing_utils import *
 
 #-------------------------------------------------------------------------
 
-def regression(mpasDevelopmentDir, mpasBaseDir, domainsDir, domain, configuration, options, check, oversubscribe, np1, np2):
+def regression(mpasDevelopmentDir,
+               mpasBaseDir,
+               SAFrameDirDev,
+               SAFrameDirBase,
+               domainsDir,
+               domain,
+               configuration,
+               options,
+               check,
+               oversubscribe,
+               np1,
+               np2):
 
     # find available directory name
     iTest = 1
@@ -34,7 +45,17 @@ def regression(mpasDevelopmentDir, mpasBaseDir, domainsDir, domain, configuratio
     streamChanges = [{"streamName":"restart", "attributeName":"output_interval", "newValue":"24:00:00"}, \
                      {"streamName":"output" , "attributeName":"output_interval", "newValue":"none"}]
 
-    if (run_model("development", mpasDevelopmentDir, domainsDir, domain, configuration, nmlChanges, streamChanges, nProcs, logfile, oversubscribe) != 0):
+    if (run_model("development",
+                  mpasDevelopmentDir,
+                  SAFrameDirDev,
+                  domainsDir,
+                  domain,
+                  configuration,
+                  nmlChanges,
+                  streamChanges,
+                  nProcs,
+                  logfile,
+                  oversubscribe) != 0):
         run_failed("regression")
         os.chdir("..")
         return 1
@@ -49,7 +70,17 @@ def regression(mpasDevelopmentDir, mpasBaseDir, domainsDir, domain, configuratio
     streamChanges = [{"streamName":"restart", "attributeName":"output_interval", "newValue":"24:00:00"}, \
                      {"streamName":"output" , "attributeName":"output_interval", "newValue":"none"}]
 
-    if (run_model("base", mpasBaseDir, domainsDir, domain, configuration, nmlChanges, streamChanges, nProcs, logfile, oversubscribe) != 0):
+    if (run_model("base",
+                  mpasBaseDir,
+                  SAFrameDirBase,
+                  domainsDir,
+                  domain,
+                  configuration,
+                  nmlChanges,
+                  streamChanges,
+                  nProcs,
+                  logfile,
+                  oversubscribe) != 0):
         run_failed("regression")
         os.chdir("..")
         return 1
