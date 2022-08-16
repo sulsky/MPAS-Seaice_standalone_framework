@@ -1,6 +1,7 @@
 from netCDF4 import Dataset
 import numpy as np
 from math import sin, cos, pi, radians
+import argparse
 
 #-------------------------------------------------------------
 
@@ -215,7 +216,7 @@ def create_ic(gridfile, icfile):
 
 #-------------------------------------------------------------
 
-def create_ics():
+def create_ics(testName):
 
     gridTypes = ["hex","quad"]
 
@@ -231,8 +232,8 @@ def create_ics():
     for gridType in gridTypes:
         for grid in grids[gridType]:
 
-            gridfile = "grid_%s_%s.nc" %(gridType,grid)
-            icfile = "ic_%s_%s.nc" %(gridType,grid)
+            gridfile = "grid_%s_%s_%s.nc" %(testName,gridType,grid)
+            icfile = "ic_%s_%s_%s.nc" %(testName,gridType,grid)
 
             create_ic(gridfile, icfile)
 
@@ -240,4 +241,10 @@ def create_ics():
 
 if __name__ == "__main__":
 
-    create_ics()
+    parser = argparse.ArgumentParser(description='')
+
+    parser.add_argument('-t', dest='testName', help='')
+
+    args = parser.parse_args()
+
+    create_ics(args.testName)

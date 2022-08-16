@@ -1947,8 +1947,8 @@ def stress_divergence_scaling(axes, normType, label, xlabel, xMin, xMax, yMin):
 
         for resolution in resolutions:
 
-            filename = "./stress_divergence/output_%s_%i/output.2000.nc" %(method,resolution)
-            filenameIC = "./stress_divergence/ic_%i.nc" %(resolution)
+            filename = "./stress_divergence/output_regular_%s_%i/output.2000.nc" %(method,resolution)
+            filenameIC = "./stress_divergence/ic_regular.%i.nc" %(resolution)
 
             print(filename, filenameIC)
 

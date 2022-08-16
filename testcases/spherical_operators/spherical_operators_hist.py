@@ -186,7 +186,7 @@ def strain_hist(axis):
 def stress_divergence_hist(axis):
 
     # grid
-    fileGrid = Dataset("./stress_divergence/grid.40962.nc","r")
+    fileGrid = Dataset("./stress_divergence/grid.regular.40962.nc","r")
 
     nVertices = len(fileGrid.dimensions["nVertices"])
 
@@ -196,7 +196,7 @@ def stress_divergence_hist(axis):
 
 
     # ic
-    fileIC = Dataset("./stress_divergence/ic_40962.nc","r")
+    fileIC = Dataset("./stress_divergence/ic_regular.40962.nc","r")
 
     uVelocity = fileIC.variables["uVelocity"][:]
     vVelocity = fileIC.variables["vVelocity"][:]
@@ -211,7 +211,7 @@ def stress_divergence_hist(axis):
     fileIC.close()
 
     # Wachspress
-    fileWach = Dataset("./stress_divergence/output_wachspress_40962/output.2000.nc","r")
+    fileWach = Dataset("./stress_divergence/output_regular_wachspress_40962/output.2000.nc","r")
 
     stressDivergenceUWach = fileWach.variables["stressDivergenceU"][0,:]
     stressDivergenceVWach = fileWach.variables["stressDivergenceV"][0,:]
@@ -226,7 +226,7 @@ def stress_divergence_hist(axis):
     fileWach.close()
 
     # PWL
-    filePWL = Dataset("./stress_divergence/output_pwl_40962/output.2000.nc","r")
+    filePWL = Dataset("./stress_divergence/output_regular_pwl_40962/output.2000.nc","r")
 
     stressDivergenceUPWL = filePWL.variables["stressDivergenceU"][0,:]
     stressDivergenceVPWL = filePWL.variables["stressDivergenceV"][0,:]
@@ -241,7 +241,7 @@ def stress_divergence_hist(axis):
     filePWL.close()
 
     # Wachspress alt
-    fileWachAlt = Dataset("./stress_divergence/output_wachspress_alt_40962/output.2000.nc","r")
+    fileWachAlt = Dataset("./stress_divergence/output_regular_wachspress_alt_40962/output.2000.nc","r")
 
     stressDivergenceUWachAlt = fileWachAlt.variables["stressDivergenceU"][0,:]
     stressDivergenceVWachAlt = fileWachAlt.variables["stressDivergenceV"][0,:]
@@ -256,7 +256,7 @@ def stress_divergence_hist(axis):
     fileWachAlt.close()
 
     # PWL alt
-    filePWLAlt = Dataset("./stress_divergence/output_pwl_alt_40962/output.2000.nc","r")
+    filePWLAlt = Dataset("./stress_divergence/output_regular_pwl_alt_40962/output.2000.nc","r")
 
     stressDivergenceUPWLAlt = filePWLAlt.variables["stressDivergenceU"][0,:]
     stressDivergenceVPWLAlt = filePWLAlt.variables["stressDivergenceV"][0,:]
@@ -271,7 +271,7 @@ def stress_divergence_hist(axis):
     filePWLAlt.close()
 
     # Weak
-    fileWeak = Dataset("./stress_divergence/output_weak_40962/output.2000.nc","r")
+    fileWeak = Dataset("./stress_divergence/output_regular_weak_40962/output.2000.nc","r")
 
     stressDivergenceUWeak = fileWeak.variables["stressDivergenceU"][0,:]
     stressDivergenceVWeak = fileWeak.variables["stressDivergenceV"][0,:]

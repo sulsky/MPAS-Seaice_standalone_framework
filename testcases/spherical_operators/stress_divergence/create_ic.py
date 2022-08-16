@@ -635,7 +635,7 @@ def latlon_from_xyz(x, y, z, r):
 
 #-------------------------------------------------------------------------------
 
-def create_ic():
+def create_ic(testName):
 
     mu = 3
     lu = 5
@@ -653,7 +653,7 @@ def create_ic():
         print("  Gridsize: ", gridSize)
 
         # input
-        filenameIn = "grid.%i.nc" %(gridSize)
+        filenameIn = "grid.%s.%i.nc" %(testName,gridSize)
 
         fileIn = Dataset(filenameIn,"r")
 
@@ -742,7 +742,7 @@ def create_ic():
                 strain12CellVarAnalytical[iCell,iVertexOnCell] = strain12VertexAnalytical[iVertex]
 
         # output
-        filenameOut = "ic_%i.nc" %(gridSize)
+        filenameOut = "ic_%s.%i.nc" %(testName,gridSize)
 
         fileOut = Dataset(filenameOut, "w", format="NETCDF3_CLASSIC")
 
@@ -789,4 +789,10 @@ def create_ic():
 
 if __name__ == "__main__":
 
-    create_ic()
+    parser = argparse.ArgumentParser(description='')
+
+    parser.add_argument('-t', dest='testName', help='')
+
+    args = parser.parse_args()
+
+    create_ic(args.testName)

@@ -1,4 +1,5 @@
 import os
+import argparse
 try:
     import f90nml
 except ImportError:
@@ -7,15 +8,17 @@ except ImportError:
 
 #-------------------------------------------------------------------------------
 
-def run_model():
+def run_model(testName, ignoreWeak=False):
 
     MPAS_SEAICE_EXECUTABLE = os.environ.get('MPAS_SEAICE_EXECUTABLE')
     MPAS_SEAICE_TESTCASES_RUN_COMMAND = os.environ.get('MPAS_SEAICE_TESTCASES_RUN_COMMAND')
     if (MPAS_SEAICE_TESTCASES_RUN_COMMAND is None):
         MPAS_SEAICE_TESTCASES_RUN_COMMAND = ""
 
-    operatorMethods = ["wachspress","pwl","weak"]
-    #operatorMethods = ["wachspress","pwl"]
+    if (not ignoreWeak):
+        operatorMethods = ["wachspress","pwl","weak"]
+    else:
+        operatorMethods = ["wachspress","pwl"]
 
     gridTypes = ["hex","quad"]
     #gridTypes = ["hex"]
@@ -45,19 +48,20 @@ def run_model():
 
                 os.system("rm grid.nc")
                 os.system("rm ic.nc")
-                os.system("ln -s grid_%s_%s.nc grid.nc" %(gridType,grid))
-                os.system("ln -s ic_%s_%s.nc ic.nc" %(gridType,grid))
+
+                os.system("ln -s grid_%s_%s_%s.nc grid.nc" %(testName,gridType,grid))
+                os.system("ln -s ic_%s_%s_%s.nc ic.nc" %(testName,gridType,grid))
 
                 if (operatorMethod == "wachspress"):
                     nmlPatch = {"velocity_solver": {"config_strain_scheme":"variational",
                                                     "config_stress_divergence_scheme":"variational",
                                                     "config_variational_basis":"wachspress",
-                                                    "config_variational_denominator_type":"original"}}
+                                                    "config_variational_denominator_type":"alternate"}}
                 elif (operatorMethod == "pwl"):
                     nmlPatch = {"velocity_solver": {"config_strain_scheme":"variational",
                                                     "config_stress_divergence_scheme":"variational",
                                                     "config_variational_basis":"pwl",
-                                                    "config_variational_denominator_type":"original"}}
+                                                    "config_variational_denominator_type":"alternate"}}
                 elif (operatorMethod == "weak"):
                     nmlPatch = {"velocity_solver": {"config_strain_scheme":"weak",
                                                     "config_stress_divergence_scheme":"weak"}}
@@ -70,10 +74,19 @@ def run_model():
 
                 os.system("%s %s" %(MPAS_SEAICE_TESTCASES_RUN_COMMAND, MPAS_SEAICE_EXECUTABLE))
 
-                os.system("mv output output_%s_%s_%s" %(gridType, operatorMethod, grid))
+                outputDir = "output_%s_%s_%s_%s" %(testName, gridType, operatorMethod, grid)
+                os.system("mv output %s" %(outputDir))
+                os.system("cp log.seaice.0000.out %s" %(outputDir))
 
 #-------------------------------------------------------------------------------
 
 if __name__ == "__main__":
 
-    run_model()
+    parser = argparse.ArgumentParser(description='')
+
+    parser.add_argument('-t', dest='testName', help='')
+    parser.add_argument('-w', dest='ignoreWeak', action='store_true', help='')
+
+    args = parser.parse_args()
+
+    run_model(args.testName, args.ignoreWeak)
