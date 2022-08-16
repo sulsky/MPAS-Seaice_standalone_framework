@@ -1,4 +1,5 @@
 import subprocess
+from os.path import exists
 
 #-------------------------------------------------------------------------------
 
@@ -13,12 +14,16 @@ def get_testcase_data():
 
     for filename in filenames:
 
-        args = ["wget", dirName+filename]
+        totalFilename = dirName+filename
 
-        process = subprocess.Popen(args, stdout=subprocess.PIPE)
+        if (not exists(filename)):
 
-        while process.poll() is None:
-            line = process.stdout.readline()
+            args = ["wget", totalFilename]
+
+            process = subprocess.Popen(args, stdout=subprocess.PIPE)
+
+            while process.poll() is None:
+                line = process.stdout.readline()
 
 #-------------------------------------------------------------------------------
 

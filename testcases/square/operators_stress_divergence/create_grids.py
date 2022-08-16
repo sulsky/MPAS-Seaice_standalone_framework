@@ -3,17 +3,19 @@ import math
 import os
 import matplotlib.pyplot as plt
 import numpy as np
+from shapely.geometry import Polygon
+import argparse
 
 #-------------------------------------------------------------------------------
 
-def create_grid_hex(nx, ny, dc):
+def create_grid_hex(testName, meshType, meshScale, nx, ny, dc):
 
     mpas_tools_dir = os.environ['MPAS_TOOLS_DIR']
 
     Lx = float(nx) * dc
     Ly = float(ny) * dc
 
-    gridname = "grid_hex_%4.4ix%4.4i.nc" %(nx,ny)
+    gridname = "grid_%s_hex_%4.4ix%4.4i.nc" %(testName,nx,ny)
 
     fileout = open("namelist.input","w")
 
@@ -57,21 +59,55 @@ def create_grid_hex(nx, ny, dc):
 
     filein.dc = dc
 
+    nCells = len(filein.dimensions["nCells"])
+    nVertices = len(filein.dimensions["nVertices"])
+
+    varxCell = filein.variables["xCell"]
+    varyCell = filein.variables["yCell"]
+
+    xCell = varxCell[:]
+    yCell = varyCell[:]
+
+    varxVertex = filein.variables["xVertex"]
+    varyVertex = filein.variables["yVertex"]
+
+    xVertex = varxVertex[:]
+    yVertex = varyVertex[:]
+
+    if (meshType == "random"):
+
+        for iCell in range(0,nCells):
+            dx = np.random.uniform(-dc*meshScale,dc*meshScale)
+            dy = np.random.uniform(-dc*meshScale,dc*meshScale)
+            xCell[iCell] += dx
+            yCell[iCell] += dy
+
+        for iVertex in range(0,nVertices):
+            dx = np.random.uniform(-dc*meshScale,dc*meshScale)
+            dy = np.random.uniform(-dc*meshScale,dc*meshScale)
+            xVertex[iVertex] += dx
+            yVertex[iVertex] += dy
+
+    varxCell[:] = xCell[:]
+    varyCell[:] = yCell[:]
+
+    varxVertex[:] = xVertex[:]
+    varyVertex[:] = yVertex[:]
+
     filein.close()
 
-    cmd = "mv grid_culled.nc %s" %(gridname)
-    os.system(cmd)
+    os.system("%s/mesh_tools/mesh_conversion_tools/MpasMeshConverter.x grid_culled.nc %s" %(mpas_tools_dir,gridname))
 
 #-------------------------------------------------------------------------------
 
-def create_grid_quad(nx, ny, dc):
+def create_grid_quad(testName, meshType, meshScale, nx, ny, dc):
 
     mpas_tools_dir = os.environ['MPAS_TOOLS_DIR']
 
     Lx = float(nx) * dc
     Ly = float(ny) * dc
 
-    gridname = "grid_quad_%4.4ix%4.4i.nc" %(nx,ny)
+    gridname = "grid_%s_quad_%4.4ix%4.4i.nc" %(testName,nx,ny)
 
     vertexDegree = 4
 
@@ -137,6 +173,20 @@ def create_grid_quad(nx, ny, dc):
 
             #print(iVertex+1,cellsOnVertex[iVertex,:]+1)
 
+    if (meshType == "random"):
+
+        for iCell in range(0,nCells):
+            dx = np.random.uniform(-dc*meshScale,dc*meshScale)
+            dy = np.random.uniform(-dc*meshScale,dc*meshScale)
+            xCell[iCell] += dx
+            yCell[iCell] += dy
+
+        for iVertex in range(0,nVertices):
+            dx = np.random.uniform(-dc*meshScale,dc*meshScale)
+            dy = np.random.uniform(-dc*meshScale,dc*meshScale)
+            xVertex[iVertex] += dx
+            yVertex[iVertex] += dy
+
     var = fileGrid.createVariable("xCell","d",dimensions=["nCells"])
     var[:] = xCell[:]
     var = fileGrid.createVariable("yCell","d",dimensions=["nCells"])
@@ -157,16 +207,9 @@ def create_grid_quad(nx, ny, dc):
 
     fileGrid.close()
 
-    os.system("%s/mesh_tools/mesh_conversion_tools/MpasMeshConverter.x grid_in.nc %s" %(mpas_tools_dir, gridname))
+    os.system("%s/mesh_tools/mesh_conversion_tools/MpasMeshConverter.x grid_in.nc %s" %(mpas_tools_dir,gridname))
 
     filein = Dataset(gridname,"a")
-
-    nCells = len(filein.dimensions["nCells"])
-    nEdgesOnCell = filein.variables["nEdgesOnCell"][:]
-    verticesOnCell = filein.variables["verticesOnCell"][:]
-    verticesOnCell[:] = verticesOnCell[:] - 1
-    xVertex = filein.variables["xVertex"][:]
-    yVertex = filein.variables["yVertex"][:]
 
     filein.Lx = Lx
     filein.Ly = Ly
@@ -178,25 +221,17 @@ def create_grid_quad(nx, ny, dc):
 
     filein.close()
 
-    # plot
-    filenameplot = "grid_quad_%4.4ix%4.4i.txt" %(nx,ny)
-    fileplot = open(filenameplot,"w")
-
-    for iCell in range(0,nCells):
-        for iVertexOnCell in range(0,nEdgesOnCell[iCell]):
-            iVertex = verticesOnCell[iCell,iVertexOnCell]
-            fileplot.write("%f %f\n" %(xVertex[iVertex],yVertex[iVertex]))
-        iVertex = verticesOnCell[iCell,0]
-        fileplot.write("%f %f\n" %(xVertex[iVertex],yVertex[iVertex]))
-        fileplot.write("\n")
-
-    fileplot.close()
-
 #-------------------------------------------------------------------------------
 
-def create_grids():
+def create_grids(meshType, meshScale):
+
+    if (meshType == "regular"):
+        testName = "regular"
+    elif (meshType == "random"):
+        testName = "random_%f" %(meshScale)
 
     nGrid = 4
+    #nGrid = 1
 
     # hex
     dc = 0.0125
@@ -215,7 +250,10 @@ def create_grids():
         dc = dc/2
 
     for nx, ny, dc in zip(nxs, nys, dcs):
-        create_grid_hex(nx, ny, dc)
+        print("&"*80)
+        print("& Create Hex mesh: nx: ", nx, ", ny: ", ny, ", dc: ", dc)
+        print("&"*80)
+        create_grid_hex(testName, meshType, meshScale, nx, ny, dc)
 
     # quad
     dc = 0.0125
@@ -234,10 +272,22 @@ def create_grids():
         dc = dc/2
 
     for nx, ny, dc in zip(nxs, nys, dcs):
-        create_grid_quad(nx, ny, dc)
+        print("&"*80)
+        print("& Create Quad mesh: nx: ", nx, ", ny: ", ny, ", dc: ", dc)
+        print("&"*80)
+        create_grid_quad(testName, meshType, meshScale, nx, ny, dc)
+
+    return testName
 
 #-------------------------------------------------------------
 
 if __name__ == "__main__":
 
-    create_grids()
+    parser = argparse.ArgumentParser(description='')
+
+    parser.add_argument('-t', dest='meshType', default="regular", choices=['regular','random'], help='')
+    parser.add_argument('-s', dest='meshScale', type=float, help='')
+
+    args = parser.parse_args()
+
+    create_grids(args.meshType, args.meshScale)

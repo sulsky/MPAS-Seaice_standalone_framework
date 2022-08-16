@@ -5,6 +5,7 @@ import matplotlib.pyplot as plt
 import matplotlib as mpl
 import numpy as np
 from create_ics import velocities_strains_stress_divergences
+import argparse
 
 #--------------------------------------------------------
 
@@ -250,10 +251,13 @@ def L2_norm_integral_triangle(numerical, nVertices, cellsOnVertex, xCell, yCell,
 
     degreesToRadians = math.pi / 180.0
 
-    norm  = 0.0
+    L2_norm = 0.0
+    Linf_norm = 0.0
     denom = 0.0
 
     nIntegrationPoints, u, v, weights = integration_weights_triangle(8)
+
+    errors = []
 
     for iVertex in range(0,nVertices):
 
@@ -282,13 +286,23 @@ def L2_norm_integral_triangle(numerical, nVertices, cellsOnVertex, xCell, yCell,
             else:
                 analytical = divvIntegral
 
-            norm  = norm  + areaTriangle[iVertex] * math.pow(numerical[iVertex] - analytical,2)
+            error = numerical[iVertex] - analytical
+            errors.append(error)
 
-            denom = denom + areaTriangle[iVertex] * math.pow(analytical,2)
+            L2_norm = L2_norm + areaTriangle[iVertex] * math.pow(numerical[iVertex] - analytical,2)
+            denom   = denom   + areaTriangle[iVertex] * math.pow(analytical,2)
 
-    norm = math.sqrt(norm / denom)
+            Linf_norm = max(Linf_norm, math.fabs(numerical[iVertex] - analytical))
 
-    return norm
+        else:
+
+            errors.append(0.0)
+
+    L2_norm = math.sqrt(L2_norm / denom)
+
+    errors = np.array(errors)
+
+    return L2_norm, Linf_norm, errors
 
 #--------------------------------------------------------
 
@@ -309,17 +323,30 @@ def get_norm_integral_triangle(filenameIC, filename, useVertex):
     stressDivergenceU = fileMPAS.variables["stressDivergenceU"][0,:]
     stressDivergenceV = fileMPAS.variables["stressDivergenceV"][0,:]
 
+    fileMPAS.close()
+
     xMin = np.amin(xVertex)
     xMax = np.amax(xVertex)
     yMin = np.amin(yVertex)
     yMax = np.amax(yVertex)
 
-    normU = L2_norm_integral_triangle(stressDivergenceU, nVertices, cellsOnVertex, xCell, yCell, areaTriangle, xMin, yMin, useVertex, "divu")
-    normV = L2_norm_integral_triangle(stressDivergenceV, nVertices, cellsOnVertex, xCell, yCell, areaTriangle, xMin, yMin, useVertex, "divv")
+    L2_normU, Linf_normU, errorsU = L2_norm_integral_triangle(stressDivergenceU, nVertices, cellsOnVertex, xCell, yCell, areaTriangle, xMin, yMin, useVertex, "divu")
+    L2_normV, Linf_normV, errorsV = L2_norm_integral_triangle(stressDivergenceV, nVertices, cellsOnVertex, xCell, yCell, areaTriangle, xMin, yMin, useVertex, "divv")
+
+    fileMPAS = Dataset(filename, "a")
+
+    try:
+        varU = fileMPAS.createVariable("stressDivergenceUError","d",dimensions=["nVertices"])
+        varV = fileMPAS.createVariable("stressDivergenceVError","d",dimensions=["nVertices"])
+    except:
+        varU = fileMPAS.variables["stressDivergenceUError"][:]
+        varV = fileMPAS.variables["stressDivergenceVError"][:]
+    varU[:] = errorsU[:]
+    varV[:] = errorsV[:]
 
     fileMPAS.close()
 
-    return normU, normV
+    return L2_normU, L2_normV, Linf_normU, Linf_normV
 
 #--------------------------------------------------------
 
@@ -327,10 +354,13 @@ def L2_norm_integral_square(numerical, nVertices, cellsOnVertex, xCell, yCell, a
 
     degreesToRadians = math.pi / 180.0
 
-    norm  = 0.0
+    L2_norm  = 0.0
+    Linf_norm = 0.0
     denom = 0.0
 
     nIntegrationPoints, u, v, weights = integration_weights_triangle(8)
+
+    errors = []
 
     for iVertex in range(0,nVertices):
 
@@ -381,13 +411,23 @@ def L2_norm_integral_square(numerical, nVertices, cellsOnVertex, xCell, yCell, a
             else:
                 analytical = divvIntegral
 
-            norm  = norm  + areaTriangle[iVertex] * math.pow(numerical[iVertex] - analytical,2)
+            error = numerical[iVertex] - analytical
+            errors.append(error)
 
-            denom = denom + areaTriangle[iVertex] * math.pow(analytical,2)
+            L2_norm  = L2_norm  + areaTriangle[iVertex] * math.pow(numerical[iVertex] - analytical,2)
+            denom    = denom    + areaTriangle[iVertex] * math.pow(analytical,2)
 
-    norm = math.sqrt(norm / denom)
+            Linf_norm = max(Linf_norm, math.fabs(numerical[iVertex] - analytical))
 
-    return norm
+        else:
+
+            errors.append(0.0)
+
+    L2_norm = math.sqrt(L2_norm / denom)
+
+    errors = np.array(errors)
+
+    return L2_norm, Linf_norm, errors
 
 #--------------------------------------------------------
 
@@ -408,17 +448,30 @@ def get_norm_integral_square(filenameIC, filename, useVertex):
     stressDivergenceU = fileMPAS.variables["stressDivergenceU"][0,:]
     stressDivergenceV = fileMPAS.variables["stressDivergenceV"][0,:]
 
+    fileMPAS.close()
+
     xMin = np.amin(xVertex)
     xMax = np.amax(xVertex)
     yMin = np.amin(yVertex)
     yMax = np.amax(yVertex)
 
-    normU = L2_norm_integral_square(stressDivergenceU, nVertices, cellsOnVertex, xCell, yCell, areaTriangle, xMin, yMin, useVertex, "divu")
-    normV = L2_norm_integral_square(stressDivergenceV, nVertices, cellsOnVertex, xCell, yCell, areaTriangle, xMin, yMin, useVertex, "divv")
+    L2_normU, Linf_normU, errorsU = L2_norm_integral_square(stressDivergenceU, nVertices, cellsOnVertex, xCell, yCell, areaTriangle, xMin, yMin, useVertex, "divu")
+    L2_normV, Linf_normV, errorsV = L2_norm_integral_square(stressDivergenceV, nVertices, cellsOnVertex, xCell, yCell, areaTriangle, xMin, yMin, useVertex, "divv")
+
+    fileMPAS = Dataset(filename, "a")
+
+    try:
+        varU = fileMPAS.createVariable("stressDivergenceUError","d",dimensions=["nVertices"])
+        varV = fileMPAS.createVariable("stressDivergenceVError","d",dimensions=["nVertices"])
+    except:
+        varU = fileMPAS.variables["stressDivergenceUError"][:]
+        varV = fileMPAS.variables["stressDivergenceVError"][:]
+    varU[:] = errorsU[:]
+    varV[:] = errorsV[:]
 
     fileMPAS.close()
 
-    return normU, normV
+    return L2_normU, L2_normV, Linf_normU, Linf_normV
 
 #--------------------------------------------------------
 
@@ -429,23 +482,36 @@ def L2_norm(numerical, analytical, nVertices, areaTriangle, useVertex):
     #norms  = np.multiply(areaTriangle, np.power(numerical - analytical, 2))
     #denoms = np.multiply(areaTriangle, np.power(analytical, 2))
 
-    norm  = 0.0
+    L2_norm = 0.0
+    Linf_norm = 0.0
     denom = 0.0
+
+    errors = []
 
     for iVertex in range(0,nVertices):
 
         if (useVertex[iVertex]):
 
-            norm  = norm  + areaTriangle[iVertex] * math.pow(numerical[iVertex] - analytical[iVertex],2)
+            error = numerical[iVertex] - analytical[iVertex]
+            errors.append(error)
 
-            denom = denom + areaTriangle[iVertex] * math.pow(analytical[iVertex],2)
+            L2_norm = L2_norm  + areaTriangle[iVertex] * math.pow(numerical[iVertex] - analytical[iVertex],2)
+            denom   = denom    + areaTriangle[iVertex] * math.pow(analytical[iVertex],2)
+
+            Linf_norm = max(Linf_norm, math.fabs(numerical[iVertex] - analytical[iVertex]))
+
+        else:
+
+            errors.append(0.0)
 
     #norm = np.sum(norms[useVertex])
     #denom = np.sum(norms[useVertex])
 
-    norm = math.sqrt(norm / denom)
+    L2_norm = math.sqrt(L2_norm / denom)
 
-    return norm
+    errors = np.array(errors)
+
+    return L2_norm, Linf_norm, errors
 
 #--------------------------------------------------------
 
@@ -469,12 +535,25 @@ def get_norm(filenameIC, filename, useVertex):
     stressDivergenceU = fileMPAS.variables["stressDivergenceU"][0,:]
     stressDivergenceV = fileMPAS.variables["stressDivergenceV"][0,:]
 
-    normU = L2_norm(stressDivergenceU, stressDivergenceUAnalytical, nVertices, areaTriangle, useVertex)
-    normV = L2_norm(stressDivergenceV, stressDivergenceVAnalytical, nVertices, areaTriangle, useVertex)
+    fileMPAS.close()
+
+    L2_normU, Linf_normU, errorsU = L2_norm(stressDivergenceU, stressDivergenceUAnalytical, nVertices, areaTriangle, useVertex)
+    L2_normV, Linf_normV, errorsV = L2_norm(stressDivergenceV, stressDivergenceVAnalytical, nVertices, areaTriangle, useVertex)
+
+    fileMPAS = Dataset(filename, "a")
+
+    try:
+        varU = fileMPAS.createVariable("stressDivergenceUError","d",dimensions=["nVertices"])
+        varV = fileMPAS.createVariable("stressDivergenceVError","d",dimensions=["nVertices"])
+    except:
+        varU = fileMPAS.variables["stressDivergenceUError"][:]
+        varV = fileMPAS.variables["stressDivergenceVError"][:]
+    varU[:] = errorsU[:]
+    varV[:] = errorsV[:]
 
     fileMPAS.close()
 
-    return normU, normV
+    return L2_normU, L2_normV, Linf_normU, Linf_normV
 
 #--------------------------------------------------------
 
@@ -554,11 +633,13 @@ def scaling_lines(axis, xMin, xMax, yMin):
 
 #--------------------------------------------------------
 
-def stress_divergence_scaling():
+def stress_divergence_scaling(testName, ignoreWeak=False):
 
     # options
-    operatorMethods = ["wachspress","pwl","weak"]
-    #operatorMethods = ["wachspress","pwl"]
+    if (not ignoreWeak):
+        operatorMethods = ["wachspress","pwl","weak"]
+    else:
+        operatorMethods = ["wachspress","pwl"]
 
     gridTypes = ["hex","quad"]
     #gridTypes = ["hex"]
@@ -574,8 +655,6 @@ def stress_divergence_scaling():
     #grids = {"hex" :["0656x0752"],
     #         "quad":["0640x0640"]}
 
-    stressDivergences = ["U","V"]
-    #stressDivergences = ["U"]
 
     # plot options
     lineColours = {"wachspress":"black",
@@ -593,17 +672,12 @@ def stress_divergence_scaling():
                "pwl":"x",
                "weak":"^"}
 
-    stressDivergenceLabels = {"U":r"(a) $(\nabla \cdot \sigma)_u$",
-                              "V":r"(b) $(\nabla \cdot \sigma)_v$"}
-
-    ylabels = {"U":r"$L_2$ error norm",
-               "V":None}
-
 
     # scaling lines
     xMin = 2e-3
     xMax = 3.5e-3
-    yMin = 1.5e-3
+    yMin = {"L2":1.5e-3,
+            "Linf":5e-1}
 
     # plot
     cm = 1/2.54  # centimeters in inches
@@ -621,77 +695,113 @@ def stress_divergence_scaling():
     plt.rc('figure', titlesize=BIGGER_SIZE)  # fontsize of the figure title
 
 
-    fig, axes = plt.subplots(1, 2, figsize=(15*cm,7*cm))
+    fig, axes = plt.subplots(2, 2, figsize=(15*cm,15*cm))
 
-    j = 0
-    for stressDivergence in stressDivergences:
+    scaling_lines(axes[0,0], xMin, xMax, yMin["L2"])
+    scaling_lines(axes[0,1], xMin, xMax, yMin["L2"])
+    scaling_lines(axes[1,0], xMin, xMax, yMin["Linf"])
+    scaling_lines(axes[1,1], xMin, xMax, yMin["Linf"])
 
-        scaling_lines(axes[j], xMin, xMax, yMin)
 
-        for gridType in gridTypes:
+    for gridType in gridTypes:
 
-            print("Grid type: ", gridType)
+        print("Grid type: ", gridType)
 
-            iPlot = 0
-            for operatorMethod in operatorMethods:
+        for operatorMethod in operatorMethods:
 
-                print("  Operator Method: ", operatorMethod)
+            print("  Operator Method: ", operatorMethod)
 
-                x = []
-                y = []
+            x = []
+            y_L2U = []
+            y_L2V = []
+            y_LinfU = []
+            y_LinfV = []
 
-                for grid in grids[gridType]:
+            for grid in grids[gridType]:
 
-                    print("    Grid: ", grid)
+                print("    Grid: ", grid)
 
-                    filenameIC = "ic_%s_%s.nc" %(gridType,grid)
-                    filename = "output_%s_%s_%s/output.2000.nc" %(gridType, operatorMethod, grid)
+                filenameIC = "ic_%s_%s_%s.nc" %(testName, gridType, grid)
+                filename = "output_%s_%s_%s_%s/output.2000.nc" %(testName, gridType, operatorMethod, grid)
+                print("      ", filename, filenameIC)
 
-                    print("      ", filename, filenameIC)
-
-                    useVertex = get_use_vertex(filename)
-
-                    if (gridType == "hex"):
-                        #normU, normV = get_norm_integral_triangle(filenameIC, filename, useVertex)
-                        normU, normV = get_norm(filenameIC, filename, useVertex)
-                    elif (gridType == "quad"):
-                        #normU, normV = get_norm_integral_square(filenameIC, filename, useVertex)
-                        normU, normV = get_norm(filenameIC, filename, useVertex)
-
-                    x.append(get_resolution(filename, useVertex))
-                    if (stressDivergence == "U"):
-                        y.append(normU)
-                    elif (stressDivergence == "V"):
-                        y.append(normV)
+                useVertex = get_use_vertex(filename)
 
                 if (gridType == "hex"):
-                    legendLabel = legendLabels[operatorMethod]
-                else:
-                    legendLabel = "_nolegend_"
-                #print(x)
-                axes[j].loglog(x, y, color=lineColours[operatorMethod], ls=lineStyles[gridType], marker=markers[operatorMethod], markersize=5.0, label=legendLabel)
+                    #L2_normU, L2_normV, Linf_normU, Linf_normV = get_norm_integral_triangle(filenameIC, filename, useVertex)
+                    L2_normU, L2_normV, Linf_normU, Linf_normV = get_norm(filenameIC, filename, useVertex)
+                elif (gridType == "quad"):
+                    #L2_normU, L2_normV, Linf_normU, Linf_normV = get_norm_integral_square(filenameIC, filename, useVertex)
+                    L2_normU, L2_normV, Linf_normU, Linf_normV = get_norm(filenameIC, filename, useVertex)
 
-                iPlot = iPlot + 1
+                x.append(get_resolution(filename, useVertex))
+                y_L2U.append(L2_normU)
+                y_L2V.append(L2_normV)
+                y_LinfU.append(Linf_normU)
+                y_LinfV.append(Linf_normV)
 
-        axes[j].legend(frameon=False, loc=2, fontsize=8, handlelength=2)
+            if (gridType == "hex"):
+                legendLabel = legendLabels[operatorMethod]
+            else:
+                legendLabel = "_nolegend_"
+            axes[0,0].loglog(x, y_L2U, color=lineColours[operatorMethod], ls=lineStyles[gridType], marker=markers[operatorMethod], markersize=5.0, label=legendLabel)
+            axes[0,1].loglog(x, y_L2V, color=lineColours[operatorMethod], ls=lineStyles[gridType], marker=markers[operatorMethod], markersize=5.0, label=legendLabel)
+            axes[1,0].loglog(x, y_LinfU, color=lineColours[operatorMethod], ls=lineStyles[gridType], marker=markers[operatorMethod], markersize=5.0, label=legendLabel)
+            axes[1,1].loglog(x, y_LinfV, color=lineColours[operatorMethod], ls=lineStyles[gridType], marker=markers[operatorMethod], markersize=5.0, label=legendLabel)
 
-        axes[j].set_ylim((3.8e-5,5e-2))
-        axes[j].set_xlabel("Grid resolution")
-        axes[j].set_ylabel(ylabels[stressDivergence])
-        axes[j].set_title(stressDivergenceLabels[stressDivergence],loc="left")
-        axes[j].set_xticks(ticks=[3e-3,4e-3,5e-3,6e-3,7e-3,8e-3,9e-3],minor=True)
-        axes[j].set_xticklabels(labels=[None,None,None,None,None,None,None],minor=True)
-        axes[j].set_xticks(ticks=[2e-3,1e-2],minor=False)
-        axes[j].set_xticklabels(labels=[r'$2\times 10^{-3}$',r'$10^{-2}$'],minor=False)
 
-        j += 1
+    axes[0,0].legend(frameon=False, loc=2, fontsize=8, handlelength=2)
+    axes[0,0].set_xlabel(None)
+    axes[0,0].set_ylabel(r"$L_2$ error norm")
+    axes[0,0].set_title(r"(a) $(\nabla \cdot \sigma)_u$",loc="left")
+    axes[0,0].set_xticks(ticks=[3e-3,4e-3,5e-3,6e-3,7e-3,8e-3,9e-3],minor=True)
+    axes[0,0].set_xticklabels(labels=[None,None,None,None,None,None,None],minor=True)
+    axes[0,0].set_xticks(ticks=[2e-3,1e-2],minor=False)
+    axes[0,0].set_xticklabels(labels=[r'$2\times 10^{-3}$',r'$10^{-2}$'],minor=False)
+
+    axes[0,1].legend(frameon=False, loc=2, fontsize=8, handlelength=2)
+    axes[0,1].set_xlabel(None)
+    axes[0,1].set_ylabel(None)
+    axes[0,1].set_title(r"(b) $(\nabla \cdot \sigma)_v$",loc="left")
+    axes[0,1].set_xticks(ticks=[3e-3,4e-3,5e-3,6e-3,7e-3,8e-3,9e-3],minor=True)
+    axes[0,1].set_xticklabels(labels=[None,None,None,None,None,None,None],minor=True)
+    axes[0,1].set_xticks(ticks=[2e-3,1e-2],minor=False)
+    axes[0,1].set_xticklabels(labels=[r'$2\times 10^{-3}$',r'$10^{-2}$'],minor=False)
+
+    axes[1,0].legend(frameon=False, loc=2, fontsize=8, handlelength=2)
+    axes[1,0].set_xlabel("Grid resolution")
+    axes[1,0].set_ylabel(r"$L_\infty$ error norm")
+    axes[1,0].set_title(r"(c) $(\nabla \cdot \sigma)_u$",loc="left")
+    axes[1,0].set_xticks(ticks=[3e-3,4e-3,5e-3,6e-3,7e-3,8e-3,9e-3],minor=True)
+    axes[1,0].set_xticklabels(labels=[None,None,None,None,None,None,None],minor=True)
+    axes[1,0].set_xticks(ticks=[2e-3,1e-2],minor=False)
+    axes[1,0].set_xticklabels(labels=[r'$2\times 10^{-3}$',r'$10^{-2}$'],minor=False)
+
+    axes[1,1].legend(frameon=False, loc=2, fontsize=8, handlelength=2)
+    axes[1,1].set_xlabel("Grid resolution")
+    axes[1,1].set_ylabel(None)
+    axes[1,1].set_title(r"(d) $(\nabla \cdot \sigma)_v$",loc="left")
+    axes[1,1].set_xticks(ticks=[3e-3,4e-3,5e-3,6e-3,7e-3,8e-3,9e-3],minor=True)
+    axes[1,1].set_xticklabels(labels=[None,None,None,None,None,None,None],minor=True)
+    axes[1,1].set_xticks(ticks=[2e-3,1e-2],minor=False)
+    axes[1,1].set_xticklabels(labels=[r'$2\times 10^{-3}$',r'$10^{-2}$'],minor=False)
+
 
     plt.tight_layout(pad=0.2, w_pad=0.6, h_pad=0.2)
-    plt.savefig("stress_divergence_scaling.png",dpi=300)
-    plt.savefig("stress_divergence_scaling.eps")
+    filenameOut = "stress_divergence_scaling_%s.png" %(testName)
+    plt.savefig(filenameOut,dpi=300)
+    filenameOut = "stress_divergence_scaling_%s.eps" %(testName)
+    plt.savefig(filenameOut)
 
 #-------------------------------------------------------------------------------
 
 if __name__ == "__main__":
 
-    stress_divergence_scaling()
+    parser = argparse.ArgumentParser(description='')
+
+    parser.add_argument('-t', dest='testName', help='')
+    parser.add_argument('-w', dest='ignoreWeak', action='store_true', help='')
+
+    args = parser.parse_args()
+
+    stress_divergence_scaling(args.testName, args.ignoreWeak)

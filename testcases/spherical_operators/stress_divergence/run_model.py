@@ -1,4 +1,5 @@
 import os
+import argparse
 try:
     import f90nml
 except ImportError:
@@ -7,7 +8,7 @@ except ImportError:
 
 #-------------------------------------------------------------------------------
 
-def run_model():
+def run_model(testName):
 
     MPAS_SEAICE_EXECUTABLE = os.environ.get('MPAS_SEAICE_EXECUTABLE')
     MPAS_SEAICE_TESTCASES_RUN_COMMAND = os.environ.get('MPAS_SEAICE_TESTCASES_RUN_COMMAND')
@@ -27,8 +28,8 @@ def run_model():
             print("  Gridsize: ", gridSize)
 
             os.system("rm grid.nc ic.nc")
-            os.system("ln -s grid.%i.nc grid.nc" %(gridSize))
-            os.system("ln -s ic_%i.nc ic.nc" %(gridSize))
+            os.system("ln -s grid.%s.%i.nc grid.nc" %(testName,gridSize))
+            os.system("ln -s ic_%s.%i.nc ic.nc" %(testName,gridSize))
 
             if (operatorMethod == "wachspress"):
                 nmlPatch = {"velocity_solver": {"config_strain_scheme":"variational",
@@ -63,10 +64,16 @@ def run_model():
 
             os.system("%s %s" %(MPAS_SEAICE_TESTCASES_RUN_COMMAND, MPAS_SEAICE_EXECUTABLE))
 
-            os.system("mv output output_%s_%i" %(operatorMethod, gridSize))
+            os.system("mv output output_%s_%s_%i" %(testName, operatorMethod, gridSize))
 
 #-------------------------------------------------------------------------------
 
 if __name__ == "__main__":
 
-    run_model()
+    parser = argparse.ArgumentParser(description='')
+
+    parser.add_argument('-t', dest='testName', help='')
+
+    args = parser.parse_args()
+
+    run_model(args.testName)

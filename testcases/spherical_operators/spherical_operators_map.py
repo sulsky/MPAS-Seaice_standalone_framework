@@ -329,7 +329,7 @@ def spherical_operators_map():
     print("Stress divergence")
 
     # ic
-    fileIC = Dataset("./stress_divergence/ic_40962.nc","r")
+    fileIC = Dataset("./stress_divergence/ic_regular.40962.nc","r")
 
     uVelocity = fileIC.variables["uVelocity"][:]
     vVelocity = fileIC.variables["vVelocity"][:]
@@ -344,7 +344,7 @@ def spherical_operators_map():
     fileIC.close()
 
     # Wachspress
-    fileWach = Dataset("./stress_divergence/output_wachspress_40962/output.2000.nc","r")
+    fileWach = Dataset("./stress_divergence/output_regular_wachspress_40962/output.2000.nc","r")
 
     stressDivergenceUWach = fileWach.variables["stressDivergenceU"][0,:]
     stressDivergenceVWach = fileWach.variables["stressDivergenceV"][0,:]
@@ -359,7 +359,7 @@ def spherical_operators_map():
     fileWach.close()
 
     # Wachspress alt
-    fileWach = Dataset("./stress_divergence/output_wachspress_alt_40962/output.2000.nc","r")
+    fileWach = Dataset("./stress_divergence/output_regular_wachspress_alt_40962/output.2000.nc","r")
 
     stressDivergenceUWachAlt = fileWach.variables["stressDivergenceU"][0,:]
     stressDivergenceVWachAlt = fileWach.variables["stressDivergenceV"][0,:]
@@ -374,7 +374,7 @@ def spherical_operators_map():
     fileWach.close()
 
     # PWL
-    filePWL = Dataset("./stress_divergence/output_pwl_40962/output.2000.nc","r")
+    filePWL = Dataset("./stress_divergence/output_regular_pwl_40962/output.2000.nc","r")
 
     stressDivergenceUPWL = filePWL.variables["stressDivergenceU"][0,:]
     stressDivergenceVPWL = filePWL.variables["stressDivergenceV"][0,:]
@@ -389,7 +389,7 @@ def spherical_operators_map():
     filePWL.close()
 
     # PWL Alt
-    filePWL = Dataset("./stress_divergence/output_pwl_alt_40962/output.2000.nc","r")
+    filePWL = Dataset("./stress_divergence/output_regular_pwl_alt_40962/output.2000.nc","r")
 
     stressDivergenceUPWLAlt = filePWL.variables["stressDivergenceU"][0,:]
     stressDivergenceVPWLAlt = filePWL.variables["stressDivergenceV"][0,:]
@@ -404,7 +404,7 @@ def spherical_operators_map():
     filePWL.close()
 
     # Weak
-    fileWeak = Dataset("./stress_divergence/output_weak_40962/output.2000.nc","r")
+    fileWeak = Dataset("./stress_divergence/output_regular_weak_40962/output.2000.nc","r")
 
     stressDivergenceUWeak = fileWeak.variables["stressDivergenceU"][0,:]
     stressDivergenceVWeak = fileWeak.variables["stressDivergenceV"][0,:]
@@ -525,7 +525,7 @@ def spherical_operators_map():
                         wspace=0.43,
                         hspace=0.2)
 
-    positionTypeWrite = "read"
+    positionTypeWrite = "write"
 
     if (positionTypeWrite == "read"):
 

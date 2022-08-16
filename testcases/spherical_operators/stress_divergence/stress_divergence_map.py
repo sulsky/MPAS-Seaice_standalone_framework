@@ -95,10 +95,10 @@ def plot_subfigure(axes, fig, nVertices, vertexDegree, cellsOnVertex, xCell, yCe
 
 #---------------------------------------------------------------
 
-def stress_divergence_map():
+def stress_divergence_map(testName):
 
     # grid
-    fileGrid = Dataset("grid.40962.nc","r")
+    fileGrid = Dataset("grid.%s.40962.nc" %(testName),"r")
 
     nCells = len(fileGrid.dimensions["nCells"])
     nVertices = len(fileGrid.dimensions["nVertices"])
@@ -127,7 +127,7 @@ def stress_divergence_map():
     fileGrid.close()
 
     # ic
-    fileIC = Dataset("ic_40962.nc","r")
+    fileIC = Dataset("ic_%s.40962.nc" %(testName),"r")
 
     uVelocity = fileIC.variables["uVelocity"][:]
     vVelocity = fileIC.variables["vVelocity"][:]
@@ -142,7 +142,7 @@ def stress_divergence_map():
     fileIC.close()
 
     # Wachspress
-    fileWach = Dataset("./output_wachspress_40962/output.2000.nc","r")
+    fileWach = Dataset("./output_%s_wachspress_40962/output.2000.nc" %(testName),"r")
 
     stressDivergenceUWach = fileWach.variables["stressDivergenceU"][0,:]
     stressDivergenceVWach = fileWach.variables["stressDivergenceV"][0,:]
@@ -157,7 +157,7 @@ def stress_divergence_map():
     fileWach.close()
 
     # PWL
-    filePWL = Dataset("./output_pwl_40962/output.2000.nc","r")
+    filePWL = Dataset("./output_%s_pwl_40962/output.2000.nc" %(testName),"r")
 
     stressDivergenceUPWL = filePWL.variables["stressDivergenceU"][0,:]
     stressDivergenceVPWL = filePWL.variables["stressDivergenceV"][0,:]
@@ -172,7 +172,7 @@ def stress_divergence_map():
     filePWL.close()
 
     # Weak
-    fileWeak = Dataset("./output_weak_40962/output.2000.nc","r")
+    fileWeak = Dataset("./output_%s_weak_40962/output.2000.nc" %(testName),"r")
 
     stressDivergenceUWeak = fileWeak.variables["stressDivergenceU"][0,:]
     stressDivergenceVWeak = fileWeak.variables["stressDivergenceV"][0,:]
@@ -243,8 +243,7 @@ def stress_divergence_map():
                    False, False, r'Weak ($v^\prime$ direction)', '(p)', True)
 
     #plt.tight_layout(pad=0.5, w_pad=0.5, h_pad=0.5)
-    plt.savefig("stress_divergence_map.png",dpi=400)
-    #plt.savefig("stress_divergence_map_3.png", bbox_inches="tight",dpi=2000)
+    plt.savefig("stress_divergence_map_%s.png" %(testName),dpi=400)
 
     plt.clf()
     plt.cla()
@@ -294,10 +293,16 @@ def stress_divergence_map():
 
     plt.tight_layout(pad=0.5, w_pad=0.5, h_pad=0.5)
 
-    plt.savefig("stress_divergence_hist.png",dpi=400)
+    plt.savefig("stress_divergence_hist_%s.png" %(testName),dpi=400)
 
 #-------------------------------------------------------------------------------
 
 if __name__ == "__main__":
 
-    stress_divergence_map()
+    parser = argparse.ArgumentParser(description='')
+
+    parser.add_argument('-t', dest='testName', help='')
+
+    args = parser.parse_args()
+
+    stress_divergence_map(args.testName)
