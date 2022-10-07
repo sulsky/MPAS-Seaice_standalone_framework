@@ -316,7 +316,7 @@
     config_congelation_ice_porosity = 0.85
 /
 &itd
-    config_itd_conversion_type = 'delta function'
+    config_itd_conversion_type = 'linear remap'
     config_category_bounds_type = 'original'
 /
 &ridging
