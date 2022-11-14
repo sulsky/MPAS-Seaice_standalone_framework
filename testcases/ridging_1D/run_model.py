@@ -5,6 +5,8 @@ import os
 def run_model():
 
     MPAS_SEAICE_EXECUTABLE = os.environ.get('MPAS_SEAICE_EXECUTABLE')
+    if (MPAS_SEAICE_EXECUTABLE is None):
+        raise Exception("MPAS_SEAICE_EXECUTABLE must be set")
 
     if (not os.path.isdir("output")):
         os.mkdir("output")
