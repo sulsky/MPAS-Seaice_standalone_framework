@@ -55,6 +55,7 @@
     config_use_dynamics = true
     config_use_velocity_solver = true
     config_use_advection = false
+    config_use_mpm = false
     config_use_forcing = false
     config_use_column_package = false
     config_use_prescribed_ice = false
