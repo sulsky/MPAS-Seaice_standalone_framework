@@ -5,9 +5,10 @@ import argparse
 
 #--------------------------------------------------------------------
 
-def create_ics(gridFilename):
+def create_ics(nCells):
 
     # grid in
+    gridFilename = "grid.%i.nc" %(nCells)
     gridFile = Dataset(gridFilename, "r")
 
     nCells = len(gridFile.dimensions["nCells"])
@@ -16,7 +17,7 @@ def create_ics(gridFilename):
     gridFile.close()
 
     # ice out
-    icFilename = "ic.nc"
+    icFilename = "ic.%i.nc" %(nCells)
     icFile = Dataset(icFilename, "w", format="NETCDF3_CLASSIC")
 
     icFile.createDimension("nCells", nCells)
@@ -34,7 +35,7 @@ def create_ics(gridFilename):
 if __name__ == "__main__":
 
     parser = argparse.ArgumentParser()
-    parser.add_argument('-m', dest="gridFilename")
+    parser.add_argument('-c', dest="nCells")
     args = parser.parse_args()
 
-    create_ics(args.gridFilename)
+    create_ics(args.nCells)
