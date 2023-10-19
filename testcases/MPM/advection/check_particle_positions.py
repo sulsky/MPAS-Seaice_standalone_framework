@@ -36,9 +36,9 @@ def check_particle_positions():
         for iParticle1 in range(0,nParticles):
             if (statusMP1[iParticle1] == 1):
                 iParticle2 = particleIDToIndex[(cellIDCreationMP1[iParticle1],creationIndexMP1[iParticle1])]
-                distance = math.sqrt(math.pow(posnMP2[iParticle2,0]-posnMP1[iParticle2,0],2) +
-                                     math.pow(posnMP2[iParticle2,1]-posnMP1[iParticle2,1],2) +
-                                     math.pow(posnMP2[iParticle2,2]-posnMP1[iParticle2,2],2))
+                distance = math.sqrt(math.pow(posnMP2[iParticle2,0]-posnMP1[iParticle1,0],2) +
+                                     math.pow(posnMP2[iParticle2,1]-posnMP1[iParticle1,1],2) +
+                                     math.pow(posnMP2[iParticle2,2]-posnMP1[iParticle1,2],2))
                 maxDistance = max(maxDistance,distance)
 
         print("max distance: ", iTime, maxDistance)
