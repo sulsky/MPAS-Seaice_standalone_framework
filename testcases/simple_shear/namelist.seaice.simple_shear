@@ -111,6 +111,7 @@
     config_mpm_particle_init_number = 9
     config_mpm_particle_block_size = 1024
     config_mpm_advection_test = false
+    config_mpm_assembly_test = false
 /
 &column_package
     config_use_column_shortwave = false
