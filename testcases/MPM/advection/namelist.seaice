@@ -97,18 +97,18 @@
     config_use_special_boundaries_velocity_masks = false
 /
 &advection
-    config_advection_type = 'incremental_remap'
+    config_advection_type = 'none'
     config_monotonic = true
     config_conservation_check = false
     config_monotonicity_check = false
     config_recover_tracer_means_check = false
 /
 &mpm
-    config_mpm_nParticles = 8192
+    config_mpm_nParticles = 900
     config_mpm_particle_init_type = 'number'
     config_mpm_particle_posn_init_type = 'even'
     config_mpm_particle_init_number = 9
-    config_mpm_particle_block_size = 1024
+    config_mpm_particle_block_size = 128
     config_mpm_advection_test = true
 /
 &column_package
