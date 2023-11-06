@@ -1,24 +1,39 @@
 import subprocess
+import os
 
 #-------------------------------------------------------------------------------
 
 def get_testcase_data():
 
-    filenames = ["grid.10242.nc",
-                 "grid.163842.nc",
-                 "grid.2562.nc",
-                 "grid.40962.nc"]
+    nCellsArray = [10242, 163842, 2562, 40962]
 
     dirName = "https://web.lcrc.anl.gov/public/e3sm/mpas_standalonedata/mpas-seaice/testcases/strain_stress_divergence/"
 
-    for filename in filenames:
+    for nCells in nCellsArray:
 
-        args = ["wget", dirName+filename]
+        # grid file
+        filename = "grid.%i.nc" %(nCells)
 
-        process = subprocess.Popen(args, stdout=subprocess.PIPE)
+        if (not os.path.isfile(filename)):
 
-        while process.poll() is None:
-            line = process.stdout.readline()
+            args = ["wget", dirName+filename]
+
+            process = subprocess.Popen(args, stdout=subprocess.PIPE)
+
+            while process.poll() is None:
+                line = process.stdout.readline()
+
+        # graph file
+        filename = "graph.%i.info" %(nCells)
+
+        if (not os.path.isfile(filename)):
+
+            args = ["wget", dirName+filename]
+
+            process = subprocess.Popen(args, stdout=subprocess.PIPE)
+
+            while process.poll() is None:
+                line = process.stdout.readline()
 
 #-------------------------------------------------------------------------------
 
