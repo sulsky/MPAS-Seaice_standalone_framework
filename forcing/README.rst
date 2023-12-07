@@ -8,6 +8,19 @@ Overview
 These scripts generate standalone atmospheric and oceanic forcing files for
 MPAS-Seaice.
 
+Python packages
+===============
+
+The forcing system requires the following python packages:
+
+* netcdf4
+
+* scipy
+
+* ncl
+
+* matplotlib
+
 create_atmos_forcing.py
 =======================
 
@@ -32,15 +45,6 @@ where configFilename is a python config file with the following example format:
    endYear = 2007
    dataDirSixHourly = /location/of/CORE-II/data
    dataDirMonthly = /location/of/AOMIP/climatologies
-   scripDir = /location/of/SCRIP/executable
-
-SCRIP
------
-
-This script requires the SCRIP package to be installed.
-SCRIP is a software package which computes addresses and weights for remapping
-and interpolating fields between grids in spherical coordinates. It can be
-obtained from https://github.com/SCRIP-Project/SCRIP
 
 CORE-II data
 ------------
@@ -95,15 +99,6 @@ where configFilename is a python config file with the following example format:
    filenameGx1Grid = /location/of/gx1/grid
    filenameGx1OceanMixed = /location/of/gx1/ocean_mixed_file
    filenameMPASOceanMixed = /location/of/output/ocean_mixed_file
-   scripDir = /location/of/SCRIP/executable
-
-SCRIP
------
-
-This script requires the SCRIP package to be installed.
-SCRIP is a software package which computes addresses and weights for remapping
-and interpolating fields between grids in spherical coordinates. It can be
-obtained from https://github.com/SCRIP-Project/SCRIP
 
 gx1 input data
 --------------

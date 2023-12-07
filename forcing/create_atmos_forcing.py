@@ -3,9 +3,10 @@ from netCDF4 import Dataset
 import netCDF4
 import numpy as np
 import os
+import subprocess
 import sys
 import glob
-import ConfigParser
+import configparser
 from create_forcing import create_scrip_grid_file, get_mpas_grid_info, create_scrip_file_MPAS, write_scrip_in_file, create_output_times, get_remapping_data
 
 #-------------------------------------------------------------------------------
@@ -77,7 +78,19 @@ def create_T62_remap_file(filenameScrip, title, dataDirSixHourly):
     gridDims = np.array([nLon,nLat])
     gridImask = np.ones(nGridSize,dtype="i")
 
-    create_scrip_grid_file(filenameScrip, nGridSize, nGridCorners, gridRank, gridDims, latCenter.flatten(), lonCenter.flatten(), gridImask, latCorner.flatten(), lonCorner.flatten(), title)
+    latCornerScrip = np.zeros((nLat*nLon,4))
+    lonCornerScrip = np.zeros((nLat*nLon,4))
+
+    for iLat in range(0,nLat):
+        for iLon in range(0,nLon):
+            for iCorner in range(0,4):
+                ij = iLat * nLon + iLon
+                latCornerScrip[ij,iCorner] = latCorner[iLat,iLon,iCorner]
+                lonCornerScrip[ij,iCorner] = lonCorner[iLat,iLon,iCorner]
+
+    create_scrip_grid_file(filenameScrip, nGridSize, nGridCorners, gridRank, gridDims, latCenter.flatten(), lonCenter.flatten(), gridImask, latCornerScrip, lonCornerScrip, title)
+
+    return nGridSize
 
 #-------------------------------------------------------------------------------
 
@@ -146,17 +159,17 @@ def write_scrip_in_file(srcTitle):
 
     scripFile = open("scrip_in","w")
 
-    scripFile.write("&remap_inputs\n")
+    scripFile.write("&remapInputs\n")
     scripFile.write("    num_maps = 1\n")
-    scripFile.write("    grid1_file = 'remap_grid_%s_tmp.nc'\n" %(srcTitle))
-    scripFile.write("    grid2_file = 'remap_grid_MPAS_tmp.nc'\n")
-    scripFile.write("    interp_file1 = 'remap_%s_to_MPAS_tmp.nc'\n" %(srcTitle))
-    scripFile.write("    interp_file2 = 'remap_MPAS_to_%s_tmp.nc'\n" %(srcTitle))
-    scripFile.write("    map1_name = '%s to MPAS bilinear mapping'\n" %(srcTitle))
-    scripFile.write("    map2_name = 'MPAS to %s bilinear mapping'\n" %(srcTitle))
-    scripFile.write("    map_method = 'bilinear'\n")
-    scripFile.write("    normalize_opt = 'frac'\n")
-    scripFile.write("    output_opt = 'scrip'\n")
+    scripFile.write("    gridFile1 = 'remap_grid_%s_tmp.nc'\n" %(srcTitle))
+    scripFile.write("    gridFile2 = 'remap_grid_MPAS_tmp.nc'\n")
+    scripFile.write("    interpFile1 = 'remap_%s_to_MPAS_tmp.nc'\n" %(srcTitle))
+    scripFile.write("    interpFile2 = 'remap_MPAS_to_%s_tmp.nc'\n" %(srcTitle))
+    scripFile.write("    mapName1 = '%s to MPAS bilinear mapping'\n" %(srcTitle))
+    scripFile.write("    mapName2 = 'MPAS to %s bilinear mapping'\n" %(srcTitle))
+    scripFile.write("    mapMethod = 'bilinear'\n")
+    scripFile.write("    normalizeOpt = 'fracArea'\n")
+    scripFile.write("    outputFormat = 'scrip'\n")
     scripFile.write("    restrict_type = 'latitude'\n")
     scripFile.write("    num_srch_bins = 90 \n")
     scripFile.write("    luse_grid1_area = .false.\n")
@@ -173,32 +186,34 @@ def perform_remapping(\
         startYear, \
         endYear, \
         dataDirSixHourly, \
-        dataDirMonthly, \
-        scripDir):
+        dataDirMonthly):
 
     # create MPAS scrip grid file
     print("create_scrip_file_MPAS")
     scripGridFilename  = "remap_grid_MPAS_tmp.nc"
-    create_scrip_file_MPAS(filenameMPASGrid, scripGridFilename)
+    dstGridSize = create_scrip_file_MPAS(filenameMPASGrid, scripGridFilename)
 
     # create T62 remapping file
     print("create_T62_remap_file")
     scripT62Filename = "remap_grid_T62_tmp.nc"
-    create_T62_remap_file(scripT62Filename, "T62", dataDirSixHourly)
+    srcGridSize = create_T62_remap_file(scripT62Filename, "T62", dataDirSixHourly)
 
     # create input scrip file
     print("write_scrip_in_file")
     write_scrip_in_file("T62")
 
     # run scrip to generate weights
-    print("SCRIP")
-    cmd = scripDir + "/scrip"
-    os.system(cmd)
+    print("ESMF_RegridWeightGen")
+    process = subprocess.Popen(["ESMF_RegridWeightGen","--source","remap_grid_T62_tmp.nc","--destination","remap_grid_MPAS_tmp.nc","--weight","remap_T62_to_MPAS_tmp.nc","--method","bilinear","--weight_only"])
+    process.wait()
+    if (process.returncode != 0):
+        print("ESMF_RegridWeightGen error: ", process.returncode)
+        exit(1);
 
     # get remapping weights
     print("get_remapping_data")
     filenameRemapping = "remap_T62_to_MPAS_tmp.nc"
-    remapMatrix, dstGridSize = get_remapping_data(filenameRemapping)
+    remapMatrix = get_remapping_data(filenameRemapping, srcGridSize, dstGridSize)
 
     print("create_forcing six hourly")
     # combined six hourly file
@@ -259,7 +274,6 @@ startYear = 1948
 endYear = 2007
 dataDirSixHourly = /location/of/CORE-II/data
 dataDirMonthly = /location/of/AOMIP/climatologies
-scripDir = /location/of/SCRIP/executable
 
 SCRIP
 -----
@@ -299,7 +313,7 @@ if (len(sys.argv) != 2):
     print("Usage: python create_atmos_forcing.py configFilename")
     sys.exit()
 
-config = ConfigParser.ConfigParser()
+config = configparser.ConfigParser()
 config.read(sys.argv[1])
 
 filenameMPASGrid = config.get   ('forcing_generation','filenameMPASGrid')
@@ -308,7 +322,6 @@ startYear        = config.getint('forcing_generation','startYear')
 endYear          = config.getint('forcing_generation','endYear')
 dataDirSixHourly = config.get   ('forcing_generation','dataDirSixHourly')
 dataDirMonthly   = config.get   ('forcing_generation','dataDirMonthly')
-scripDir         = config.get   ('forcing_generation','scripDir')
 
 perform_remapping(\
         filenameMPASGrid, \
@@ -316,5 +329,4 @@ perform_remapping(\
         startYear, \
         endYear, \
         dataDirSixHourly, \
-        dataDirMonthly, \
-        scripDir)
+        dataDirMonthly)

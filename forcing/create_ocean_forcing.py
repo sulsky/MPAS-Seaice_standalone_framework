@@ -4,10 +4,11 @@ import netCDF4
 import numpy as np
 import os
 import sys
-import ConfigParser
+import configparser
 import math
 from scipy.interpolate import griddata
 from create_forcing import create_scrip_grid_file, get_mpas_grid_info, create_scrip_file_MPAS, write_scrip_in_file, create_output_times, get_remapping_data
+import subprocess
 
 #-------------------------------------------------------------------------------
 
@@ -34,7 +35,6 @@ def xyz_to_latlon(x, y, z):
 
 def create_scrip_file_gx1(filenameScrip, filenameGx1Grid):
 
-    filenameGx1Grid = "/Users/akt/Work/Forcing/gx1/grid_info/global_gx1.nc"
     fileIn = Dataset(filenameGx1Grid,"r")
 
     nx = len(fileIn.dimensions["nx"])
@@ -64,8 +64,8 @@ def create_scrip_file_gx1(filenameScrip, filenameGx1Grid):
     ULON[0,:] = ULON[1,:]
     ULAT[0,:] = ULAT[1,:] - math.pi / 180.0
 
-    cornerLat = np.zeros((4,nCells))
-    cornerLon = np.zeros((4,nCells))
+    cornerLat = np.zeros((nCells,4))
+    cornerLon = np.zeros((nCells,4))
 
     for i in range(0,nx):
         for j in range(0,ny):
@@ -80,15 +80,15 @@ def create_scrip_file_gx1(filenameScrip, filenameGx1Grid):
             i3 = ii   ; j3 = jj
             i4 = ii-1 ; j4 = jj
 
-            cornerLat[0,iCell] = ULAT[j1,i1]
-            cornerLat[1,iCell] = ULAT[j2,i2]
-            cornerLat[2,iCell] = ULAT[j3,i3]
-            cornerLat[3,iCell] = ULAT[j4,i4]
+            cornerLat[iCell,0] = ULAT[j1,i1]
+            cornerLat[iCell,1] = ULAT[j2,i2]
+            cornerLat[iCell,2] = ULAT[j3,i3]
+            cornerLat[iCell,3] = ULAT[j4,i4]
 
-            cornerLon[0,iCell] = ULON[j1,i1]
-            cornerLon[1,iCell] = ULON[j2,i2]
-            cornerLon[2,iCell] = ULON[j3,i3]
-            cornerLon[3,iCell] = ULON[j4,i4]
+            cornerLon[iCell,0] = ULON[j1,i1]
+            cornerLon[iCell,1] = ULON[j2,i2]
+            cornerLon[iCell,2] = ULON[j3,i3]
+            cornerLon[iCell,3] = ULON[j4,i4]
 
     centerLat = np.zeros(nCells)
     centerLon = np.zeros(nCells)
@@ -101,10 +101,10 @@ def create_scrip_file_gx1(filenameScrip, filenameGx1Grid):
 
             iCell = ii + nx * (jj-1) - 1
 
-            x1,y1,z1 = latlon_to_xyz(cornerLat[0,iCell],cornerLon[0,iCell])
-            x2,y2,z2 = latlon_to_xyz(cornerLat[1,iCell],cornerLon[1,iCell])
-            x3,y3,z3 = latlon_to_xyz(cornerLat[2,iCell],cornerLon[2,iCell])
-            x4,y4,z4 = latlon_to_xyz(cornerLat[3,iCell],cornerLon[3,iCell])
+            x1,y1,z1 = latlon_to_xyz(cornerLat[iCell,0],cornerLon[iCell,0])
+            x2,y2,z2 = latlon_to_xyz(cornerLat[iCell,1],cornerLon[iCell,1])
+            x3,y3,z3 = latlon_to_xyz(cornerLat[iCell,2],cornerLon[iCell,2])
+            x4,y4,z4 = latlon_to_xyz(cornerLat[iCell,3],cornerLon[iCell,3])
 
             x0 = 0.25 * (x1 + x2 + x3 + x4)
             y0 = 0.25 * (y1 + y2 + y3 + y4)
@@ -113,6 +113,8 @@ def create_scrip_file_gx1(filenameScrip, filenameGx1Grid):
             centerLat[iCell], centerLon[iCell] = xyz_to_latlon(x0, y0, z0)
 
     create_scrip_grid_file(filenameScrip, nCells, 4, 2, gridDims, centerLat, centerLon, gridImask, cornerLat, cornerLon, "gx1")
+
+    return nCells
 
 #-------------------------------------------------------------------------------
 
@@ -264,35 +266,37 @@ def perform_remapping(\
         filenameMPASGrid, \
         filenameGx1Grid, \
         filenameGx1OceanMixed, \
-        filenameMPASOceanMixed, \
-        scripDir):
+        filenameMPASOceanMixed):
 
     # create MPAS scrip grid file
     print("create_scrip_file_MPAS")
     scripGridFilename = "remap_grid_MPAS_tmp.nc"
-    create_scrip_file_MPAS(filenameMPASGrid, scripGridFilename)
+    dstGridSize = create_scrip_file_MPAS(filenameMPASGrid, scripGridFilename)
 
     # create gx1 scrip grid file
     print("create_scrip_file_gx1")
     scripGx1Filename = "remap_grid_gx1_tmp.nc"
-    create_scrip_file_gx1(scripGx1Filename, filenameGx1Grid)
+    srcGridSize = create_scrip_file_gx1(scripGx1Filename, filenameGx1Grid)
 
     # create input scrip file
     print("write_scrip_in_file")
     write_scrip_in_file("gx1")
 
     # run scrip to generate weights
-    print("SCRIP")
-    cmd = scripDir + "/scrip"
-    os.system(cmd)
+    print("ESMF_RegridWeightGen")
+    process = subprocess.Popen(["ESMF_RegridWeightGen","--source","remap_grid_gx1_tmp.nc","--destination","remap_grid_MPAS_tmp.nc","--weight","remap_gx1_to_MPAS_tmp.nc","--method","bilinear","--weight_only"])
+    process.wait()
+    if (process.returncode != 0):
+        print("ESMF_RegridWeightGen error: ", process.returncode)
+        exit(1);
 
     # get remapping weights
     print("get_remapping_data")
     filenameRemapping = "remap_gx1_to_MPAS_tmp.nc"
-    remapMatrix, dstGridSize = get_remapping_data(filenameRemapping)
+    remapMatrix = get_remapping_data(filenameRemapping, srcGridSize, dstGridSize)
 
-    print("create_forcing ocean climatology")
     # combined ocean climatology
+    print("create_forcing ocean climatology")
     create_forcing(\
             filenameGx1OceanMixed, \
             filenameMPASOceanMixed, \
@@ -319,7 +323,6 @@ filenameMPASGrid = /location/of/MPAS/grid
 filenameGx1Grid = /location/of/gx1/grid
 filenameGx1OceanMixed = /location/of/gx1/ocean_mixed_file
 filenameMPASOceanMixed = /location/of/output/ocean_mixed_file
-scripDir = /location/of/SCRIP/executable
 
 SCRIP
 -----
@@ -342,18 +345,16 @@ if (len(sys.argv) != 2):
     print("Usage: python create_ocean_forcing.py configFilename")
     sys.exit()
 
-config = ConfigParser.ConfigParser()
+config = configparser.ConfigParser()
 config.read(sys.argv[1])
 
 filenameMPASGrid       = config.get('forcing_generation','filenameMPASGrid')
 filenameGx1Grid        = config.get('forcing_generation','filenameGx1Grid')
 filenameGx1OceanMixed  = config.get('forcing_generation','filenameGx1OceanMixed')
 filenameMPASOceanMixed = config.get('forcing_generation','filenameMPASOceanMixed')
-scripDir               = config.get('forcing_generation','scripDir')
 
 perform_remapping(\
         filenameMPASGrid, \
         filenameGx1Grid, \
         filenameGx1OceanMixed, \
-        filenameMPASOceanMixed, \
-        scripDir)
+        filenameMPASOceanMixed)
