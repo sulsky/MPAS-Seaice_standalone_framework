@@ -95,6 +95,8 @@ def create_scrip_file_MPAS(filenameMPASGrid, filenameScrip):
 
     create_scrip_grid_file(filenameScrip, nCells, maxEdges, 1, gridDims, centerLat, centerLon, gridImask, cornerLat, cornerLon, "MPAS")
 
+    return nCells
+
 #-------------------------------------------------------------------------------
 
 def write_scrip_in_file(srcTitle):
@@ -162,29 +164,25 @@ def create_output_times(inputTimesPerYear, year):
 
 #-------------------------------------------------------------------------------
 
-def get_remapping_data(filenameRemapping):
+def get_remapping_data(filenameRemapping, srcGridSize, dstGridSize):
 
-    fileRemap = Dataset(filenameRemapping,"r")
+    fileRemap = Dataset(filenameRemapping, "r")
 
-    numLinks    = len(fileRemap.dimensions["num_links"])
-    numWgts     = len(fileRemap.dimensions["num_wgts"])
-    srcGridSize = len(fileRemap.dimensions["src_grid_size"])
-    dstGridSize = len(fileRemap.dimensions["dst_grid_size"])
-
-    srcAddress  = fileRemap.variables["src_address"][:]
-    dstAddress  = fileRemap.variables["dst_address"][:]
-    remapMatrix = fileRemap.variables["remap_matrix"][:]
-
-    # fortran indices
-    srcAddress[:] = srcAddress[:] - 1
-    dstAddress[:] = dstAddress[:] - 1
+    n_s = len(fileRemap.dimensions["n_s"])
+    col = fileRemap.variables["col"][:]
+    row = fileRemap.variables["row"][:]
+    S = fileRemap.variables["S"][:]
 
     fileRemap.close()
 
+    # fortran indices
+    col[:] = col[:] - 1
+    row[:] = row[:] - 1
+
     # covert to python sparse arrays
-    remapMatrixSparse = sparse.coo_matrix((remapMatrix[:,0], (dstAddress, srcAddress)), shape=(dstGridSize,srcGridSize))
+    remapMatrixSparse = sparse.coo_matrix((S, (row, col)), shape=(dstGridSize, srcGridSize))
     remapMatrixSparse = remapMatrixSparse.tocsr()
 
-    return remapMatrixSparse, dstGridSize
+    return remapMatrixSparse
 
 #-------------------------------------------------------------------------------
