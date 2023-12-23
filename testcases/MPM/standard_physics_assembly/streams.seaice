@@ -29,6 +29,8 @@
 	<var name="snowVolumeCell"/>
 	<var name="uVelocityGeo"/>
 	<var name="vVelocityGeo"/>
+	<var name="deluDyn"/>
+	<var name="delvDyn"/>
 </stream>
 
 <stream name="particlesOut"
@@ -42,7 +44,6 @@
    <var name="iCellMP"/>
         <var name="cellIDCreationMP"/>
         <var name="creationIndexMP"/>
-        <var name="indexToCellIDParticle"/>
         <var name="procIDParticle"/>
         <var name="posnMP"/>
 </stream>

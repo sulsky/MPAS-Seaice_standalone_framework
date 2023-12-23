@@ -104,12 +104,14 @@
     config_recover_tracer_means_check = false
 /
 &mpm
+    config_use_mpm_polympo = false
     config_mpm_nParticles = 0
     config_mpm_particle_init_type = 'number'
     config_mpm_particle_posn_init_type = 'even'
     config_mpm_particle_init_number = 9
     config_mpm_particle_block_size = 128
     config_mpm_advection_test = true
+    config_mpm_polympo_init_test =false
 /
 &column_package
     config_use_column_shortwave = true
