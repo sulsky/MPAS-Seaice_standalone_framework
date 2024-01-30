@@ -5,6 +5,17 @@ from netCDF4 import Dataset
 
 def check_results(n1,n2):
 
+    try:
+        import colorama
+        colorama.init()
+    except ImportError:
+        pass
+
+    print()
+    message = "Check assembly results for %i and %i" %(n1,n2)
+    print(message)
+    print("="*len(message))
+
     cmd = "ncdiff -O output_%i/output.2000.nc output_%i/output.2000.nc diff.nc" %(n1,n2)
     os.system(cmd)
 
@@ -22,7 +33,13 @@ def check_results(n1,n2):
     fieldAssemblyTestMax = filein.variables["fieldAssemblyTest"][:]
     filein.close()
 
-    print("fieldAssemblyTest diff min/max: ", fieldAssemblyTestMin, fieldAssemblyTestMax)
+    message = "fieldAssemblyTest diff min/max: %g %g" %(fieldAssemblyTestMin, fieldAssemblyTestMax)
+    try:
+        import colorama
+        print(colorama.Style.BRIGHT + colorama.Fore.MAGENTA + message + colorama.Style.RESET_ALL)
+    except ImportError:
+        print(message)
+    print()
 
 #-------------------------------------------------------------------------------
 

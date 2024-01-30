@@ -8,7 +8,7 @@
 /
 &mpm
     config_use_mpm_polympo = false
-    config_mpm_nParticles = 0
+    config_mpm_create_particles = true
     config_mpm_particle_init_type = 'number'
     config_mpm_particle_posn_init_type = 'even'
     config_mpm_particle_init_number = 9
