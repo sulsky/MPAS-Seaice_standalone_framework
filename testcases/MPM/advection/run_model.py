@@ -5,11 +5,20 @@ import argparse
 
 def run_model(nCells, nProcs):
 
+    print()
+    message = "Run model for nCells: %i and nProcs: %i" %(nCells, nProcs)
+    print(message)
+    print("="*len(message))
+
     MPAS_SEAICE_EXECUTABLE = os.environ.get('MPAS_SEAICE_EXECUTABLE')
     if (MPAS_SEAICE_EXECUTABLE is None):
         raise Exception("MPAS_SEAICE_EXECUTABLE must be set")
 
-    cmd = "rm grid.nc ic.nc log.seaice.*"
+    cmd = "rm grid.nc ic.nc particles.nc log.seaice.*"
+    print(cmd)
+    os.system(cmd)
+
+    cmd = "rm -rf output output_%i" %(nProcs)
     print(cmd)
     os.system(cmd)
 
@@ -18,6 +27,10 @@ def run_model(nCells, nProcs):
     os.system(cmd)
 
     cmd = "ln -s ic_slotted_cylinder_%i.nc ic.nc" %(nCells)
+    print(cmd)
+    os.system(cmd)
+
+    cmd = "ln -s particles_slotted_cylinder_%i.nc particles.nc" %(nCells)
     print(cmd)
     os.system(cmd)
 
@@ -37,6 +50,8 @@ def run_model(nCells, nProcs):
     cmd = "mv output output_%i" %(nProcs)
     print(cmd)
     os.system(cmd)
+
+    print()
 
 #-------------------------------------------------------------------------------
 

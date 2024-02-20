@@ -8,6 +8,17 @@ import argparse
 
 def check_particle_positions_start_end(filenameTemplate):
 
+    try:
+        import colorama
+        colorama.init()
+    except ImportError:
+        pass
+
+    print()
+    message = "Check particles start-end positions for %s" %(filenameTemplate)
+    print(message)
+    print("="*len(message))
+
     filenames = sorted(glob.glob(filenameTemplate))
 
     filein = Dataset(filenames[0],"r")
@@ -61,7 +72,13 @@ def check_particle_positions_start_end(filenameTemplate):
 
         errors.append(maxDistance)
 
-    print("Final max distance: ", errors[-1])
+    message = "Final max distance: %g" %(errors[-1])
+    try:
+        import colorama
+        print(colorama.Style.BRIGHT + colorama.Fore.MAGENTA + message + colorama.Style.RESET_ALL)
+    except ImportError:
+        print(message)
+    print()
 
 #-------------------------------------------------------------------------------
 

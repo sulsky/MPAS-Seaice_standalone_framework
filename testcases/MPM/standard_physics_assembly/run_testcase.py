@@ -1,74 +1,66 @@
+import sys
 from run_model import run_model
 from check_results import check_results
+sys.path.append("../advection")
 from check_particle_positions_nprocs import check_particle_positions_nprocs
-import sys
 sys.path.append("../../../testing")
 from compare_mpas_files import compare_files
-from testing_utils import get_domain, print_colour, create_test_directory
+from testing_utils import get_domain, print_colour, create_test_directory, test_summary
 import os
+sys.path.append("../../../utils/MPM/particle_initialization/")
+from empty_particle_file import empty_particle_file
+
+#-------------------------------------------------------------------------------
+
+def check_run(n1, n2):
+
+        # make a test directory
+        testDir = "testDir%i_%i" %(n1, n2)
+        create_test_directory(testDir)
+        os.chdir("../")
+
+        # make log file
+        logfile = open("log_test.txt", "w")
+        title = "Test: Parallelism, n1=%i, n2=%i" %(n1, n2)
+        print_colour(title, "title")
+        logfile.write(title)
+
+        # run comparison
+        file1="output_%i/output.2000.nc" %(n1)
+        file2="output_%i/output.2000.nc" %(n2)
+        nErrorsArray, nErrorsNonArray = compare_files(file1,file2,logfile)
+        failed = test_summary(nErrorsNonArray, nErrorsArray, logfile, "standard_physics_assembly")
+
+        if (os.path.isfile("vars_differ.nc")):
+                cmd = "mv vars_differ.nc %s" %(testDir)
+                os.system(cmd)
+
+        check_particle_positions_nprocs(n1,n2)
+
+#-------------------------------------------------------------------------------
 
 # domains directory
 domainsDir = os.environ.get('MPAS_SEAICE_DOMAINS_DIR')
 if (domainsDir == None):
-        print("Environment variable MPAS_SEAICE_DOMAINS_DIR must be set if no domains directory specified")
-        sys.exit()
+        raise Exception("Environment variable MPAS_SEAICE_DOMAINS_DIR must be set if no domains directory specified")
 if (not os.path.exists(domainsDir)):
-        print("Requested domains directory does not exist")
-        sys.exit()
+        raise Exception("Requested domains directory does not exist")
+
 
 # get domain
 domain="domain_QU120km"
 get_domain(domainsDir, domain)
 
-n1 = 1
-n16 = 16
-n32 = 32
+# empty particles
+empty_particle_file("particles.nc")
 
+
+# run models
 run_model(1)
+run_model(16)
+run_model(32)
 
-run_model(n16)
 
-run_model(n32)
-
-file1="output_1/output.2000.nc"
-
-file2="output_16/output.2000.nc"
-
-file3="output_32/output.2000.nc"
-
-# make a test directory
-create_test_directory("testDir1_16")
-os.chdir("../")
-
-# make log file
-logfile = open("log_test.txt", "w")
-title = "Test: Parallelism, n1=1, n2=16\n"
-print_colour(title, "title")
-logfile.write(title)
-
-# run comparison
-compare_files(file1,file2,logfile)
-
-if (os.path.isfile("vars_differ.nc")):
-     cmd = "mv vars_differ.nc testDir1_16"
-     os.system(cmd)
-
-check_particle_positions_nprocs(n1,n16)
-
-# make a test directory
-create_test_directory("testDir16_32")
-os.chdir("../")
-
-# log file
-title = "Test: Parallelism, n1=16, n2=32\n"
-print_colour(title, "title")
-logfile.write(title)
-
-# run comparison
-compare_files(file2,file3,logfile)
-
-if (os.path.isfile("vars_differ.nc")):
-     cmd = "mv vars_differ.nc testDir16_32"
-     os.system(cmd)
-
-check_particle_positions_nprocs(n16,n32)
+# check runs output
+check_run(1,16)
+check_run(16,32)

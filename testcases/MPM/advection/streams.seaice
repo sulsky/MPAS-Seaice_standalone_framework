@@ -9,6 +9,12 @@
                   filename_interval="none"
                   input_interval="initial_only" />
 
+<immutable_stream name="particleInput"
+                  type="input"
+                  filename_template="particles.nc"
+                  filename_interval="none"
+                  input_interval="initial_only" />
+
 <stream name="initialConditions"
         type="input"
         filename_template="ic.nc"
