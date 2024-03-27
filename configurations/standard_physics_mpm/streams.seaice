@@ -27,8 +27,8 @@
 	<var name="iceAreaCell"/>
 	<var name="iceVolumeCell"/>
 	<var name="snowVolumeCell"/>
-	<var name="uVelocityGeo"/>
-	<var name="vVelocityGeo"/>
+	<var name="uVelocity"/>
+	<var name="vVelocity"/>
 </stream>
 
 <stream name="particlesOut"
