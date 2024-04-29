@@ -296,7 +296,8 @@ def initial_particle_positions(filenameMesh,
                                particleInitType,
                                particleInitNumber,
                                particlePositionInitType,
-                               earthRadius):
+                               earthRadius,
+                               iceConcTimeIndex=-1):
 
     # mesh info
     fileMesh = Dataset(filenameMesh,"r")
@@ -325,14 +326,20 @@ def initial_particle_positions(filenameMesh,
     # ice concentration
     fileIceConc = Dataset(filenameIceConc,"r")
 
-    nCellsConc = len(fileMesh.dimensions["nCells"])
+    nCellsConc = len(fileIceConc.dimensions["nCells"])
 
-    iceAreaCell = fileIceConc.variables["iceAreaCell"][:]
+    nDims = fileIceConc.variables["iceAreaCell"].ndim
+    if (nDims == 1):
+        iceAreaCell = fileIceConc.variables["iceAreaCell"][:]
+    elif (nDims == 2):
+        iceAreaCell = fileIceConc.variables["iceAreaCell"][iceConcTimeIndex,:]
+    else:
+        raise Exception("Ice concentration variable has too many dimensions")
 
     fileIceConc.close()
 
     if (nCellsConc != nCells):
-        raise Exception("Inconsistent cells dimension")
+        raise Exception("Inconsistent cells dimension: %i %i" %(nCells,nCellsConc))
 
     # average cell size
     averageCellSize = np.mean(areaCell)
@@ -446,6 +453,7 @@ if (__name__ == "__main__"):
     parser.add_argument('-n', dest="particleInitNumber", required=True, type=int)
     parser.add_argument('-p', dest="particlePositionInitType", required=True, choices=["even","poisson","random"])
     parser.add_argument('-r', dest="earthRadius", type=float, default=6371229.0)
+    parser.add_argument('--concIndex', dest="iceConcTimeIndex", default=-1)
 
     args = parser.parse_args()
 
@@ -455,4 +463,5 @@ if (__name__ == "__main__"):
                                args.particleInitType,
                                args.particleInitNumber,
                                args.particlePositionInitType,
-                               args.earthRadius)
+                               args.earthRadius,
+                               args.iceConcTimeIndex)
