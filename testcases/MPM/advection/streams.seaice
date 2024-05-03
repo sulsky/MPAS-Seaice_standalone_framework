@@ -69,7 +69,7 @@
 	<var name="iCellMP"/>
         <var name="cellIDCreationMP"/>
         <var name="creationIndexMP"/>
-        <var name="indexToCellIDParticle"/>
+        <var name="indexToCellIDMP"/>
         <var name="procIDParticle"/>
         <var name="posnMP"/>
 </stream>
