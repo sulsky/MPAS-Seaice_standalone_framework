@@ -48,6 +48,7 @@
 	<var name="daysSinceStartOfSim"/>
 	<stream name="mesh"/>
 	<var name="iceAreaCell"/>
+	<var name="iceAreaVertex"/>
 	<var name="iceVolumeCell"/>
 	<var name="snowVolumeCell"/>
 	<var name="iceAreaCategory"/>
@@ -72,6 +73,7 @@
         <var name="indexToCellIDParticle"/>
         <var name="procIDParticle"/>
         <var name="posnMP"/>
+        <var name="iceAreaMP"/>
 </stream>
 
 <immutable_stream name="LYqSixHourlyForcing"

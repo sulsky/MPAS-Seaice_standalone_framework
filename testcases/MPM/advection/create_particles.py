@@ -26,14 +26,13 @@ def create_particles():
             if (not os.path.isfile(filenameOut)):
 
                 filenameMesh = "grid.%s.nc" %(res)
-                filenameIceConc  = "ic_%s_%s.nc" %(icType,res)
 
                 initial_particle_positions(filenameMesh,
-                                           filenameIceConc,
                                            filenameOut,
                                            "number",
                                            9,
                                            "even",
+                                           icType,
                                            6371229.0)
 
 #-------------------------------------------------------------------------------

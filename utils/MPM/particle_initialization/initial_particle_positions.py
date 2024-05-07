@@ -1,5 +1,5 @@
 import sys
-from math import sqrt, pi, sin, cos, asin, acos
+from math import fabs, sqrt, pow, pi, sin, cos, asin, acos
 import numpy as np
 import argparse
 from netCDF4 import Dataset
@@ -149,6 +149,48 @@ def mpas_in_cell(xPoint,
 
 #-------------------------------------------------------------------------------
 
+def in_geom(x,
+            y,
+            z,
+            icType):
+
+   in_geom = False
+
+   if (icType == "slotted_cylinder"):
+
+          iceArea = 0.0
+          iceVolume = 0.0
+
+          circleRadius = 0.5
+          r = sqrt(pow(z,2) + pow(x,2))
+
+          if (r < circleRadius and y > 0.0):
+
+              in_geom = True
+              iceArea = 1.0
+              iceVolume = 1.0
+
+          if (fabs(x) < 1.0/12.0 and z > -2.0/6.0):
+
+              in_geom = False
+
+   elif (icType == 'cosine_bell'):
+
+          iceArea = 0.0
+          iceVolume = 0.0
+
+          circleRadius = 1.0/3.0
+          r = sqrt(pow(z,2) + pow(x,2))
+
+          if (r < circleRadius and y > 0.0):
+
+              in_geom = True
+              iceArea = 0.5 * (1.0 + cos((pi * r) / circleRadius))
+              iceVolume = 1.0
+
+   return in_geom, iceArea, iceVolume
+
+#-------------------------------------------------------------------------------
 def place_particles(posnMP,
                     latlon,
                     iCellMP,
@@ -156,7 +198,10 @@ def place_particles(posnMP,
                     iCell,
                     nParticlesPerCellDesired,
                     nParticlesPerCellActual,
+                    iceAreaMP,
+                    iceVolumeMP,
                     posnInitType,
+                    icType,
                     on_a_sphere,
                     earthRadius,
                     nEdgesOnCell,
@@ -175,7 +220,7 @@ def place_particles(posnMP,
         # place points evenly in circumscribing rectangle
         # WARNING: for 'even' to work, numberToPlace must be a perfect square
         np = int(sqrt(float(nParticlesPerCellDesired)))
-        #if ( (np*np) \= initNumMPPerCell(iCell)) then
+        #if ( (np*np) \= nParticlesCell(iCell)) then
         #   print*,'error in placing material points'
         #endif
 
@@ -199,7 +244,6 @@ def place_particles(posnMP,
             if (lonmin * lonmax < 0.0 and lonmax > pi / 2.0):
                 dy = (lonmax - lonmin - 2.0 * pi) / float(np) / 2.0
 
-
             k = 0
             for i in range(0, np):
                 for j in range(0, np):
@@ -212,7 +256,7 @@ def place_particles(posnMP,
                     y = earthRadius * sin(lon) * cos(lat)
                     z = earthRadius * sin(lat)
 
-                    if (mpas_in_cell(x,
+                    inCell = mpas_in_cell(x,
                                      y,
                                      z,
                                      xCell,
@@ -222,13 +266,21 @@ def place_particles(posnMP,
                                      verticesOnCell[:],
                                      xVertex,
                                      yVertex,
-                                     zVertex)):
+                                     zVertex)
 
+                    inGeom, iceArea, iceVolume  = in_geom(x/earthRadius,
+                                     y/earthRadius,
+                                     z/earthRadius,
+                                     icType)
+
+                    if(inCell and inGeom):
                         k = k + 1
                         posnMP.append([x, y, z])
                         latlon.append([lat, lon])
                         iCellMP.append(iCell+1)
                         creationIndexMP.append(k)
+                        iceAreaMP.append(iceArea)
+                        iceVolumeMP.append(iceVolume)
 
             nParticlesPerCellActual = k
 
@@ -286,16 +338,16 @@ def place_particles(posnMP,
     else:
         raise Exception("Invalid particle initType")
 
-    return posnMP, latlon, iCellMP, creationIndexMP, nParticlesPerCellActual
+    return posnMP, latlon, iCellMP, creationIndexMP, nParticlesPerCellActual, iceAreaMP, iceVolumeMP
 
 #-------------------------------------------------------------------------------
 
 def initial_particle_positions(filenameMesh,
-                               filenameIceConc,
                                filenameOut,
                                particleInitType,
                                particleInitNumber,
                                particlePositionInitType,
+                               initializationType,
                                earthRadius):
 
     # mesh info
@@ -322,33 +374,21 @@ def initial_particle_positions(filenameMesh,
 
     verticesOnCell[:] -= 1
 
-    # ice concentration
-    fileIceConc = Dataset(filenameIceConc,"r")
-
-    nCellsConc = len(fileMesh.dimensions["nCells"])
-
-    iceAreaCell = fileIceConc.variables["iceAreaCell"][:]
-
-    fileIceConc.close()
-
-    if (nCellsConc != nCells):
-        raise Exception("Inconsistent cells dimension")
-
     # average cell size
     averageCellSize = np.mean(areaCell)
 
 
     # particle positions
-    initNumMPPerCell = np.zeros(nCells,dtype="i")
+    nParticlesCell = np.zeros(nCells,dtype="i")
 
     posnMP = []
     posnLatLonGeoMP = []
     cellIDCreationMP = []
     creationIndexMP = []
+    iceAreaMP = []
+    iceVolumeMP = []
 
     for iCell in range(0, nCells):
-
-        if (iceAreaCell[iCell] > 0.0):
 
             # TODO add some checks for minimum sizes, possibly reduce
             # number of added material points to consolidate
@@ -362,15 +402,18 @@ def initial_particle_positions(filenameMesh,
                 raise Exception("Invalid particle_init_type")
 
 
-            posnMP, latlon, iCellMP, creationIndexMP, initNumMPPerCell[iCell] = place_particles(
+            posnMP, latlon, iCellMP, creationIndexMP, nParticlesCell[iCell], iceAreaMP, iceVolumeMP  = place_particles(
                 posnMP,
                 posnLatLonGeoMP,
                 cellIDCreationMP,
                 creationIndexMP,
                 iCell,
                 nParticlesPerCellDesired,
-                initNumMPPerCell[iCell],
+                nParticlesCell[iCell],
+                iceAreaMP,
+                iceVolumeMP,
                 particlePositionInitType,
+                initializationType,
                 on_a_sphere,
                 earthRadius,
                 nEdgesOnCell[iCell],
@@ -384,15 +427,14 @@ def initial_particle_positions(filenameMesh,
                 yCell[iCell],
                 zCell[iCell])
 
-        else:
-
-            initNumMPPerCell[iCell] = 0
 
     nParticles = len(posnMP)
     posnMP = np.array(posnMP)
     posnLatLonGeoMP = np.array(posnLatLonGeoMP)
     cellIDCreationMP = np.array(cellIDCreationMP)
     creationIndexMP = np.array(creationIndexMP)
+    iceAreaMP = np.array(iceAreaMP)
+    iceVolumeMP = np.array(iceVolumeMP)
 
     # output
     fileOut = Dataset(filenameOut,"w",format="NETCDF3_CLASSIC")
@@ -414,8 +456,14 @@ def initial_particle_positions(filenameMesh,
     var = fileOut.createVariable("creationIndexMP","i",dimensions=["nParticles"])
     var[:] = creationIndexMP[:]
 
-    var = fileOut.createVariable("initNumMPPerCell","i",dimensions=["nCells"])
-    var[:] = initNumMPPerCell[:]
+    var = fileOut.createVariable("nParticlesCell","i",dimensions=["nCells"])
+    var[:] = nParticlesCell[:]
+
+    var = fileOut.createVariable("iceAreaMP","d",dimensions=["nParticles"])
+    var[:] = iceAreaMP[:]
+
+    var = fileOut.createVariable("iceVolumeMP","d",dimensions=["nParticles"])
+    var[:] = iceVolumeMP[:]
 
     fileOut.close()
 
@@ -440,19 +488,19 @@ if (__name__ == "__main__"):
     parser = argparse.ArgumentParser()
 
     parser.add_argument('-m', dest="filenameMesh", required=True)
-    parser.add_argument('-c', dest="filenameIceConc", required=True)
     parser.add_argument('-o', dest="filenameOut", required=True)
     parser.add_argument('-t', dest="particleInitType", required=True, choices=["number","area"])
     parser.add_argument('-n', dest="particleInitNumber", required=True, type=int)
     parser.add_argument('-p', dest="particlePositionInitType", required=True, choices=["even","poisson","random"])
+    parser.add_argument('-i', dest="icType", required=True, choices=["cosine_bell","slotted_cylinder"])
     parser.add_argument('-r', dest="earthRadius", type=float, default=6371229.0)
 
     args = parser.parse_args()
 
     initial_particle_positions(args.filenameMesh,
-                               args.filenameIceConc,
                                args.filenameOut,
                                args.particleInitType,
                                args.particleInitNumber,
                                args.particlePositionInitType,
+                               args.icType,
                                args.earthRadius)
