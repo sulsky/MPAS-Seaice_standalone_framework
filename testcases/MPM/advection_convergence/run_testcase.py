@@ -17,7 +17,7 @@ create_ics()
 
 create_particles()
 
-#run_model()
+run_model()
 
 plot_testcase()
 
