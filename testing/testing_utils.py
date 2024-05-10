@@ -202,7 +202,7 @@ def create_test_directory(directory):
 
 #-------------------------------------------------------------------------
 
-def run_model(runName, mpasDir, SAFrameDir, domainsDir, domain, configuration, nmlChanges, streamChanges, nProcs, logfile, oversubscribe):
+def run_model(runName, mpasDir, SAFrameDir, domainsDir, domain, configuration, nmlChanges, streamChanges, nProcs, logfile, oversubscribe, deleteFiles=[]):
 
     # create development directory
     os.mkdir(runName)
@@ -219,6 +219,10 @@ def run_model(runName, mpasDir, SAFrameDir, domainsDir, domain, configuration, n
 
     # create streams file
     create_new_streams(SAFrameDir+"/configurations/"+configuration+"/streams.seaice", "streams.seaice", streamChanges)
+
+    # delete files
+    for deleteFile in deleteFiles:
+        os.system("rm %s" %(deleteFile))
 
     # run the model
     returnCode = execute_model(nProcs, logfile, oversubscribe)
@@ -263,7 +267,7 @@ def create_sym_link(domainsDir, domain, inputManifestLine, outputManifestLine):
 
 #-------------------------------------------------------------------------
 
-def restart_model(runName, nmlChanges, streamChanges, nProcs, logfile, oversubscribe):
+def restart_model(runName, nmlChanges, streamChanges, nProcs, logfile, oversubscribe, deleteFiles=[]):
 
     # move to run dir
     os.chdir(runName)
@@ -277,6 +281,10 @@ def restart_model(runName, nmlChanges, streamChanges, nProcs, logfile, oversubsc
 
     # create streams file
     create_new_streams("streams.seaice.prev", "streams.seaice", streamChanges)
+
+    # delete files
+    for deleteFile in deleteFiles:
+        os.system("rm %s" %(deleteFile))
 
     # run the model
     returnCode = execute_model(nProcs, logfile, oversubscribe)

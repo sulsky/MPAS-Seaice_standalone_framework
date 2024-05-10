@@ -15,6 +15,14 @@ def restartability(mpasDevelopmentDir,
                    np1,
                    np2):
 
+    # test time parameters
+    #testTime  = "12:00:00"
+    #testTime2 = "24:00:00"
+    #restart_file = "restart.2000-01-02_00.00.00.nc"
+    testTime  = "02:00:00"
+    testTime2 = "04:00:00"
+    restart_file = "restart.2000-01-01_04.00.00.nc"
+
     # find available directory name
     iTest = 1
     dirExists = True
@@ -36,12 +44,12 @@ def restartability(mpasDevelopmentDir,
     # base run
     nProcs = np1
 
-    nmlChanges = {"seaice_model": {"config_run_duration":'24:00:00'}}
+    nmlChanges = {"seaice_model": {"config_run_duration":testTime2}}
     if (check):
         nmlChanges["unit_test"] = {"config_testing_system_test":True}
     nmlChanges = add_pio_namelist_changes(nmlChanges, nProcs)
 
-    streamChanges = [{"streamName":"restart", "attributeName":"output_interval", "newValue":"24:00:00"}, \
+    streamChanges = [{"streamName":"restart", "attributeName":"output_interval", "newValue":testTime}, \
                      {"streamName":"output" , "attributeName":"output_interval", "newValue":"none"}]
 
     if (run_model("base",
@@ -62,15 +70,15 @@ def restartability(mpasDevelopmentDir,
     # first restart run
     nProcs = np1
 
-    nmlChanges = {"seaice_model": {"config_run_duration":'12:00:00'}}
+    nmlChanges = {"seaice_model": {"config_run_duration":testTime}}
     if (check):
         nmlChanges["unit_test"] = {"config_testing_system_test":True}
     nmlChanges = add_pio_namelist_changes(nmlChanges, nProcs)
 
-    streamChanges = [{"streamName":"restart", "attributeName":"output_interval", "newValue":"12:00:00"}, \
+    streamChanges = [{"streamName":"restart", "attributeName":"output_interval", "newValue":testTime}, \
                      {"streamName":"output" , "attributeName":"output_interval", "newValue":"none"}]
 
-    if (run_model("restart",
+    if (run_model("restart1",
                   mpasDevelopmentDir,
                   SAFrameDirDev,
                   domainsDir,
@@ -117,22 +125,24 @@ def restartability(mpasDevelopmentDir,
 
     streamChanges = []
 
-    if (restart_model("restart",
+    os.system("cp -rf restart1 restart2")
+    if (restart_model("restart2",
                       nmlChanges,
                       streamChanges,
                       nProcs,
                       logfile,
-                      oversubscribe) != 0):
+                      oversubscribe,
+                      ["particles.nc"]) != 0):
         run_failed("restartability")
         os.chdir("..")
         return 1
 
 
     # compare
-    restart_file = "restart.2000-01-02_00.00.00.nc"
-
     file1 = "./base/restarts/%s" %(restart_file)
-    file2 = "./restart/restarts/%s" %(restart_file)
+    file2 = "./restart2/restarts/%s" %(restart_file)
+    logfile.write("file1: %s\n" %(file1))
+    logfile.write("file2: %s\n" %(file2))
 
     ignoreVarname = ["cellsOnCell","verticesOnCell","edgesOnEdge","edgesOnCell"]
     if (check):
