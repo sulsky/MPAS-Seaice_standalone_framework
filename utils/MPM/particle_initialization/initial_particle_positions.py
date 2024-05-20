@@ -441,8 +441,10 @@ def initial_particle_positions(filenameMesh,
 
     fileOut.createDimension("nParticles",nParticles)
     fileOut.createDimension("nCells", nCells)
+    fileOut.createDimension("nCategories", 1)
     fileOut.createDimension("THREE", 3)
     fileOut.createDimension("TWO", 2)
+    fileOut.createDimension("ONE", 1)
 
     var = fileOut.createVariable("posnMP","d",dimensions=["nParticles","THREE"])
     var[:] = posnMP[:]
@@ -464,6 +466,12 @@ def initial_particle_positions(filenameMesh,
 
     var = fileOut.createVariable("iceVolumeMP","d",dimensions=["nParticles"])
     var[:] = iceVolumeMP[:]
+
+    var = fileOut.createVariable("iceAreaCategoryMP","d",dimensions=["nParticles","nCategories","ONE"])
+    var[:, 0] = iceAreaMP[:]
+
+    var = fileOut.createVariable("iceVolumeCategoryMP","d",dimensions=["nParticles","nCategories","ONE"])
+    var[:, 0] = iceVolumeMP[:]
 
     fileOut.close()
 
