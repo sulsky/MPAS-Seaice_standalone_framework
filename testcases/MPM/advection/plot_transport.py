@@ -23,8 +23,6 @@ def plot_file(filenameIn, filenameOut):
 
     procIDParticle = filein.variables["procIDParticle"][:]
 
-    indexToCellIDParticle = filein.variables["indexToCellIDParticle"][:]
-
     nValid = 0
     valid = []
     colors = []

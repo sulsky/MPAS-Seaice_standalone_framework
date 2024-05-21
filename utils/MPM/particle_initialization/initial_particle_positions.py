@@ -502,6 +502,7 @@ if (__name__ == "__main__"):
     parser.add_argument('-p', dest="particlePositionInitType", required=True, choices=["even","poisson","random"])
     parser.add_argument('-i', dest="icType", required=True, choices=["cosine_bell","slotted_cylinder"])
     parser.add_argument('-r', dest="earthRadius", type=float, default=6371229.0)
+    parser.add_argument('--concIndex', dest="iceConcTimeIndex", default=-1)
 
     args = parser.parse_args()
 
