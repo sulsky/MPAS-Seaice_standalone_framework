@@ -185,7 +185,10 @@ def advection_error_convergence():
              xVolume.append(get_resolution(filename))
              yVolume.append(norm)
 
-         print(xArea,yArea)
+         error = float('nan')
+         print(xArea, yArea)
+         error = sum(yArea)
+
          axes.loglog(xArea, yArea, marker=markers[iPlot], dashes=dashes[iPlot], color="black", markersize=5.0)
 
          iPlot = iPlot + 1
@@ -200,8 +203,8 @@ def advection_error_convergence():
     #axes.set_title("Ice concentration")
     axes.set_xlabel("Grid resolution (km)")
     axes.set_ylabel(r"$L_2$ error norm")
-    axes.set_xticklabels(["60","120","240","480"])
     axes.set_xticks([60,120,240,480])
+    axes.set_xticklabels(["60","120","240","480"])
     axes.tick_params(
         axis='x',          # changes apply to the x-axis
         which='minor',      # both major and minor ticks are affected
@@ -212,6 +215,17 @@ def advection_error_convergence():
     plt.tight_layout(pad=0.2, w_pad=0.2, h_pad=0.2)
     plt.savefig("advection_error_convergence.png",dpi=300)
     plt.savefig("advection_error_convergence.eps")
+
+    try:
+        import colorama
+        if (error < 1e-12):
+           message = "TEST PASSED: Absolute convergence error: %g" %(error)
+           print(colorama.Style.BRIGHT + colorama.Fore.GREEN + message + colorama.Style.RESET_ALL)
+        else:
+           message = "TEST FAILED: Absolute convergence error: %g" %(error)
+           print(colorama.Style.BRIGHT + colorama.Fore.MAGENTA + message + colorama.Style.RESET_ALL)
+    except ImportError:
+        print(message)
 
 #-------------------------------------------------------------------------------
 
