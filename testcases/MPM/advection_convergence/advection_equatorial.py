@@ -115,16 +115,16 @@ def advection_equatorial():
         if (iceArea_CB_Initial[iCell] > 0.0):
             iceThickness_CB_Initial[iCell] = iceVolume_CB_Initial[iCell] / iceArea_CB_Initial[iCell]
 
-    iceArea_CB= fileMPAS.variables["iceAreaCell"][iTime,:]
-    iceVolume_CB= fileMPAS.variables["iceVolumeCell"][iTime,:]
-    iceThickness_CB= np.zeros(nCells)
+    iceArea_CB = fileMPAS.variables["iceAreaCell"][iTime,:]
+    iceVolume_CB = fileMPAS.variables["iceVolumeCell"][iTime,:]
+    iceThickness_CB = np.zeros(nCells)
     for iCell in range(0,nCells):
         if (iceArea_CB[iCell] > 0.0):
             iceThickness_CB[iCell] = iceVolume_CB[iCell] / iceArea_CB[iCell]
 
     fileMPAS.close()
 
-    # slotted cylinder 
+    # slotted cylinder
     filename = "./output_%s_%s/output.2000.nc" %(experiment2,res)
 
     print(filename)
@@ -150,20 +150,19 @@ def advection_equatorial():
     fileMPAS.close()
 
     lons, yiceArea_CB_Initial = get_equatorial_array(nCells, latCell, lonCell, xCell, yCell, zCell, cellsOnCell, nEdgesOnCell, iceArea_CB_Initial)
-    lons, yiceArea_CB      = get_equatorial_array(nCells, latCell, lonCell, xCell, yCell, zCell, cellsOnCell, nEdgesOnCell, iceArea_CB)
+    lons, yiceArea_CB = get_equatorial_array(nCells, latCell, lonCell, xCell, yCell, zCell, cellsOnCell, nEdgesOnCell, iceArea_CB)
 
     lons, yiceArea_SC_Initial = get_equatorial_array(nCells, latCell, lonCell, xCell, yCell, zCell, cellsOnCell, nEdgesOnCell, iceArea_SC_Initial)
-    lons, yiceArea_SC      = get_equatorial_array(nCells, latCell, lonCell, xCell, yCell, zCell, cellsOnCell, nEdgesOnCell, iceArea_SC)
+    lons, yiceArea_SC = get_equatorial_array(nCells, latCell, lonCell, xCell, yCell, zCell, cellsOnCell, nEdgesOnCell, iceArea_SC)
 
     lons, yiceThickness_CB_Initial = get_equatorial_array(nCells, latCell, lonCell, xCell, yCell, zCell, cellsOnCell, nEdgesOnCell, iceThickness_CB_Initial)
-    lons, yiceThickness_CB      = get_equatorial_array(nCells, latCell, lonCell, xCell, yCell, zCell, cellsOnCell, nEdgesOnCell, iceThickness_CB)
+    lons, yiceThickness_CB = get_equatorial_array(nCells, latCell, lonCell, xCell, yCell, zCell, cellsOnCell, nEdgesOnCell, iceThickness_CB)
 
     lons, yiceThickness_SC_Initial = get_equatorial_array(nCells, latCell, lonCell, xCell, yCell, zCell, cellsOnCell, nEdgesOnCell, iceThickness_SC_Initial)
-    lons, yiceThickness_SC     = get_equatorial_array(nCells, latCell, lonCell, xCell, yCell, zCell, cellsOnCell, nEdgesOnCell, iceThickness_SC)
+    lons, yiceThickness_SC = get_equatorial_array(nCells, latCell, lonCell, xCell, yCell, zCell, cellsOnCell, nEdgesOnCell, iceThickness_SC)
 
     cm = 1/2.54  # centimeters in inches
     plt.rcParams["font.family"] = "Times New Roman"
-    #mpl.rc('text', usetex=True)
     SMALL_SIZE = 8
     MEDIUM_SIZE = 8
     BIGGER_SIZE = 8
@@ -174,7 +173,6 @@ def advection_equatorial():
     plt.rc('ytick', labelsize=SMALL_SIZE)    # fontsize of the tick labels
     plt.rc('legend', fontsize=SMALL_SIZE)    # legend fontsize
     plt.rc('figure', titlesize=BIGGER_SIZE)  # fontsize of the figure title
-    #mpl.rcParams['axes.linewidth'] = 0.5
     linewidth = 1.0
 
     fig, axes = plt.subplots(1, 2, figsize=(15*cm,7*cm))
@@ -188,47 +186,16 @@ def advection_equatorial():
     axes[0].set_ylabel("Equatorial ice concentration")
 
     axes[0].set_xlim([0.5, math.pi-0.5])
-    #axes[0].text(0.07, 0.9, "(a)", verticalalignment='bottom', horizontalalignment='right',transform=axes[0].transAxes, fontsize=8)
     axes[0].set_title("(a) Cosine bell", loc='left')
 
     axes[1].plot(lons, yiceArea_SC_Initial, linewidth=linewidth, color="black", ls="-")
     axes[1].plot(lons, yiceArea_SC,      linewidth=linewidth, color="red", ls="--")
 
-    #axes[1].legend(["Initial","IR","Upwind"],frameon=False,fontsize=8)
     axes[1].set_xlabel("Longitude (radians)")
-    #axes[1].set_ylabel("Equatorial ice concentration")
     axes[1].set_xlim([0.5, math.pi-0.5])
     axes[1].set_title("(b) Slotted cylinder", loc='left')
-    #axes[1].text(0.07, 0.9, "(b)", verticalalignment='bottom', horizontalalignment='right',transform=axes[1].transAxes, fontsize=8)
 
-
-
-
-    # volume
-    #axes[1,0].plot(lons, yiceThickness_CB_Initial, linewidth=linewidth, color="black", ls="-")
-    #axes[1,0].plot(lons, yiceThickness_CB_IR,      linewidth=linewidth, color="black", ls="--")
-    #axes[1,0].plot(lons, yiceThickness_CB_upwind,  linewidth=linewidth, color="black", ls=":")
-
-    #axes[1,0].legend(["Initial","IR","Upwind"],frameon=False,fontsize=8)
-    #axes[1,0].set_xlabel("Longitude (radians)")
-    #axes[1,0].set_ylabel("Equatorial ice thickness (m)")
-    #axes[1,0].set_xlim([0.5, math.pi-0.5])
-    #axes[1,0].text(0.07, 0.9, "(c)", verticalalignment='bottom', horizontalalignment='right',transform=axes[1,0].transAxes, fontsize=8)
-
-
-    #axes[1,1].plot(lons, yiceThickness_SC_Initial, linewidth=linewidth, color="black", ls="-")
-    #axes[1,1].plot(lons, yiceThickness_SC_IR,      linewidth=linewidth, color="black", ls="--")
-    #axes[1,1].plot(lons, yiceThickness_SC_upwind,  linewidth=linewidth, color="black", ls=":")
-
-    #axes[1,0].legend(["Initial","IR","Upwind"],frameon=False,fontsize=8)
-    #axes[1,1].set_xlabel("Longitude (radians)")
-    #axes[1,1].set_ylabel("Equatorial ice volume (m)")
-    #axes[1,1].set_xlim([0.5, math.pi-0.5])
-    #axes[1,1].text(0.07, 0.9, "(d)", verticalalignment='bottom', horizontalalignment='right',transform=axes[1,1].transAxes, fontsize=8)
-
-    #plt.tight_layout()
     plt.tight_layout(pad=0.2, w_pad=0.6, h_pad=0.2)
-    #plt.savefig("advection_equatorial.eps")
     plt.savefig("advection_equatorial.png",dpi=300)
     plt.savefig("advection_equatorial.eps")
 

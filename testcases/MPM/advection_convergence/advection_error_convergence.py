@@ -31,8 +31,6 @@ def get_norm_area(filename):
 
     areaCell = fileMPAS.variables["areaCell"][:]
 
-    #iceAreaCategory = fileMPAS.variables["iceAreaCategory"][:]
-    #iceAreaCell = np.sum(iceAreaCategory,axis=(2,3))
     iceAreaCell = fileMPAS.variables["iceAreaCell"][:]
 
     iceAreaCellInitial = iceAreaCell[0,:]
@@ -118,9 +116,7 @@ def advection_error_convergence():
     legendLabels = ["CB", "SC", "", ""]
 
     markers = ['o','o','^','^']
-    #markers = ['o','^']
     linestyles = ["-", "--", "-", "--"]
-    #linestyles = ["-", "-"]
     dashes=[(1,0),(5,2.5),(1,0),(5,2.5)]
 
     xMin = 60
@@ -145,7 +141,6 @@ def advection_error_convergence():
     #plot
     cm = 1/2.54  # centimeters in inches
     plt.rcParams["font.family"] = "Times New Roman"
-    #mpl.rc('text', usetex=True)
     SMALL_SIZE = 8
     MEDIUM_SIZE = 8
     BIGGER_SIZE = 8
@@ -156,10 +151,8 @@ def advection_error_convergence():
     plt.rc('ytick', labelsize=SMALL_SIZE)    # fontsize of the tick labels
     plt.rc('legend', fontsize=SMALL_SIZE)    # legend fontsize
     plt.rc('figure', titlesize=BIGGER_SIZE)  # fontsize of the figure title
-    #mpl.rcParams['axes.linewidth'] = 0.5
 
     fig, axes = plt.subplots(1, 1, figsize=(8*cm,6.5*cm))
-
 
     axes.loglog([xMin, xMax], [scaleMinArea1, scaleMaxArea1], linestyle=':', color='k', label="_nolegend_", lw=1)
     axes.loglog([xMin, xMax], [scaleMinArea2, scaleMaxArea2], linestyle=':', color='k', label="_nolegend_", lw=1)
@@ -200,7 +193,6 @@ def advection_error_convergence():
 
     plt.minorticks_off()
 
-    #axes.set_title("Ice concentration")
     axes.set_xlabel("Grid resolution (km)")
     axes.set_ylabel(r"$L_2$ error norm")
     axes.set_xticks([60,120,240,480])
