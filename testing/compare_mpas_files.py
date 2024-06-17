@@ -246,16 +246,21 @@ def compare_files(filename1, filename2, logfile, variableNamesIgnore=[]):
                     if ("nParticles" not in variable1.dimensions and
                         not compare_variable(variableArray1,variableArray2)):
 
-                        diff = variableArray2[:] - variableArray1[:]
-                        minVal = np.amin(diff)
-                        maxVal = np.amax(diff)
-                        L2Norm = np.linalg.norm(diff)
-                        L2ErrorNorm = math.sqrt(np.sum(np.power(diff,2))/np.sum(np.power(variableArray1,2)))
+                        if (variableArray1.ndim != 0):
+                            diff = variableArray2[:] - variableArray1[:]
+                            minVal = np.amin(diff)
+                            maxVal = np.amax(diff)
+                            L2Norm = np.linalg.norm(diff)
+                            L2ErrorNorm = math.sqrt(np.sum(np.power(diff,2))/np.sum(np.power(variableArray1,2)))
 
-                        logfile.write("Arrays %s differ! min: %g, max: %g, L2: %g L2 rel: %g\n" %(variableName,minVal,maxVal,L2Norm,L2ErrorNorm))
-                        add_variable_to_diag_file(file1,variableArray1,variableArray2,variableName)
-                        nErrorsArray = nErrorsArray + 1
+                            logfile.write("Arrays %s differ! min: %g, max: %g, L2: %g L2 rel: %g\n" %(variableName,minVal,maxVal,L2Norm,L2ErrorNorm))
+                            add_variable_to_diag_file(file1,variableArray1,variableArray2,variableName)
+                            nErrorsArray = nErrorsArray + 1
 
+                        else:
+                            diff = variableArray2 - variableArray1
+                            logfile.write("Scalars %s differ! diff: %g, var1: %g, var2: %g\n" %(variableName,diff,variableArray1,variableArray2))
+                            nErrorsArray = nErrorsArray + 1
 
     # close files
     file1.close()
