@@ -35,6 +35,7 @@
 /
 &dimensions
     config_nCategories = 1
+    config_nFloeCategories = 1
     config_nIceLayers = 7
     config_nSnowLayers = 1
 /
@@ -57,7 +58,7 @@
     config_use_advection = true
     config_use_mpm = true
     config_use_forcing = false
-    config_use_column_package = false
+    config_use_column_physics = false
     config_use_prescribed_ice = false
     config_use_prescribed_ice_forcing = false
 /
@@ -68,12 +69,18 @@
     config_forcing_cycle_duration = '2-00-00_00:00:00'
     config_forcing_precipitation_units = 'mm_per_sec'
     config_forcing_sst_type = 'ncar'
+    config_forcing_bgc_type = 'ISPOL'
     config_update_ocean_fluxes = false
+    config_frazil_coupling_type = 'external'
     config_include_pond_freshwater_feedback = false
 /
 &testing
     config_use_test_ice_shelf = false
     config_testing_system_test = false
+    config_use_congelation_basal_melt = true
+    config_use_lateral_melt = true
+    config_use_latent_processes = true
+    config_limit_air_temperatures = true
 /
 &velocity_solver
     config_dynamics_subcycle_number = 1
@@ -88,6 +95,7 @@
     config_wachspress_integration_type = 'dunavant'
     config_wachspress_integration_order = 8
     config_calc_velocity_masks = true
+    config_average_variational_strain = false
     config_use_air_stress = true
     config_use_ocean_stress = true
     config_use_surface_tilt = true
@@ -104,6 +112,7 @@
     config_recover_tracer_means_check = false
 /
 &mpm
+    config_use_mpm_polympo = false
     config_mpm_create_particles = false
     config_mpm_particle_init_type = 'number'
     config_mpm_particle_posn_init_type = 'even'
@@ -111,8 +120,10 @@
     config_mpm_particle_block_size = 128
     config_mpm_advection_test = true
     config_mpm_assembly_test = false
+    config_mpm_polympo_init_test = false
 /
 &column_package
+    config_column_physics_type = 'column_package'
     config_use_column_shortwave = true
     config_use_column_vertical_thermodynamics = true
     config_use_column_biogeochemistry = false
@@ -131,6 +142,7 @@
     config_use_effective_snow_density = false
     config_use_snow_grain_radius = false
     config_use_special_boundaries_tracers = false
+    config_use_floe_size_distribution = false
 /
 &biogeochemistry
     config_use_brine = false
@@ -293,6 +305,9 @@
     config_temp_change_snow_grain_radius_change = 1.5
     config_max_melting_snow_grain_radius = 1500.0
     config_algae_absorption_coefficient = 0.6
+    config_use_shortwave_redistribution = false
+    config_shortwave_redistribution_fraction = 0.9
+    config_shortwave_redistribution_threshold = 0.02
 /
 &snow
     config_snow_redistribution_scheme = 'none'
@@ -302,12 +317,14 @@
     config_max_snow_density = 450.0
     config_minimum_wind_compaction = 10.0
     config_wind_compaction_factor = 27.3
+    config_snow_redistribution_factor = 0.3
     config_max_dry_snow_radius = 1800.0
+    config_snow_thermal_conductivity = 0.3
 /
 &meltponds
     config_snow_to_ice_transition_depth = 0.0
     config_pond_refreezing_type = 'hlid'
-    config_pond_flushing_timescale = 1.0e-3
+    config_pond_flushing_factor = 1.0e-3
     config_min_meltwater_retained_fraction = 0.15
     config_max_meltwater_retained_fraction = 1.0
     config_pond_depth_to_fraction_ratio = 0.8
@@ -322,21 +339,26 @@
     config_rapid_mode_aspect_ratio = 1.0
     config_slow_mode_drainage_strength = -5.0e-8
     config_slow_mode_critical_porosity = 0.05
+    config_macro_drainage_timescale = 10.
     config_congelation_ice_porosity = 0.85
 /
 &itd
     config_itd_conversion_type = 'linear remap'
     config_category_bounds_type = 'original'
 /
+&floesize
+    config_floeshape = 0.66
+    config_floediam = 300.0
+/
 &ridging
     config_ice_strength_formulation = 'Rothrock75'
     config_ridging_participation_function = 'exponential'
     config_ridging_redistribution_function = 'exponential'
-    config_ridiging_efolding_scale = 3.0
+    config_ridging_efolding_scale = 3.0
     config_ratio_ridging_work_to_PE = 17.0
 /
 &atmosphere
-    config_atmos_boundary_method = 'ccsm3'
+    config_atmos_boundary_method = 'similarity'
     config_calc_surface_stresses = true
     config_calc_surface_temperature = true
     config_use_form_drag = false
@@ -345,12 +367,14 @@
 /
 &ocean
     config_use_ocean_mixed_layer = true
+    config_ocean_mixed_layer_type = 'cice'
     config_min_friction_velocity = 0.0005
     config_ocean_heat_transfer_type = 'constant'
     config_sea_freezing_temperature_type = 'mushy'
     config_ocean_surface_type = 'free'
-    config_couple_biogeochemistry_fields = false
     config_use_data_icebergs = false
+    config_salt_flux_coupling_type = 'constant'
+    config_ice_ocean_drag_coefficient = 0.00536
 /
 &diagnostics
     config_check_state = false
