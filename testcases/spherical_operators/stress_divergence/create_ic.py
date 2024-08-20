@@ -469,7 +469,7 @@ def d2legendre_polynomial_dz2(z, m, l):
 
 def K(m, l):
 
-    Kr = sqrt((float(2 * l + 1) * factorial(l-fabs(m))) / (4.0 * pi * factorial(l+abs(m))))
+    Kr = sqrt((float(2 * l + 1) * factorial(l-abs(m))) / (4.0 * pi * factorial(l+abs(m))))
 
     return Kr
 
