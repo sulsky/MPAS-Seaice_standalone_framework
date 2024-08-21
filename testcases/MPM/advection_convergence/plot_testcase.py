@@ -5,6 +5,7 @@ from matplotlib.patches import Polygon
 from matplotlib.collections import PatchCollection
 import matplotlib.cm as cm
 import numpy as np
+import os
 
 #-------------------------------------------------------------
 
@@ -72,52 +73,59 @@ def plot_testcase():
     for nGrid in nGrids:
 
         print("nGrid: ", nGrid)
-
-        fig, axes = plt.subplots(2,4)
-
-        iTestType = -1
+        filesExist = False
         for testType in testTypes:
-            iTestType += 1
+            filenamein = "./output_%s_%i/output.2000.nc" %(testType,nGrid)
+            if (os.path.exists(filenamein)):
+                filesExist = True
 
-            print("  Test type: ", testType)
+        if (filesExist):
 
-            iMethod = -1
-            for iTime in iTimes:
-               iMethod +=1
+            fig, axes = plt.subplots(2,4)
 
-               print("iTime: ", iTime)
+            iTestType = -1
+            for testType in testTypes:
+                iTestType += 1
 
-               filenamein = "./output_%s_%i/output.2000.nc" %(testType,nGrid)
+                print("  Test type: ", testType)
 
-               filein = Dataset(filenamein,"r")
+                iMethod = -1
+                for iTime in iTimes:
+                    iMethod +=1
 
-               nCells = len(filein.dimensions["nCells"])
+                    print("iTime: ", iTime)
 
-               nEdgesOnCell = filein.variables["nEdgesOnCell"][:]
-               verticesOnCell = filein.variables["verticesOnCell"][:]
-               xCell = filein.variables["xCell"][:]
-               yCell = filein.variables["yCell"][:]
-               zCell = filein.variables["zCell"][:]
-               xVertex = filein.variables["xVertex"][:]
-               yVertex = filein.variables["yVertex"][:]
-               zVertex = filein.variables["zVertex"][:]
-               verticesOnCell[:] = verticesOnCell[:] - 1
-               iceAreaCell = filein.variables["iceAreaCell"][:]
+                    filenamein = "./output_%s_%i/output.2000.nc" %(testType,nGrid)
 
-               filein.close()
+                    filein = Dataset(filenamein,"r")
 
-               plot_subfigure(axes[iMethod,iTestType*2], iceAreaCell[iTime], nCells, nEdgesOnCell, verticesOnCell, xCell, yCell, zCell, xVertex, yVertex, zVertex, 0.0, 1.0, "viridis")
+                    nCells = len(filein.dimensions["nCells"])
 
-               iceAreaCellDiff = iceAreaCell[iTime] - iceAreaCell[0]
+                    nEdgesOnCell = filein.variables["nEdgesOnCell"][:]
+                    verticesOnCell = filein.variables["verticesOnCell"][:]
+                    xCell = filein.variables["xCell"][:]
+                    yCell = filein.variables["yCell"][:]
+                    zCell = filein.variables["zCell"][:]
+                    xVertex = filein.variables["xVertex"][:]
+                    yVertex = filein.variables["yVertex"][:]
+                    zVertex = filein.variables["zVertex"][:]
+                    verticesOnCell[:] = verticesOnCell[:] - 1
+                    iceAreaCell = filein.variables["iceAreaCell"][:]
 
-               if (iMethod !=0):
-                  plot_subfigure(axes[iMethod,iTestType*2+1], iceAreaCellDiff, nCells, nEdgesOnCell, verticesOnCell, xCell, yCell, zCell, xVertex, yVertex, zVertex, -1.0, 1.0, "bwr")
-               else:
-                  axes[iMethod, iTestType*2+1].axis('off')
+                    filein.close()
 
-        plt.savefig("advection_%6.6i.png" %(nGrid),dpi=300)
-        plt.cla()
-        plt.close(fig)
+                    plot_subfigure(axes[iMethod,iTestType*2], iceAreaCell[iTime], nCells, nEdgesOnCell, verticesOnCell, xCell, yCell, zCell, xVertex, yVertex, zVertex, 0.0, 1.0, "viridis")
+
+                    iceAreaCellDiff = iceAreaCell[iTime] - iceAreaCell[0]
+
+                    if (iMethod !=0):
+                        plot_subfigure(axes[iMethod,iTestType*2+1], iceAreaCellDiff, nCells, nEdgesOnCell, verticesOnCell, xCell, yCell, zCell, xVertex, yVertex, zVertex, -1.0, 1.0, "bwr")
+                    else:
+                        axes[iMethod, iTestType*2+1].axis('off')
+
+            plt.savefig("advection_%6.6i.png" %(nGrid),dpi=300)
+            plt.cla()
+            plt.close(fig)
 
 #-------------------------------------------------------------------------------
 
