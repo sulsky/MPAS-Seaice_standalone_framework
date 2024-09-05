@@ -158,9 +158,29 @@ def compare_files(filename1, filename2, logfile, variableNamesIgnore=[]):
     variableNames1 = set(file1.variables.keys())
     variableNames2 = set(file2.variables.keys())
 
+    # allow comparison if names have changed
+    # e.g. renamed = {"oldName":"newName"}
+    # renamed = {}
+    renamed = {"iceAreaMP":"iceAreaCellMP",
+               "iceVolumeMP":"iceVolumeCellMP"}
+
+    renamedOldToNew = {}
+    renamedNewToOld = {}
+    for name in variableNames2:
+        if (name in renamed.keys()):
+            renamedOldToNew[name]          = renamed[name]
+            renamedNewToOld[renamed[name]] = name
+        else:
+            renamedOldToNew[name] = name
+            renamedNewToOld[name] = name
+
+    variableNames2Renamed = set()
+    for name in variableNames2:
+        variableNames2Renamed.add(renamedOldToNew[name])
+
     # check to see if variables are in one and not the other
-    variableNamesIn1Not2 = variableNames1.difference(variableNames2)
-    variableNamesIn2Not1 = variableNames2.difference(variableNames1)
+    variableNamesIn1Not2 = variableNames1.difference(variableNames2Renamed)
+    variableNamesIn2Not1 = variableNames2Renamed.difference(variableNames1)
 
     for variablesName in variableNamesIn1Not2:
         logfile.write("Variable found in file 1 and not file 2: %s\n" %(variablesName))
@@ -171,12 +191,12 @@ def compare_files(filename1, filename2, logfile, variableNamesIgnore=[]):
         nErrorsNonArray = nErrorsNonArray + 1
 
     # check variable dimensions
-    variablesNameIntersection = variableNames1.intersection(variableNames2)
+    variablesNameIntersection = variableNames1.intersection(variableNames2Renamed)
 
     for variableName in variablesNameIntersection:
 
         dimensions1 = set(file1.variables[variableName].dimensions)
-        dimensions2 = set(file2.variables[variableName].dimensions)
+        dimensions2 = set(file2.variables[renamedNewToOld[variableName]].dimensions)
 
         dimensionsIn1Not2 = dimensions1.difference(dimensions2)
         dimensionsIn2Not1 = dimensions2.difference(dimensions1)
@@ -195,7 +215,7 @@ def compare_files(filename1, filename2, logfile, variableNamesIgnore=[]):
     for variableName in variablesNameIntersection:
 
         variable1 = file1.variables[variableName]
-        variable2 = file2.variables[variableName]
+        variable2 = file2.variables[renamedNewToOld[variableName]]
 
         variableArray1 = variable1[:]
         variableArray2 = variable2[:]

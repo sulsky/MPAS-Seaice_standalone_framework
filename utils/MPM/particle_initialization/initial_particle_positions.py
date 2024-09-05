@@ -198,8 +198,8 @@ def place_particles(posnMP,
                     iCell,
                     nParticlesPerCellDesired,
                     nParticlesPerCellActual,
-                    iceAreaMP,
-                    iceVolumeMP,
+                    iceAreaCellMP,
+                    iceVolumeCellMP,
                     posnInitType,
                     icType,
                     on_a_sphere,
@@ -279,8 +279,8 @@ def place_particles(posnMP,
                         latlon.append([lat, lon])
                         iCellMP.append(iCell+1)
                         creationIndexMP.append(k)
-                        iceAreaMP.append(iceArea)
-                        iceVolumeMP.append(iceVolume)
+                        iceAreaCellMP.append(iceArea)
+                        iceVolumeCellMP.append(iceVolume)
 
             nParticlesPerCellActual = k
 
@@ -338,7 +338,7 @@ def place_particles(posnMP,
     else:
         raise Exception("Invalid particle initType")
 
-    return posnMP, latlon, iCellMP, creationIndexMP, nParticlesPerCellActual, iceAreaMP, iceVolumeMP
+    return posnMP, latlon, iCellMP, creationIndexMP, nParticlesPerCellActual, iceAreaCellMP, iceVolumeCellMP
 
 #-------------------------------------------------------------------------------
 
@@ -385,8 +385,8 @@ def initial_particle_positions(filenameMesh,
     posnLatLonGeoMP = []
     cellIDCreationMP = []
     creationIndexMP = []
-    iceAreaMP = []
-    iceVolumeMP = []
+    iceAreaCellMP = []
+    iceVolumeCellMP = []
 
     for iCell in range(0, nCells):
 
@@ -402,7 +402,7 @@ def initial_particle_positions(filenameMesh,
                 raise Exception("Invalid particle_init_type")
 
 
-            posnMP, latlon, iCellMP, creationIndexMP, nParticlesCell[iCell], iceAreaMP, iceVolumeMP  = place_particles(
+            posnMP, latlon, iCellMP, creationIndexMP, nParticlesCell[iCell], iceAreaCellMP, iceVolumeCellMP  = place_particles(
                 posnMP,
                 posnLatLonGeoMP,
                 cellIDCreationMP,
@@ -410,8 +410,8 @@ def initial_particle_positions(filenameMesh,
                 iCell,
                 nParticlesPerCellDesired,
                 nParticlesCell[iCell],
-                iceAreaMP,
-                iceVolumeMP,
+                iceAreaCellMP,
+                iceVolumeCellMP,
                 particlePositionInitType,
                 initializationType,
                 on_a_sphere,
@@ -433,8 +433,8 @@ def initial_particle_positions(filenameMesh,
     posnLatLonGeoMP = np.array(posnLatLonGeoMP)
     cellIDCreationMP = np.array(cellIDCreationMP)
     creationIndexMP = np.array(creationIndexMP)
-    iceAreaMP = np.array(iceAreaMP)
-    iceVolumeMP = np.array(iceVolumeMP)
+    iceAreaCellMP = np.array(iceAreaCellMP)
+    iceVolumeCellMP = np.array(iceVolumeCellMP)
 
     # output
     fileOut = Dataset(filenameOut,"w",format="NETCDF3_CLASSIC")
@@ -461,17 +461,17 @@ def initial_particle_positions(filenameMesh,
     var = fileOut.createVariable("nParticlesCell","i",dimensions=["nCells"])
     var[:] = nParticlesCell[:]
 
-    var = fileOut.createVariable("iceAreaMP","d",dimensions=["nParticles"])
-    var[:] = iceAreaMP[:]
+    var = fileOut.createVariable("iceAreaCellMP","d",dimensions=["nParticles"])
+    var[:] = iceAreaCellMP[:]
 
-    var = fileOut.createVariable("iceVolumeMP","d",dimensions=["nParticles"])
-    var[:] = iceVolumeMP[:]
+    var = fileOut.createVariable("iceVolumeCellMP","d",dimensions=["nParticles"])
+    var[:] = iceVolumeCellMP[:]
 
     var = fileOut.createVariable("iceAreaCategoryMP","d",dimensions=["nParticles","nCategories","ONE"])
-    var[:, 0] = iceAreaMP[:]
+    var[:, 0] = iceAreaCellMP[:]
 
     var = fileOut.createVariable("iceVolumeCategoryMP","d",dimensions=["nParticles","nCategories","ONE"])
-    var[:, 0] = iceVolumeMP[:]
+    var[:, 0] = iceVolumeCellMP[:]
 
     fileOut.close()
 
