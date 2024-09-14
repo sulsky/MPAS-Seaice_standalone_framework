@@ -22,8 +22,8 @@ def create_particles():
     rotateCartesianGrid = True
     r = 1.0
 
-    #reses = ["2562","10242","40962","163842"]
-    reses = [2562]
+    reses = ["2562","10242","40962","163842"]
+    #reses = [2562]
 
     icTypes = ["uniform"]
 
@@ -45,7 +45,7 @@ def create_particles():
                                            filenameOut,
                                            "number",
                                            9,
-                                           "even",
+                                           "onePerEdge",
                                            icType,
                                            1.0)
 

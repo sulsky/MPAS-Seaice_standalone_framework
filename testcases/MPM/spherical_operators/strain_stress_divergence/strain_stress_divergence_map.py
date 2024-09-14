@@ -202,7 +202,7 @@ def strain_stress_divergence_map():
     fileWeakWachs.close()
 
     # mpm
-    fileMPM = Dataset("./output_mpm_40962/output.2000.nc","r")
+    fileMPM = Dataset("./output_mpmvar_40962/output.2000.nc","r")
 
     stressDivergenceUmpm = fileMPM.variables["stressDivergenceU"][0,:]
     stressDivergenceVmpm = fileMPM.variables["stressDivergenceV"][0,:]

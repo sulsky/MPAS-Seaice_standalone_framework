@@ -1,5 +1,5 @@
 import sys
-from math import fabs, sqrt, pow, pi, sin, cos, asin, acos
+from math import fabs, sqrt, pow, pi, sin, cos, asin, acos, atan2
 import numpy as np
 import argparse
 from netCDF4 import Dataset
@@ -188,6 +188,12 @@ def in_geom(x,
               iceArea = 0.5 * (1.0 + cos((pi * r) / circleRadius))
               iceVolume = 1.0
 
+   elif (icType == 'uniform'):
+
+          in_geom = True
+          iceArea = 1.0
+          iceVolume = 1.0
+
    return in_geom, iceArea, iceVolume
 
 #-------------------------------------------------------------------------------
@@ -303,7 +309,7 @@ def place_particles(posnMP,
 
             k = 0
             for i in range(0, np):
-                for j in range(0, np):
+               for j in range(0, np):
 
                     x = xmin + dx * float(2 * i + 1)
                     y = ymin + dy * float(2 * j + 1)
@@ -328,6 +334,75 @@ def place_particles(posnMP,
                         creationIndexMP.append(k)
 
             nParticlesPerCellActual = k
+
+    elif (posnInitType.strip() == 'onePerEdge'):
+        # place one particle per edge in the polygon
+
+        v1 = [0.,0.,0.]
+        v2 = [0.,0.,0.]
+        v3 = [0.,0.,0.]
+
+        xvert = xVertex[verticesOnCell[:]]
+        yvert = yVertex[verticesOnCell[:]]
+        zvert = zVertex[verticesOnCell[:]]
+        k = 0
+
+        for iVertexOnCell in range (0, nEdgesOnCell):
+
+           v1[0] = xvert[iVertexOnCell]
+           if (iVertexOnCell < nEdgesOnCell - 1):
+              v2[0] = xvert[iVertexOnCell + 1]
+           else:
+              v2[0] = xvert[1]
+           v3[0] = xCell
+           x = (v1[0] + v2[0] + v3[0])/3.0
+
+           v1[1] = yvert[iVertexOnCell]
+           if (iVertexOnCell < nEdgesOnCell - 1):
+              v2[1] = yvert[iVertexOnCell + 1]
+           else:
+              v2[1] = yvert[1]
+           v3[1] = yCell
+           y = (v1[1] + v2[1] + v3[1])/3.0
+
+           v1[2] = zvert[iVertexOnCell]
+           if (iVertexOnCell < nEdgesOnCell - 1):
+              v2[2] = zvert[iVertexOnCell + 1]
+           else:
+              v2[2] = zvert[1]
+           v3[2] = zCell
+           z = (v1[2] + v2[2] + v3[2])/3.0
+
+           if(on_a_sphere):
+
+               R = sqrt(x*x + y*y + z*z)
+               x = x*earthRadius/R
+               y = y*earthRadius/R
+               z = z*earthRadius/R
+
+               inGeom, iceArea, iceVolume  = in_geom(x/earthRadius,
+                                y/earthRadius,
+                                z/earthRadius,
+                                icType)
+               if (inGeom):
+                  k = k + 1
+                  lon = atan2(y, x)
+                  lat = asin(z/earthRadius)
+                  posnMP.append([x, y, z])
+                  latlon.append([lat, lon])
+                  iCellMP.append(iCell+1)
+                  creationIndexMP.append(k)
+                  iceAreaMP.append(iceArea)
+                  iceVolumeMP.append(iceVolume)
+
+           else:
+              k = k + 1
+              posnMP.append([x, y, z])
+              latlon.append([0.0, 0.0])
+              iCellMP.append(iCell+1)
+              creationIndexMP.append(k)
+
+        nParticlesPerCellActual = k
 
     elif (posnInitType.strip() == 'poisson'):
         # place points using a poisson distribution
@@ -377,7 +452,6 @@ def initial_particle_positions(filenameMesh,
     # average cell size
     averageCellSize = np.mean(areaCell)
 
-
     # particle positions
     nParticlesCell = np.zeros(nCells,dtype="i")
 
@@ -400,7 +474,6 @@ def initial_particle_positions(filenameMesh,
             else:
                 # error not a valid option
                 raise Exception("Invalid particle_init_type")
-
 
             posnMP, latlon, iCellMP, creationIndexMP, nParticlesCell[iCell], iceAreaMP, iceVolumeMP  = place_particles(
                 posnMP,
@@ -475,7 +548,6 @@ def initial_particle_positions(filenameMesh,
 
     fileOut.close()
 
-
     # plot
     fig = plt.figure(figsize=(10,10))
     axis = fig.add_subplot(projection='3d')
@@ -499,8 +571,8 @@ if (__name__ == "__main__"):
     parser.add_argument('-o', dest="filenameOut", required=True)
     parser.add_argument('-t', dest="particleInitType", required=True, choices=["number","area"])
     parser.add_argument('-n', dest="particleInitNumber", required=True, type=int)
-    parser.add_argument('-p', dest="particlePositionInitType", required=True, choices=["even","poisson","random"])
-    parser.add_argument('-i', dest="icType", required=True, choices=["cosine_bell","slotted_cylinder"])
+    parser.add_argument('-p', dest="particlePositionInitType", required=True, choices=["even","onePerEdge","poisson","random"])
+    parser.add_argument('-i', dest="icType", required=True, choices=["cosine_bell","slotted_cylinder","uniform"])
     parser.add_argument('-r', dest="earthRadius", type=float, default=6371229.0)
     parser.add_argument('--concIndex', dest="iceConcTimeIndex", default=-1)
 
