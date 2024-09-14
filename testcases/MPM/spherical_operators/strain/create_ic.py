@@ -585,22 +585,7 @@ def velocities_strains_analytical(lat, lon, mu, lu, mv, lv):
     strain22 = dv_dlat / r
     strain12 = (0.5 / r) * (du_dlat + u * tan(lat) + dv_dlon / cos(lat))
 
-    dstrain11_dlon = (1.0 / (r * cos(lat))) * (d2u_dlonlon - dv_dlon * sin(lat))
-    dstrain22_dlat = d2v_dlatlat / r
-
-    dstrain12_dlon = (0.5 / r) * (d2u_dlatlon + du_dlon * tan(lat) + d2v_dlonlon / cos(lat))
-    dstrain12_dlat = (0.5 / r) * (d2u_dlatlat + du_dlat * tan(lat) + u / pow(cos(lat),2) + d2v_dlatlon / cos(lat) + dv_dlon * (tan(lat) / cos(lat)))
-
-    divu = (1.0 / (r * cos(lat))) * dstrain11_dlon + \
-           (1.0 / r)              * dstrain12_dlat - \
-           (2.0 / r) * tan(lat)   * strain12
-
-    divv = (1.0 / (r * cos(lat))) * dstrain12_dlon + \
-           (1.0 / r)              * dstrain22_dlat + \
-           (1.0 / r) * tan(lat)   * strain11       - \
-           (1.0 / r) * tan(lat)   * strain22
-
-    return u, v, strain11, strain22, strain12, divu, divv
+    return u, v, strain11, strain22, strain12
 
 #-------------------------------------------------------------------------------
 
@@ -684,9 +669,6 @@ def create_ic():
         strain22VertexAnalytical = np.zeros(nVertices)
         strain12VertexAnalytical = np.zeros(nVertices)
 
-        stressDivergenceUAnalytical = np.zeros(nVertices)
-        stressDivergenceVAnalytical = np.zeros(nVertices)
-
         for iVertex in range(0, nVertices):
 
             #print("iVertex: ", iVertex, latVertex[iVertex], lonVertex[iVertex])
@@ -694,7 +676,7 @@ def create_ic():
             xp, yp, zp = grid_rotation_forward(xVertex[iVertex], yVertex[iVertex], zVertex[iVertex], rotateCartesianGrid)
             lat, lon = latlon_from_xyz(xp, yp, zp, r)
 
-            u, v, strain11, strain22, strain12, divu, divv = velocities_strains_analytical(lat, lon, mu, lu, mv, lv)
+            u, v, strain11, strain22, strain12 = velocities_strains_analytical(lat, lon, mu, lu, mv, lv)
 
             uVelocity[iVertex] = u
             vVelocity[iVertex] = v
@@ -703,21 +685,16 @@ def create_ic():
             strain22VertexAnalytical[iVertex] = strain22
             strain12VertexAnalytical[iVertex] = strain12
 
-            stressDivergenceUAnalytical[iVertex] = divu
-            stressDivergenceVAnalytical[iVertex] = divv
-
         strain11CellAnalytical = np.zeros(nCells)
         strain22CellAnalytical = np.zeros(nCells)
         strain12CellAnalytical = np.zeros(nCells)
 
         for iCell in range(0, nCells):
 
-            #print("iCell: ", iCell, latCell[iCell], lonCell[iCell])
-
             xp, yp, zp = grid_rotation_forward(xCell[iCell], yCell[iCell], zCell[iCell], rotateCartesianGrid)
             lat, lon = latlon_from_xyz(xp, yp, zp, r)
 
-            u, v, strain11, strain22, strain12, divu, divv = velocities_strains_analytical(lat, lon, mu, lu, mv, lv)
+            u, v, strain11, strain22, strain12 = velocities_strains_analytical(lat, lon, mu, lu, mv, lv)
 
             strain11CellAnalytical[iCell] = strain11
             strain22CellAnalytical[iCell] = strain22
@@ -725,6 +702,20 @@ def create_ic():
 
         solveVelocityPrevious = np.ones(nVertices,dtype="i")
 
+        # stress, linear constitutive model
+        stress11VertexAnalytical = np.zeros(nVertices)
+        stress22VertexAnalytical = np.zeros(nVertices)
+        stress12VertexAnalytical = np.zeros(nVertices)
+        stress11CellAnalytical = np.zeros(nCells)
+        stress22CellAnalytical = np.zeros(nCells)
+        stress12CellAnalytical = np.zeros(nCells)
+        lam = 1.0
+        stress11VertexAnalytical[:] = lam*strain11VertexAnalytical[:]
+        stress22VertexAnalytical[:] = lam*strain22VertexAnalytical[:]
+        stress12VertexAnalytical[:] = lam*strain12VertexAnalytical[:]
+        stress11CellAnalytical[:] = lam*strain11CellAnalytical[:]
+        stress22CellAnalytical[:] = lam*strain22CellAnalytical[:]
+        stress12CellAnalytical[:] = lam*strain12CellAnalytical[:]
 
         # output
         filenameOut = "ic_%i.nc" %(gridSize)
@@ -761,11 +752,23 @@ def create_ic():
         var = fileOut.createVariable("strain12CellAnalytical","d",dimensions=["nCells"])
         var[:] = strain12CellAnalytical[:]
 
-        var = fileOut.createVariable("stressDivergenceUAnalytical","d",dimensions=["nVertices"])
-        var[:] = stressDivergenceUAnalytical[:]
+        var = fileOut.createVariable("stress11VertexAnalytical","d",dimensions=["nVertices"])
+        var[:] = stress11VertexAnalytical[:]
 
-        var = fileOut.createVariable("stressDivergenceVAnalytical","d",dimensions=["nVertices"])
-        var[:] = stressDivergenceVAnalytical[:]
+        var = fileOut.createVariable("stress22VertexAnalytical","d",dimensions=["nVertices"])
+        var[:] = stress22VertexAnalytical[:]
+
+        var = fileOut.createVariable("stress12VertexAnalytical","d",dimensions=["nVertices"])
+        var[:] = stress12VertexAnalytical[:]
+
+        var = fileOut.createVariable("stress11CellAnalytical","d",dimensions=["nCells"])
+        var[:] = stress11CellAnalytical[:]
+
+        var = fileOut.createVariable("stress22CellAnalytical","d",dimensions=["nCells"])
+        var[:] = stress22CellAnalytical[:]
+
+        var = fileOut.createVariable("stress12CellAnalytical","d",dimensions=["nCells"])
+        var[:] = stress12CellAnalytical[:]
 
         fileOut.close()
 
