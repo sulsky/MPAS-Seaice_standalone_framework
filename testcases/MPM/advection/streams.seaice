@@ -73,7 +73,7 @@
         <var name="indexToCellIDMP"/>
         <var name="procIDParticle"/>
         <var name="posnMP"/>
-        <var name="iceAreaMP"/>
+        <var name="iceAreaCellMP"/>
 </stream>
 
 <immutable_stream name="LYqSixHourlyForcing"

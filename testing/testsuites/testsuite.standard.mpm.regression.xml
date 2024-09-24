@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="standard">
+	<configuration name="standard_physics_mpm">
+		<domain name="domain_QU120km">
+			<test name="regression"/>
+		</domain>
+	</configuration>
+</testsuite>
