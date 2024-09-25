@@ -166,7 +166,7 @@ def error_analysis_stress_divergence(testName, ignoreWeak=False):
             iVertexTest = 1123
 
             # weak
-            filenameIn = "output_%s_%s_weak_%s/output.2000.nc" %(testName, gridType, grid)
+            filenameIn = "output_%s_%s_weak_%s/output.2000.nc" %(testName, gridType, grids[gridType])
             filein = Dataset(filenameIn,"r")
 
             normalVectorTriangle = filein.variables["normalVectorTriangle"][:]
