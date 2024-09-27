@@ -4,6 +4,7 @@ from create_particles import create_particles
 from run_model import run_model
 from strain_map import strain_map
 from strain_scaling import strain_scaling
+from average_variational_stress import average_variational_stress
 from stress_scaling import stress_scaling
 from velocity_scaling import velocity_scaling
 
@@ -18,6 +19,8 @@ def run_strain_testcase():
     create_particles()
 
     run_model()
+
+    average_variational_stress()
 
     strain_scaling()
 

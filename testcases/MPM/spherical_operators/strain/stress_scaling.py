@@ -41,64 +41,21 @@ def get_norm_vertex(filenameIC, filename, latitudeLimit):
     fileMPAS = Dataset(filename, "r")
 
     nVertices = len(fileMPAS.dimensions["nVertices"])
-    nCells = len(fileMPAS.dimensions["nCells"])
-    vertexDegree = len(fileMPAS.dimensions["vertexDegree"])
 
     latVertex = fileMPAS.variables["latVertex"][:]
     areaTriangle = fileMPAS.variables["areaTriangle"][:]
 
-    areaCell = fileMPAS.variables["areaCell"][:]
-    cellsOnVertex = fileMPAS.variables["cellsOnVertex"][:]
-    cellVerticesAtVertex = fileMPAS.variables["cellVerticesAtVertex"][:]
-
-    stress11var = fileMPAS.variables["stress11var"][0,:]
-    stress22var = fileMPAS.variables["stress22var"][0,:]
-    stress12var = fileMPAS.variables["stress12var"][0,:]
+    stress11varAvg = fileMPAS.variables["stress11varAvgVertex"][0,:]
+    stress22varAvg = fileMPAS.variables["stress22varAvgVertex"][0,:]
+    stress12varAvg = fileMPAS.variables["stress12varAvgVertex"][0,:]
 
     fileMPAS.close()
-
-    stress11varAvg, stress22varAvg, stress12varAvg = average_stress(stress11var, stress22var, stress12var, nVertices, nCells, vertexDegree, cellsOnVertex, cellVerticesAtVertex, areaCell)
 
     normE11 = L2_norm_vertex(stress11varAvg, stress11VertexAnalytical, nVertices, latVertex, areaTriangle, latitudeLimit)
     normE22 = L2_norm_vertex(stress22varAvg, stress22VertexAnalytical, nVertices, latVertex, areaTriangle, latitudeLimit)
     normE12 = L2_norm_vertex(stress12varAvg, stress12VertexAnalytical, nVertices, latVertex, areaTriangle, latitudeLimit)
 
     return normE11, normE22, normE12
-
-#--------------------------------------------------------
-
-def average_stress(stress11var, stress22var, stress12var, nVertices, nCells, vertexDegree, cellsOnVertex, cellVerticesAtVertex, areaCell):
-
-    stress11VarAvg = np.zeros([nVertices])
-    stress22VarAvg = np.zeros([nVertices])
-    stress12VarAvg = np.zeros([nVertices])
-
-    for iVertex in range(0, nVertices):
-
-          stress11avg = 0.0
-          stress22avg = 0.0
-          stress12avg = 0.0
-          denominator = 0.0
-
-          for iVertexDegree in range(0, vertexDegree):
-
-             iCell = cellsOnVertex[iVertex, iVertexDegree] -1
-
-             if (iCell < nCells):
-
-                iVertexOnCell = cellVerticesAtVertex[iVertex, iVertexDegree]
-
-                stress11avg = stress11avg + stress11var[iCell, iVertexOnCell - 1] * areaCell[iCell]
-                stress22avg = stress22avg + stress22var[iCell, iVertexOnCell - 1] * areaCell[iCell]
-                stress12avg = stress12avg + stress12var[iCell, iVertexOnCell - 1] * areaCell[iCell]
-                denominator = denominator + areaCell[iCell]
-
-
-          stress11VarAvg[iVertex] = stress11avg / denominator
-          stress22VarAvg[iVertex] = stress22avg / denominator
-          stress12VarAvg[iVertex] = stress12avg / denominator
-
-    return stress11VarAvg, stress22VarAvg, stress12VarAvg
 
 #--------------------------------------------------------
 
