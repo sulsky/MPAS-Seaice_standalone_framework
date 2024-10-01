@@ -191,8 +191,10 @@ def in_geom(x,
    return in_geom, iceArea, iceVolume
 
 #-------------------------------------------------------------------------------
+
 def place_particles(posnMP,
-                    latlon,
+                    latCellMP,
+                    lonCellMP,
                     iCellMP,
                     creationIndexMP,
                     iCell,
@@ -276,7 +278,8 @@ def place_particles(posnMP,
                     if(inCell and inGeom):
                         k = k + 1
                         posnMP.append([x, y, z])
-                        latlon.append([lat, lon])
+                        latCellMP.append(lat)
+                        lonCellMP.append(lon)
                         iCellMP.append(iCell+1)
                         creationIndexMP.append(k)
                         iceAreaCellMP.append(iceArea)
@@ -323,7 +326,8 @@ def place_particles(posnMP,
 
                         k = k + 1
                         posnMP.append([x, y, z])
-                        latlon.append([0.0, 0.0])
+                        latCellMP.append(0.0)
+                        lonCellMP.append(0.0)
                         iCellMP.append(iCell+1)
                         creationIndexMP.append(k)
 
@@ -338,7 +342,7 @@ def place_particles(posnMP,
     else:
         raise Exception("Invalid particle initType")
 
-    return posnMP, latlon, iCellMP, creationIndexMP, nParticlesPerCellActual, iceAreaCellMP, iceVolumeCellMP
+    return posnMP, iCellMP, creationIndexMP, nParticlesPerCellActual, iceAreaCellMP, iceVolumeCellMP
 
 #-------------------------------------------------------------------------------
 
@@ -382,7 +386,8 @@ def initial_particle_positions(filenameMesh,
     nParticlesCell = np.zeros(nCells,dtype="i")
 
     posnMP = []
-    posnLatLonGeoMP = []
+    latCellMP = []
+    lonCellMP = []
     cellIDCreationMP = []
     creationIndexMP = []
     iceAreaCellMP = []
@@ -402,35 +407,41 @@ def initial_particle_positions(filenameMesh,
                 raise Exception("Invalid particle_init_type")
 
 
-            posnMP, latlon, iCellMP, creationIndexMP, nParticlesCell[iCell], iceAreaCellMP, iceVolumeCellMP  = place_particles(
-                posnMP,
-                posnLatLonGeoMP,
-                cellIDCreationMP,
-                creationIndexMP,
-                iCell,
-                nParticlesPerCellDesired,
-                nParticlesCell[iCell],
-                iceAreaCellMP,
-                iceVolumeCellMP,
-                particlePositionInitType,
-                initializationType,
-                on_a_sphere,
-                earthRadius,
-                nEdgesOnCell[iCell],
-                verticesOnCell[iCell,:],
-                latVertex,
-                lonVertex,
-                xVertex,
-                yVertex,
-                zVertex,
-                xCell[iCell],
-                yCell[iCell],
-                zCell[iCell])
+            posnMP, \
+                iCellMP, \
+                creationIndexMP, \
+                nParticlesCell[iCell], \
+                iceAreaCellMP, \
+                iceVolumeCellMP = place_particles(posnMP,
+                                                  latCellMP,
+                                                  lonCellMP,
+                                                  cellIDCreationMP,
+                                                  creationIndexMP,
+                                                  iCell,
+                                                  nParticlesPerCellDesired,
+                                                  nParticlesCell[iCell],
+                                                  iceAreaCellMP,
+                                                  iceVolumeCellMP,
+                                                  particlePositionInitType,
+                                                  initializationType,
+                                                  on_a_sphere,
+                                                  earthRadius,
+                                                  nEdgesOnCell[iCell],
+                                                  verticesOnCell[iCell,:],
+                                                  latVertex,
+                                                  lonVertex,
+                                                  xVertex,
+                                                  yVertex,
+                                                  zVertex,
+                                                  xCell[iCell],
+                                                  yCell[iCell],
+                                                  zCell[iCell])
 
 
     nParticles = len(posnMP)
     posnMP = np.array(posnMP)
-    posnLatLonGeoMP = np.array(posnLatLonGeoMP)
+    latCellMP = np.array(latCellMP)
+    lonCellMP = np.array(lonCellMP)
     cellIDCreationMP = np.array(cellIDCreationMP)
     creationIndexMP = np.array(creationIndexMP)
     iceAreaCellMP = np.array(iceAreaCellMP)
@@ -449,8 +460,11 @@ def initial_particle_positions(filenameMesh,
     var = fileOut.createVariable("posnMP","d",dimensions=["nParticles","THREE"])
     var[:] = posnMP[:]
 
-    var = fileOut.createVariable("posnLatLonGeoMP","d",dimensions=["nParticles","TWO"])
-    var[:] = posnLatLonGeoMP[:]
+    var = fileOut.createVariable("latCellMP","d",dimensions=["nParticles"])
+    var[:] = latCellMP[:]
+
+    var = fileOut.createVariable("lonCellMP","d",dimensions=["nParticles"])
+    var[:] = lonCellMP[:]
 
     var = fileOut.createVariable("cellIDCreationMP","i",dimensions=["nParticles"])
     var[:] = cellIDCreationMP[:]
