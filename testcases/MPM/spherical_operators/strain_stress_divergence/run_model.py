@@ -18,7 +18,7 @@ def run_model():
 
     gridSizes = [2562, 10242, 40962, 163842]
     operatorMethods = ["wachspress","pwl","weak","weakwachs","weakpwl","wachspress_alt","pwl_alt","weakwachs_alt","mpmvar","mpmweak"]
-    #operatorMethods = ["mpm"]
+    #operatorMethods = ["mpmweak"]
 
     for operatorMethod in operatorMethods:
 
