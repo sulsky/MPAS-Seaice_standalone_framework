@@ -254,16 +254,18 @@ def get_norm_weak_avg(filenameIC, filename):
 
 #--------------------------------------------------------
 
-def L2_norm_particle(numerical, analytical, nParticles):
+def L2_norm_particle(numerical, analytical, nParticles, useParticle):
 
     norm  = 0.0
     denom = 0.0
 
     for iParticle in range(0, nParticles):
 
-        norm  = norm + math.pow(numerical[iParticle] - analytical[iParticle], 2)
+       if (useParticle[iParticle]):
 
-        denom = denom + math.pow(analytical[iParticle], 2)
+            norm  = norm + math.pow(numerical[iParticle] - analytical[iParticle], 2)
+
+            denom = denom + math.pow(analytical[iParticle], 2)
 
     norm = math.sqrt(norm / denom)
 
@@ -271,25 +273,33 @@ def L2_norm_particle(numerical, analytical, nParticles):
 
 #--------------------------------------------------------
 
-def get_norm_particle(filenameIC, filename):
+def get_norm_particle(filenamePartIC, filenamePart, filename):
 
-    fileIC = Dataset(filenameIC, "r")
+    fileIC = Dataset(filenamePartIC, "r")
 
     strainAnalyticalMP = fileIC.variables["strainAnalyticalMP"][:]
 
     fileIC.close()
 
-    fileMPAS = Dataset(filename, "r")
+    fileMPAS = Dataset(filenamePart, "r")
 
     nParticles = len(fileMPAS.dimensions["nParticles"])
 
     strainMP = fileMPAS.variables["strainMP"][:]
-
-    normE11 = L2_norm_particle(strainMP[0,:,0], strainAnalyticalMP[:,0], nParticles)
-    normE22 = L2_norm_particle(strainMP[0,:,1], strainAnalyticalMP[:,1], nParticles)
-    normE12 = L2_norm_particle(strainMP[0,:,2], strainAnalyticalMP[:,2], nParticles)
+    iCellMP = fileMPAS.variables["iCellMP"][0,:]
 
     fileMPAS.close()
+
+    useCell = get_use_cell(filename)
+    useParticle = np.zeros(nParticles)
+
+    iCellMP = iCellMP - 1
+    for iParticle in range(0, nParticles):
+        useParticle[iParticle] = useCell[iCellMP[iParticle]]
+
+    normE11 = L2_norm_particle(strainMP[0,:,0], strainAnalyticalMP[:,0], nParticles, useParticle)
+    normE22 = L2_norm_particle(strainMP[0,:,1], strainAnalyticalMP[:,1], nParticles, useParticle)
+    normE12 = L2_norm_particle(strainMP[0,:,2], strainAnalyticalMP[:,2], nParticles, useParticle)
 
     return normE11, normE22, normE12
 
@@ -475,7 +485,7 @@ def strain_scaling():
 
                     print("      ", filename, filenameIC)
 
-                    normE11, normE22, normE12 = get_norm_particle(filenamePartIC,filenamePart)
+                    normE11, normE22, normE12 = get_norm_particle(filenamePartIC,filenamePart,filename)
 
                     x.append(get_resolution(filename))
                     if (strain == "strain11"):
