@@ -256,16 +256,18 @@ def get_norm_weak_avg(filenameIC, filename):
 
 #--------------------------------------------------------
 
-def L2_norm_particle(numerical, analytical, nParticles):
+def L2_norm_particle(numerical, analytical, nParticles, useParticle):
 
     norm  = 0.0
     denom = 0.0
 
     for iParticle in range(0,nParticles):
 
-        norm  = norm + math.pow(numerical[iParticle] - analytical[iParticle],2)
+        if(useParticle[iParticle]):
 
-        denom = denom + math.pow(analytical[iParticle],2)
+             norm  = norm + math.pow(numerical[iParticle] - analytical[iParticle],2)
+
+             denom = denom + math.pow(analytical[iParticle],2)
 
     norm = math.sqrt(norm / denom)
 
@@ -273,23 +275,30 @@ def L2_norm_particle(numerical, analytical, nParticles):
 
 #--------------------------------------------------------
 
-def get_norm_particle(filenameIC, filename):
+def get_norm_particle(filenamePartIC, filenamePart, filename):
 
-    fileIC = Dataset(filenameIC, "r")
+    fileIC = Dataset(filenamePartIC, "r")
 
     strainAnalyticalMP = fileIC.variables["strainAnalyticalMP"][:]
 
     fileIC.close()
 
-    fileMPAS = Dataset(filename, "r")
+    fileMPAS = Dataset(filenamePart, "r")
 
     nParticles = len(fileMPAS.dimensions["nParticles"])
 
     strainMP = fileMPAS.variables["strainMP"][:]
+    iCellMP  = fileMPAS.variables["iCellMP"][0, :]
 
-    normE11 = L2_norm_particle(strainMP[0,:,0], strainAnalyticalMP[:,0], nParticles)
-    normE22 = L2_norm_particle(strainMP[0,:,1], strainAnalyticalMP[:,1], nParticles)
-    normE12 = L2_norm_particle(strainMP[0,:,2], strainAnalyticalMP[:,2], nParticles)
+    useCell = get_use_cell(filename)
+    iCellMP = iCellMP - 1
+    useParticle = np.zeros(nParticles)
+    for iParticle in range(0, nParticles):
+         useParticle[iParticle] = useCell[iCellMP[iParticle]]
+
+    normE11 = L2_norm_particle(strainMP[0,:,0], strainAnalyticalMP[:,0], nParticles, useParticle)
+    normE22 = L2_norm_particle(strainMP[0,:,1], strainAnalyticalMP[:,1], nParticles, useParticle)
+    normE12 = L2_norm_particle(strainMP[0,:,2], strainAnalyticalMP[:,2], nParticles, useParticle)
 
     fileMPAS.close()
 
@@ -390,19 +399,19 @@ def strain_scaling():
     strains = ["strain11","strain22","strain12"]
 
     operatorMethods = ["wachspress","pwl","weak","wachspress_avg","pwl_avg","weak_avg","mpmvar","mpmweak"]
-    operatorMethods = ["mpmweak"]
+    #operatorMethods = ["mpmweak"]
 
     gridTypes = ["hex","quad"]
     #gridTypes = ["quad"]
 
     grids = {"hex" :["0082x0094",
                      "0164x0188",
-                     "0328x0376",
-                     "0656x0752"],
+                     "0328x0376"],
+                 #    "0656x0752"],
              "quad":["0080x0080",
                      "0160x0160",
-                     "0320x0320",
-                     "0640x0640"]}
+                     "0320x0320"]}
+                 #    "0640x0640"]}
     #grids = {"hex" :["0082x0094"],
     #         "quad":["0080x0080"]}
 
@@ -432,7 +441,7 @@ def strain_scaling():
                    "pwl_avg":"green",
                    "weak_avg":"purple",
                    "mpmvar":"cyan",
-                   "mpmweak":"yellow"}
+                   "mpmweak":"olive"}
 
     markers = {"wachspress":"o",
                "pwl":"s",
@@ -510,9 +519,9 @@ def strain_scaling():
                     elif (operatorMethod == "weak_avg"):
                         normE11, normE22, normE12 = get_norm_weak_avg(filenameIC, filename)
                     elif (operatorMethod == "mpmvar"):
-                        normE11, normE22, normE12 = get_norm_particle(filenamePartIC,filenamePart)
+                        normE11, normE22, normE12 = get_norm_particle(filenamePartIC,filenamePart,filename)
                     elif (operatorMethod == "mpmweak"):
-                        normE11, normE22, normE12 = get_norm_particle(filenamePartIC,filenamePart)
+                        normE11, normE22, normE12 = get_norm_particle(filenamePartIC,filenamePart,filename)
 
                     x.append(get_resolution(filename))
                     if (strain == "strain11"):

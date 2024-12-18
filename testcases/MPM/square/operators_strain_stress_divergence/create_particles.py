@@ -4,6 +4,7 @@ from math import sin, cos, pi
 import sys
 sys.path.append("../../../../utils/MPM/particle_initialization/")
 from initial_particle_positions import initial_particle_positions
+sys.path.append("../../../square/operators_strain_stress_divergence")
 from create_ics import velocities_strains_stress_divergences
 
 #-------------------------------------------------------------

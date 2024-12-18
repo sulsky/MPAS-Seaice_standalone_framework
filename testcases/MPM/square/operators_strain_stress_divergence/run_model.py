@@ -18,10 +18,10 @@ def run_model():
 
     operatorMethods = ["wachspress","pwl","weak","wachsavg","pwlavg","weakwachs","weakpwl","mpmvar","mpmweak"]
     #operatorMethods = ["wachsavg"]
-    operatorMethods = ["mpmvar","mpmweak"]
+    #operatorMethods = ["mpmvar","mpmweak"]
 
     gridTypes = ["hex","quad"]
-    #gridTypes = ["quad"]
+    gridTypes = ["quad"]
 
     grids = {"hex" :["0082x0094",
                      "0164x0188",
@@ -33,8 +33,8 @@ def run_model():
                      "0640x0640"]}
     #grids = {"hex" :["0082x0094"],
     #         "quad":["0080x0080"]}
-    grids = {"hex" :["0656x0752"],
-             "quad":["0640x0640"]}
+    #grids = {"hex" :["0656x0752"],
+    #         "quad":["0640x0640"]}
 
     for gridType in gridTypes:
 

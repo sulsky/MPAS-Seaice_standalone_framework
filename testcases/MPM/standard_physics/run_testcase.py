@@ -56,7 +56,9 @@ empty_particle_file("particles.nc")
 run_model()
 
 # check output
-check_run(1,  16, "mpmvar")
-check_run(16, 32, "mpmvar")
-check_run(1,  16, "mpmweak")
-check_run(16, 32, "mpmweak")
+operatorMethods = ["mpmvar", "mpmweak"]
+#operatorMethods = ["mpmvar"]
+for operatorMethod in operatorMethods:
+    print("   operatorMethod: ", operatorMethod)
+    check_run(1,  16, operatorMethod)
+    check_run(16, 32, operatorMethod)

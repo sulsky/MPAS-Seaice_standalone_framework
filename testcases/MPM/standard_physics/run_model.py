@@ -44,7 +44,6 @@ def run_model():
        os.system("rm -rf namelist.seaice")
        os.system("ln -s namelist.seaice.%s namelist.seaice" %(operatorMethod))
 
-       iproc = 1
        for nProc in nProcs:
           print("   running on  ", nProc, " processors")
 
@@ -63,8 +62,6 @@ def run_model():
           cmd = "mv output output_%s_%i" %(operatorMethod, nProc)
           print(cmd)
           os.system(cmd)
-
-          iproc = iproc + 1
 
 #-------------------------------------------------------------------------------
 

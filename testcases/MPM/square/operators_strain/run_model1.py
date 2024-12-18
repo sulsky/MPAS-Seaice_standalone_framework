@@ -17,6 +17,7 @@ def run_model():
         MPAS_SEAICE_TESTCASES_RUN_COMMAND = ""
 
     operatorMethods = ["mpmvar","mpmweak"]
+    #operatorMethods = ["mpmvar"]
 
     gridTypes = ["hex","quad"]
     #gridTypes = ["hex"]

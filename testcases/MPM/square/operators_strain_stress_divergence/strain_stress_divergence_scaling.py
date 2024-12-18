@@ -163,7 +163,7 @@ def strain_stress_divergence_scaling():
                    "wachsavg":"purple",
                    "pwlavg":"orange",
                    "mpmvar":"cyan",
-                   "mpmweak":"yellow"}
+                   "mpmweak":"olive"}
 
     lineStyles = {"hex":"solid",
                   "quad":"dashed"}

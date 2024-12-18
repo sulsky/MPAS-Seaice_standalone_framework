@@ -1,4 +1,3 @@
-from get_testcase_data import get_testcase_data
 from create_ic import create_ic
 from create_particles import create_particles
 from run_model import run_model
@@ -7,6 +6,9 @@ from strain_scaling import strain_scaling
 from average_variational_stress import average_variational_stress
 from stress_scaling import stress_scaling
 from velocity_scaling import velocity_scaling
+import sys
+sys.path.append("../../../spherical_operators/strain")
+from get_testcase_data import get_testcase_data
 
 #-------------------------------------------------------------------------------
 
