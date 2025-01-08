@@ -398,8 +398,9 @@ def strain_scaling():
 
     strains = ["strain11","strain22","strain12"]
 
-    operatorMethods = ["wachspress","pwl","weak","wachspress_avg","pwl_avg","weak_avg","mpmvar","mpmweak"]
-    #operatorMethods = ["mpmweak"]
+    #operatorMethods = ["wachspress","pwl","weak","mpmvar","mpmweak"]
+    operatorMethods = ["mpmvar","mpmweak"]
+    #operatorMethods = ["weak"]
 
     gridTypes = ["hex","quad"]
     #gridTypes = ["quad"]
