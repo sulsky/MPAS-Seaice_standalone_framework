@@ -1,12 +1,11 @@
-import sys
-sys.path.append("../../../../utils/MPM/particle_initialization/")
-from initial_particle_positions import initial_particle_positions
-
-from create_ic import latlon_from_xyz, velocities_strains_analytical,  grid_rotation_forward
 from netCDF4 import Dataset
 import numpy as np
 import math
-
+import sys
+sys.path.append("../../../../utils/MPM/particle_initialization/")
+from initial_particle_positions import initial_particle_positions
+sys.path.append("../../../spherical_operators/strain_stress_divergence")
+from create_ic import latlon_from_xyz, velocities_strains_analytical,  grid_rotation_forward
 import os
 
 #--------------------------------------------------------------------

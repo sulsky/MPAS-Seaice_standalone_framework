@@ -318,24 +318,17 @@ def place_particles(posnMP,
                     y = ymin + dy * float(2 * j + 1)
                     z = 0.0
 
-                    if (mpas_in_cell(x,
-                                     y,
-                                     z,
-                                     xCell,
-                                     yCell,
-                                     zCell,
-                                     nEdgesOnCell,
-                                     verticesOnCell[:],
-                                     xVertex,
-                                     yVertex,
-                                     zVertex)):
+                    inGeom, iceArea, iceVolume  = in_geom(x,y,z,icType)
 
-                        k = k + 1
-                        posnMP.append([x, y, z])
-                        latCellMP.append(0.0)
-                        lonCellMP.append(0.0)
-                        iCellMP.append(iCell+1)
-                        creationIndexMP.append(k)
+                    if (inGeom):
+                      k = k + 1
+                      posnMP.append([x, y, z])
+                      latCellMP.append(0.0)
+                      lonCellMP.append(0.0)
+                      iCellMP.append(iCell+1)
+                      creationIndexMP.append(k)
+                      iceAreaCellMP.append(iceArea)
+                      iceVolumeCellMP.append(iceVolume)
 
             nParticlesPerCellActual = k
 
@@ -435,6 +428,11 @@ def initial_particle_positions(filenameMesh,
     fileMesh = Dataset(filenameMesh,"r")
 
     on_a_sphere = fileMesh.on_a_sphere
+    sphere = fileMesh.on_a_sphere
+    if(sphere == "NO"):
+        on_a_sphere = False
+    elif(sphere == "YES"):
+        on_a_sphere = True
 
     nCells = len(fileMesh.dimensions["nCells"])
 
@@ -521,6 +519,7 @@ def initial_particle_positions(filenameMesh,
     lonCellMP = np.array(lonCellMP)
     cellIDCreationMP = np.array(cellIDCreationMP)
     creationIndexMP = np.array(creationIndexMP)
+    nParticlesCell = np.array(nParticlesCell)
     iceAreaCellMP = np.array(iceAreaCellMP)
     iceVolumeCellMP = np.array(iceVolumeCellMP)
 

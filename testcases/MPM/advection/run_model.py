@@ -43,7 +43,7 @@ def run_model(nCells, nProcs):
 
         os.chdir("..")
 
-    cmd = "mpirun -np %i %s" %(nProcs, MPAS_SEAICE_EXECUTABLE)
+    cmd = "mpirun -oversubscribe -np %i %s" %(nProcs, MPAS_SEAICE_EXECUTABLE)
     print(cmd)
     os.system(cmd)
 
