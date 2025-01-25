@@ -55,7 +55,7 @@
 &use_sections
     config_use_dynamics = true
     config_use_velocity_solver = true
-    config_use_mpm = true
+    config_use_mpm = false
     config_use_advection = true
     config_use_forcing = true
     config_use_column_physics = true
@@ -87,7 +87,7 @@
     config_rotate_cartesian_grid = true
     config_include_metric_terms = true
     config_elastic_subcycle_number = 120
-    config_strain_scheme = 'mpm'
+    config_strain_scheme = 'variational'
     config_constitutive_relation_type = 'evp'
     config_stress_divergence_scheme = 'variational'
     config_variational_basis = 'wachspress'

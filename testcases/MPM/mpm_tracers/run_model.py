@@ -21,19 +21,17 @@ def run_model():
     if (MPAS_SEAICE_METIS_PATH is None):
         MPAS_SEAICE_METIS_PATH = "gpmetis"
 
-    operatorMethods = ["mpmvar", "mpas"]
+    operatorMethods = ["mpm_tracers", "mpas"]
 
     for operatorMethod in operatorMethods:
        print("   operatorMethod: ", operatorMethod)
 
-       if (operatorMethod == "mpmvar"):
-          nmlPatch = {"velocity_solver": {"config_strain_scheme":"variational",
-                                          "config_stress_divergence_scheme":"variational"},
-                      "use_sections": {"config_use_mpm": True}}
+       if (operatorMethod == "mpm_tracers"):
+          nmlPatch = {"use_sections": {"config_use_mpm": True},
+                               "mpm": {"config_use_mpm_tracers": True}}
        elif (operatorMethod == "mpas"):
-          nmlPatch = {"velocity_solver": {"config_strain_scheme":"variational",
-                                          "config_stress_divergence_scheme":"variational"},
-                      "use_sections": {"config_use_mpm": False}}
+          nmlPatch = {"use_sections": {"config_use_mpm": False},
+                               "mpm": {"config_use_mpm_tracers": False}}
 
        f90nml.patch("namelist.seaice.default", nmlPatch, "namelist.seaice.%s" %(operatorMethod))
 

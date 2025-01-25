@@ -1,7 +1,5 @@
 import sys
 from run_model import run_model
-from check_results import check_results
-from check_particle_positions import check_particle_positions
 sys.path.append("../../../testing")
 from compare_mpas_files import compare_files
 from testing_utils import get_domain, print_colour, create_test_directory, test_summary
@@ -35,12 +33,12 @@ os.chdir("../")
 
 # make log file
 logfile = open("log_test.txt", "w")
-title = "Test: mpmvar vs. mpas"
+title = "Test: mpm_tracers vs. mpas"
 print_colour(title, "title")
 logfile.write(title)
 
 # run comparison
-file1="output_mpmvar/output.2000.nc"
+file1="output_mpm_tracers/output.2000.nc"
 file2="output_mpas/output.2000.nc"
 nErrorsArray, nErrorsNonArray = compare_files(file1,file2,logfile)
 failed = test_summary(nErrorsNonArray, nErrorsArray, logfile, "standard_physics")
@@ -48,5 +46,3 @@ failed = test_summary(nErrorsNonArray, nErrorsArray, logfile, "standard_physics"
 if (os.path.isfile("vars_differ.nc")):
      cmd = "mv vars_differ.nc %s" %(testDir)
      os.system(cmd)
-
-#check_particle_positions()
