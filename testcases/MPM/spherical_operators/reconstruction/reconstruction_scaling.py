@@ -104,12 +104,12 @@ def reconstruction_scaling():
     xMax = 1e-1
 
     # quadratic scaling
-    scale = 1.0e-3 / math.pow(xMin,2)
+    scale = 1.0e-4 / math.pow(xMin,2)
     scaleMinQuad = math.pow(xMin,2) * scale
     scaleMaxQuad = math.pow(xMax,2) * scale
 
     # linear scaling
-    scale = 1.0e-3 / math.pow(xMin,1)
+    scale = 1.0e-4 / math.pow(xMin,1)
     scaleMinLin = math.pow(xMin,1) * scale
     scaleMaxLin = math.pow(xMax,1) * scale
 
