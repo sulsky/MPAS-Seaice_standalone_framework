@@ -3,6 +3,8 @@ import math
 import matplotlib.pyplot as plt
 import numpy as np
 import matplotlib as mpl
+import glob
+from average_particle_ice_area_to_cell import average_particle_ice_area_to_cell
 
 #---------------------------------------------------------
 
@@ -90,7 +92,7 @@ def advection_equatorial():
 
     iTime = -1
 
-    # cosine bell
+    # mesh
     filename = "./output_%s_%s/output.2000.nc" %(experiment1,res)
 
     print(filename)
@@ -108,58 +110,28 @@ def advection_equatorial():
     cellsOnCell = fileMPAS.variables["cellsOnCell"][:]
     nEdgesOnCell = fileMPAS.variables["nEdgesOnCell"][:]
 
-    iceArea_CB_Initial   = fileMPAS.variables["iceAreaCell"][0,:]
-    iceVolume_CB_Initial = fileMPAS.variables["iceVolumeCell"][0,:]
-    iceThickness_CB_Initial = np.zeros(nCells)
-    for iCell in range(0,nCells):
-        if (iceArea_CB_Initial[iCell] > 0.0):
-            iceThickness_CB_Initial[iCell] = iceVolume_CB_Initial[iCell] / iceArea_CB_Initial[iCell]
-
-    iceArea_CB = fileMPAS.variables["iceAreaCell"][iTime,:]
-    iceVolume_CB = fileMPAS.variables["iceVolumeCell"][iTime,:]
-    iceThickness_CB = np.zeros(nCells)
-    for iCell in range(0,nCells):
-        if (iceArea_CB[iCell] > 0.0):
-            iceThickness_CB[iCell] = iceVolume_CB[iCell] / iceArea_CB[iCell]
-
     fileMPAS.close()
+
+    # cosine bell
+    filenamesParticleCB = sorted(glob.glob("./output_%s_%s/particles_output*" %(experiment1,res)))
+
+    iceArea_CB_Initial = average_particle_ice_area_to_cell(filenamesParticleCB[ 0], nCells)
+    iceArea_CB         = average_particle_ice_area_to_cell(filenamesParticleCB[-1], nCells)
 
     # slotted cylinder
-    filename = "./output_%s_%s/output.2000.nc" %(experiment2,res)
+    filenamesParticleSC = sorted(glob.glob("./output_%s_%s/particles_output*" %(experiment2,res)))
 
-    print(filename)
-    fileMPAS = Dataset(filename,"r")
+    iceArea_SC_Initial = average_particle_ice_area_to_cell(filenamesParticleSC[ 0], nCells)
+    iceArea_SC         = average_particle_ice_area_to_cell(filenamesParticleSC[-1], nCells)
 
-    iceArea_SC_Initial   = fileMPAS.variables["iceAreaCell"][0,:]
-    iceVolume_SC_Initial = fileMPAS.variables["iceVolumeCell"][0,:]
-    iceThickness_SC_Initial = np.zeros(nCells)
-    for iCell in range(0,nCells):
-        if (iceArea_SC_Initial[iCell] > 0.0):
-            iceThickness_SC_Initial[iCell] = iceVolume_SC_Initial[iCell] / iceArea_SC_Initial[iCell]
-
-    iceArea_SC = fileMPAS.variables["iceAreaCell"][iTime,:]
-    iceVolume_SC = fileMPAS.variables["iceVolumeCell"][iTime,:]
-    iceThickness_SC = np.zeros(nCells)
-    for iCell in range(0,nCells):
-        if (iceArea_SC[iCell] > 0.0):
-            iceThickness_SC[iCell] = iceVolume_SC[iCell] / iceArea_SC[iCell]
-
-    print(np.amin(iceArea_SC_Initial), np.amax(iceArea_SC_Initial), np.amin(iceVolume_SC_Initial), np.amax(iceVolume_SC_Initial))
-    print(np.amin(iceArea_SC), np.amax(iceArea_SC), np.amin(iceVolume_SC), np.amax(iceVolume_SC))
-
-    fileMPAS.close()
+    print(np.amin(iceArea_SC_Initial), np.amax(iceArea_SC_Initial))
+    print(np.amin(iceArea_SC),         np.amax(iceArea_SC))
 
     lons, yiceArea_CB_Initial = get_equatorial_array(nCells, latCell, lonCell, xCell, yCell, zCell, cellsOnCell, nEdgesOnCell, iceArea_CB_Initial)
     lons, yiceArea_CB = get_equatorial_array(nCells, latCell, lonCell, xCell, yCell, zCell, cellsOnCell, nEdgesOnCell, iceArea_CB)
 
     lons, yiceArea_SC_Initial = get_equatorial_array(nCells, latCell, lonCell, xCell, yCell, zCell, cellsOnCell, nEdgesOnCell, iceArea_SC_Initial)
     lons, yiceArea_SC = get_equatorial_array(nCells, latCell, lonCell, xCell, yCell, zCell, cellsOnCell, nEdgesOnCell, iceArea_SC)
-
-    lons, yiceThickness_CB_Initial = get_equatorial_array(nCells, latCell, lonCell, xCell, yCell, zCell, cellsOnCell, nEdgesOnCell, iceThickness_CB_Initial)
-    lons, yiceThickness_CB = get_equatorial_array(nCells, latCell, lonCell, xCell, yCell, zCell, cellsOnCell, nEdgesOnCell, iceThickness_CB)
-
-    lons, yiceThickness_SC_Initial = get_equatorial_array(nCells, latCell, lonCell, xCell, yCell, zCell, cellsOnCell, nEdgesOnCell, iceThickness_SC_Initial)
-    lons, yiceThickness_SC = get_equatorial_array(nCells, latCell, lonCell, xCell, yCell, zCell, cellsOnCell, nEdgesOnCell, iceThickness_SC)
 
     cm = 1/2.54  # centimeters in inches
     plt.rcParams["font.family"] = "Times New Roman"

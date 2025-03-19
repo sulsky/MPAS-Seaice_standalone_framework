@@ -8,6 +8,8 @@ from mpl_toolkits.axes_grid1 import make_axes_locatable
 import math, sys
 from scipy.interpolate import griddata
 from matplotlib.ticker import FormatStrFormatter
+import glob
+from average_particle_ice_area_to_cell import average_particle_ice_area_to_cell
 
 #---------------------------------------------------------------
 
@@ -176,8 +178,8 @@ def advection_map():
 
     print("Load data...")
 
-    # slotted cylinder
-    filename    = "./output_%s_%s/output.2000.nc" %(experiment2,res)
+    # mesh
+    filename = "./output_%s_%s/output.2000.nc" %(experiment2,res)
 
     file = Dataset(filename, "r")
 
@@ -195,20 +197,19 @@ def advection_map():
     yCell          = file.variables["yCell"][:]
     zCell          = file.variables["zCell"][:]
 
-    iceAreaInitialSC   = file.variables["iceAreaCell"][0,:]
-    iceAreaSC   = file.variables["iceAreaCell"][iTime,:]
-
     file.close()
+
+    # slotted cylinder
+    filenamesParticleSC = sorted(glob.glob("./output_%s_%s/particles_output*" %(experiment2,res)))
+
+    iceAreaInitialSC = average_particle_ice_area_to_cell(filenamesParticleSC[ 0], nCells)
+    iceAreaSC        = average_particle_ice_area_to_cell(filenamesParticleSC[-1], nCells)
 
     # cosine bell
-    filename = "./output_%s_%s/output.2000.nc" %(experiment1,res)
+    filenamesParticleCB = sorted(glob.glob("./output_%s_%s/particles_output*" %(experiment1,res)))
 
-    file = Dataset(filename, "r")
-
-    iceAreaInitialCB   = file.variables["iceAreaCell"][0,:]
-    iceAreaCB   = file.variables["iceAreaCell"][iTime,:]
-
-    file.close()
+    iceAreaInitialCB = average_particle_ice_area_to_cell(filenamesParticleCB[ 0], nCells)
+    iceAreaCB        = average_particle_ice_area_to_cell(filenamesParticleCB[-1], nCells)
 
     scaleFactor = 0.9
     #scaleFactor = 1.0

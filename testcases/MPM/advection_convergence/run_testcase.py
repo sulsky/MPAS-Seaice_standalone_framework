@@ -11,13 +11,36 @@ from advection_map import advection_map
 from advection_equatorial import advection_equatorial
 from advection_error_convergence import advection_error_convergence
 
+sys.path.append("../advection")
+from add_deldyn_to_ics import add_deldyn_to_ics
+from check_particles_moved import check_particles_moved
+
+particleFilename1 = "/particles_output.2000-01-01_00.00.00.nc"
+particleFilename2 = "/particles_output.2000-03-01_00.00.00.nc"
+
+outDirs = [
+    "output_cosine_bell_10242",
+    "output_cosine_bell_163842",
+    "output_cosine_bell_2562",
+    "output_cosine_bell_40962",
+    "output_slotted_cylinder_10242",
+    "output_slotted_cylinder_163842",
+    "output_slotted_cylinder_2562",
+    "output_slotted_cylinder_40962"]
+
 get_testcase_data()
 
 create_ics()
 
+add_deldyn_to_ics(3600.0)
+
 create_particles()
 
 run_model()
+
+for outDir in outDirs:
+    check_particles_moved(outDir+particleFilename1,
+                          outDir+particleFilename2)
 
 plot_testcase()
 
