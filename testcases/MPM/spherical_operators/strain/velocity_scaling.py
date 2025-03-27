@@ -160,14 +160,16 @@ def velocity_scaling():
 
     methods = ["mpmvar"]
 
-    lineColours = ["black","grey","red"]
+    lineColours = ["black","grey","red","blue"]
 
     lineStyles = {"hex":"solid",
                   "quad":"dashed"}
 
+    labels=["uVelocityMP", "uVelocityVertex","uVelocityMP", "vVelocityVertex"]
+
     latitudeLimit = 20.0
 
-    fig, axes = plt.subplots(2,1,figsize=(5,10))
+    fig, axes = plt.subplots(1,1,figsize=(4,3))
 
     iVelo = 0
     for velocity in velocities:
@@ -185,10 +187,9 @@ def velocity_scaling():
         scaleMinQuad = math.pow(xMin,2) * scale
         scaleMaxQuad = math.pow(xMax,2) * scale
 
-        axes[iVelo].loglog([xMin, xMax], [scaleMinLin,scaleMaxLin], linestyle=':', color='k')
-        axes[iVelo].loglog([xMin, xMax], [scaleMinQuad,scaleMaxQuad], linestyle=':', color='k')
+        axes.loglog([xMin, xMax], [scaleMinLin,scaleMaxLin], linestyle=':', color='k')
+        axes.loglog([xMin, xMax], [scaleMinQuad,scaleMaxQuad], linestyle=':', color='k')
 
-        iPlot = 0
         for method in methods:
 
             x = []
@@ -210,13 +211,12 @@ def velocity_scaling():
                 elif (velocity == "v"):
                     y.append(normV)
 
-            iPlot = iPlot + 1
 
-        axes[iVelo].loglog(x,y, marker='o', color=lineColours[1], ls="solid", markersize=5.0, label="VelMP" )
+        axes.loglog(x,y, marker='o', color=lineColours[iVelo], ls="solid", markersize=5.0, label=labels[iVelo] )
         print('resolution',x)
         print('normMP',y)
+        iVelo = iVelo + 1
 
-        iPlot = 0
         for method in methods:
 
             x = []
@@ -236,19 +236,19 @@ def velocity_scaling():
                 elif (velocity == "v"):
                     y.append(normV)
 
-            iPlot = iPlot + 1
 
-        axes[iVelo].loglog(x,y, marker='o', color=lineColours[2], ls="solid", markersize=5.0, label="VelVertex" )
+        axes.loglog(x,y, marker='o', color=lineColours[iVelo], ls="solid", markersize=5.0, label=labels[iVelo] )
         print('resolution',x)
         print('normVertex',y)
-
-
-        axes[iVelo].legend(frameon=False, loc=2, fontsize=8, handlelength=4)
-
-        axes[iVelo].set_xlabel("Grid resolution")
-        axes[iVelo].set_ylabel(r"$L_2$ error norm")
-
         iVelo = iVelo + 1
+
+
+        axes.legend(frameon=False, loc=2, fontsize=8, handlelength=4)
+
+        axes.set_xlabel("Grid resolution")
+        axes.set_ylabel(r"$L_2$ error norm")
+
+        #iVelo = iVelo + 1
 
 
     plt.tight_layout(pad=0.5, w_pad=0.5, h_pad=0.5)

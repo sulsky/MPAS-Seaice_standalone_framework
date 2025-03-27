@@ -227,8 +227,8 @@ def place_particles(posnMP,
 
         # place points evenly in circumscribing rectangle
         # WARNING: for 'even' to work, numberToPlace must be a perfect square
-        np = int(sqrt(float(nParticlesPerCellDesired)))
-        #if ( (np*np) \= nParticlesCell(iCell)) then
+        npart = int(sqrt(float(nParticlesPerCellDesired)))
+        #if ( (npart*npart) \= nParticlesCell(iCell)) then
         #   print*,'error in placing material points'
         #endif
 
@@ -246,15 +246,15 @@ def place_particles(posnMP,
                 lonmin = min(lonmin,lonVertex[iVertex])
                 lonmax = max(lonmax,lonVertex[iVertex])
 
-            dx = (latmax - latmin) / float(np) / 2.0
-            dy = (lonmax - lonmin) / float(np) / 2.0
+            dx = (latmax - latmin) / float(npart) / 2.0
+            dy = (lonmax - lonmin) / float(npart) / 2.0
             # special case for lon near -pi and pi
             if (lonmin * lonmax < 0.0 and lonmax > pi / 2.0):
-                dy = (lonmax - lonmin - 2.0 * pi) / float(np) / 2.0
+                dy = (lonmax - lonmin - 2.0 * pi) / float(npart) / 2.0
 
             k = 0
-            for i in range(0, np):
-                for j in range(0, np):
+            for i in range(0, npart):
+                for j in range(0, npart):
 
                     lat = latmin + dx * float(2 * i + 1)
                     lon = lonmin + dy * float(2 * j + 1)
@@ -307,12 +307,12 @@ def place_particles(posnMP,
                 ymin = min(ymin, yVertex[iVertex])
                 ymax = max(ymax, yVertex[iVertex])
 
-            dx = (xmax-xmin) / float(np) / 2.0
-            dy = (ymax-ymin) / float(np) / 2.0
+            dx = (xmax-xmin) / float(npart) / 2.0
+            dy = (ymax-ymin) / float(npart) / 2.0
 
             k = 0
-            for i in range(0, np):
-                for j in range(0, np):
+            for i in range(0, npart):
+                for j in range(0, npart):
 
                     x = xmin + dx * float(2 * i + 1)
                     y = ymin + dy * float(2 * j + 1)
@@ -570,9 +570,9 @@ def initial_particle_positions(filenameMesh,
     fig = plt.figure(figsize=(10,10))
     axis = fig.add_subplot(projection='3d')
     axis.scatter(posnMP[:,0],posnMP[:,1],posnMP[:,2])
-    axis.set_xlim((np.amin(xCell)*1.1,np.amax(xCell)*1.1))
-    axis.set_ylim((np.amin(yCell)*1.1,np.amax(yCell)*1.1))
-    axis.set_zlim((np.amin(zCell)*1.1,np.amax(zCell)*1.1))
+    axis.set_xlim(np.min([-earthRadius,np.amin(xCell)])*1.1,np.max([np.amax(xCell),earthRadius])*1.1)
+    axis.set_ylim(np.min([-earthRadius,np.amin(yCell)])*1.1,np.max([np.amax(yCell),earthRadius])*1.1)
+    axis.set_zlim(np.min([-earthRadius,np.amin(zCell)])*1.1,np.max([np.amax(zCell),earthRadius])*1.1)
     axis.set_xlabel("x")
     axis.set_ylabel("y")
     axis.set_zlabel("z")

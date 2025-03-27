@@ -148,7 +148,7 @@ def strain_map():
     strain22CellAnalytical = fileIC.variables["strain22CellAnalytical"][:]
     strain12CellAnalytical = fileIC.variables["strain12CellAnalytical"][:]
 
-    print("Stress divergence: ",
+    print("Strain: ",
           np.amin(strain11VertexAnalytical), np.amax(strain11VertexAnalytical),
           np.amin(strain22VertexAnalytical), np.amax(strain22VertexAnalytical),
           np.amin(strain12VertexAnalytical), np.amax(strain12VertexAnalytical))

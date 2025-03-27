@@ -6,6 +6,7 @@ from strain_scaling import strain_scaling
 from average_variational_stress import average_variational_stress
 from stress_scaling import stress_scaling
 from velocity_scaling import velocity_scaling
+from velocity_map import velocity_map
 import sys
 sys.path.append("../../../spherical_operators/strain")
 from get_testcase_data import get_testcase_data
@@ -29,6 +30,8 @@ def run_strain_testcase():
     stress_scaling()
 
     velocity_scaling()
+
+    velocity_map()
 
 #-------------------------------------------------------------------------------
 
