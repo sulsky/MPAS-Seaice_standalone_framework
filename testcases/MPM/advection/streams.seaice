@@ -23,6 +23,7 @@
 
         <var name="uVelocity"/>
         <var name="vVelocity"/>
+        <var name="deluDyn"/>
 	<var name="iceAreaCell"/>
 	<var name="iceVolumeCell"/>
 	<var name="iceAreaCategory"/>

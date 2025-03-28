@@ -3,6 +3,8 @@ import math
 import matplotlib.pyplot as plt
 import matplotlib as mpl
 import numpy as np
+import glob
+from average_particle_ice_area_to_cell import average_particle_ice_area_to_cell
 
 #--------------------------------------------------------
 
@@ -23,53 +25,22 @@ def L2_norm(numerical, analytical, nPoints, areaCell):
 
 #--------------------------------------------------------
 
-def get_norm_area(filename):
+def get_norm_area(filenameMesh, filenameParticlesTemplate):
 
-    fileMPAS = Dataset(filename, "r")
+    fileMPAS = Dataset(filenameMesh, "r")
 
     nCells = len(fileMPAS.dimensions["nCells"])
 
     areaCell = fileMPAS.variables["areaCell"][:]
 
-    iceAreaCell = fileMPAS.variables["iceAreaCell"][:]
+    fileMPAS.close()
 
-    iceAreaCellInitial = iceAreaCell[0,:]
-    iceAreaCellFinal   = iceAreaCell[-1,:]
+    filenamesParticle = sorted(glob.glob(filenameParticlesTemplate))
+
+    iceAreaCellInitial = average_particle_ice_area_to_cell(filenamesParticle[ 0], nCells)
+    iceAreaCellFinal   = average_particle_ice_area_to_cell(filenamesParticle[-1], nCells)
 
     norm = L2_norm(iceAreaCellFinal, iceAreaCellInitial, nCells, areaCell)
-
-    fileMPAS.close()
-
-    return norm
-
-#--------------------------------------------------------
-
-def get_norm_thickness(filename):
-
-    fileMPAS = Dataset(filename, "r")
-
-    nCells = len(fileMPAS.dimensions["nCells"])
-
-    areaCell = fileMPAS.variables["areaCell"][:]
-
-    iceAreaCategoryInitial = fileMPAS.variables["iceAreaCategory"][0,:,0,0]
-    iceAreaCategoryFinal   = fileMPAS.variables["iceAreaCategory"][-1,:,0,0]
-
-    iceVolumeCategoryInitial = fileMPAS.variables["iceVolumeCategory"][0,:,0,0]
-    iceVolumeCategoryFinal   = fileMPAS.variables["iceVolumeCategory"][-1,:,0,0]
-
-    iceThicknessCategoryInitial = np.zeros(nCells)
-    iceThicknessCategoryFinal   = np.zeros(nCells)
-
-    for iCell in range(0,nCells):
-        if (iceAreaCategoryInitial[iCell] > 0.0):
-            iceThicknessCategoryInitial[iCell] = iceVolumeCategoryInitial[iCell] / iceAreaCategoryInitial[iCell]
-        if (iceAreaCategoryFinal[iCell] > 0.0):
-            iceThicknessCategoryFinal[iCell] = iceVolumeCategoryFinal[iCell] / iceAreaCategoryFinal[iCell]
-
-    norm = L2_norm(iceThicknessCategoryFinal, iceThicknessCategoryInitial, nCells, areaCell)
-
-    fileMPAS.close()
 
     return norm
 
@@ -163,20 +134,14 @@ def advection_error_convergence():
          xArea = []
          yArea = []
 
-         xVolume = []
-         yVolume = []
-
          for resolution in resolutions:
 
              filename = "./output_%s_%i/output.2000.nc" %(experiment,resolution)
+             filenameParticlesTemplate = "./output_%s_%i/particles_output*" %(experiment,resolution)
 
-             norm = get_norm_area(filename)
+             norm = get_norm_area(filename, filenameParticlesTemplate)
              xArea.append(get_resolution(filename))
              yArea.append(norm)
-
-             norm = get_norm_thickness(filename)
-             xVolume.append(get_resolution(filename))
-             yVolume.append(norm)
 
          error = float('nan')
          print(xArea, yArea)

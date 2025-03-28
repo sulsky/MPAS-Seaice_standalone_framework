@@ -27,6 +27,7 @@
 	<var name="iceVolumeCell"/>
 	<var name="iceAreaCategory"/>
 	<var name="iceVolumeCategory"/>
+        <var name="deluDyn"/>
 </stream>
 
 <immutable_stream name="restart"
@@ -48,7 +49,6 @@
 	<var name="daysSinceStartOfSim"/>
 	<stream name="mesh"/>
 	<var name="iceAreaCell"/>
-	<var name="iceAreaVertex"/>
 	<var name="iceVolumeCell"/>
 	<var name="snowVolumeCell"/>
 	<var name="iceAreaCategory"/>
@@ -74,6 +74,7 @@
         <var name="procIDParticle"/>
         <var name="posnMP"/>
         <var name="iceAreaCellMP"/>
+        <var name="deluDyn"/>
 </stream>
 
 <immutable_stream name="LYqSixHourlyForcing"

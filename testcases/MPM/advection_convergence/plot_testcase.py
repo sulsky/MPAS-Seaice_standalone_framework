@@ -6,6 +6,8 @@ from matplotlib.collections import PatchCollection
 import matplotlib.cm as cm
 import numpy as np
 import os
+from average_particle_ice_area_to_cell import average_particle_ice_area_to_cell
+import glob
 
 #-------------------------------------------------------------
 
@@ -89,37 +91,71 @@ def plot_testcase():
 
                 print("  Test type: ", testType)
 
+                # mesh
+                filenamein = "./output_%s_%i/output.2000.nc" %(testType,nGrid)
+
+                filein = Dataset(filenamein,"r")
+
+                nCells = len(filein.dimensions["nCells"])
+
+                nEdgesOnCell = filein.variables["nEdgesOnCell"][:]
+                verticesOnCell = filein.variables["verticesOnCell"][:]
+                xCell = filein.variables["xCell"][:]
+                yCell = filein.variables["yCell"][:]
+                zCell = filein.variables["zCell"][:]
+                xVertex = filein.variables["xVertex"][:]
+                yVertex = filein.variables["yVertex"][:]
+                zVertex = filein.variables["zVertex"][:]
+                verticesOnCell[:] = verticesOnCell[:] - 1
+
+                filein.close()
+
+                # iceArea
+                filenameParticlesTemplate = "./output_%s_%i/particles_output*" %(testType,nGrid)
+                filenames = sorted(glob.glob(filenameParticlesTemplate))
+
+                iceAreaCell0 = average_particle_ice_area_to_cell(filenames[0], nCells)
+
                 iMethod = -1
                 for iTime in iTimes:
                     iMethod +=1
 
                     print("iTime: ", iTime)
 
-                    filenamein = "./output_%s_%i/output.2000.nc" %(testType,nGrid)
+                    iceAreaCell = average_particle_ice_area_to_cell(filenames[iTime], nCells)
 
-                    filein = Dataset(filenamein,"r")
+                    plot_subfigure(axes[iMethod,iTestType*2],
+                                   iceAreaCell,
+                                   nCells,
+                                   nEdgesOnCell,
+                                   verticesOnCell,
+                                   xCell,
+                                   yCell,
+                                   zCell,
+                                   xVertex,
+                                   yVertex,
+                                   zVertex,
+                                   0.0,
+                                   1.0,
+                                   "viridis")
 
-                    nCells = len(filein.dimensions["nCells"])
+                    iceAreaCellDiff = iceAreaCell - iceAreaCell0
 
-                    nEdgesOnCell = filein.variables["nEdgesOnCell"][:]
-                    verticesOnCell = filein.variables["verticesOnCell"][:]
-                    xCell = filein.variables["xCell"][:]
-                    yCell = filein.variables["yCell"][:]
-                    zCell = filein.variables["zCell"][:]
-                    xVertex = filein.variables["xVertex"][:]
-                    yVertex = filein.variables["yVertex"][:]
-                    zVertex = filein.variables["zVertex"][:]
-                    verticesOnCell[:] = verticesOnCell[:] - 1
-                    iceAreaCell = filein.variables["iceAreaCell"][:]
-
-                    filein.close()
-
-                    plot_subfigure(axes[iMethod,iTestType*2], iceAreaCell[iTime], nCells, nEdgesOnCell, verticesOnCell, xCell, yCell, zCell, xVertex, yVertex, zVertex, 0.0, 1.0, "viridis")
-
-                    iceAreaCellDiff = iceAreaCell[iTime] - iceAreaCell[0]
-
-                    if (iMethod !=0):
-                        plot_subfigure(axes[iMethod,iTestType*2+1], iceAreaCellDiff, nCells, nEdgesOnCell, verticesOnCell, xCell, yCell, zCell, xVertex, yVertex, zVertex, -1.0, 1.0, "bwr")
+                    if (iMethod != 0):
+                        plot_subfigure(axes[iMethod,iTestType*2+1],
+                                       iceAreaCellDiff,
+                                       nCells,
+                                       nEdgesOnCell,
+                                       verticesOnCell,
+                                       xCell,
+                                       yCell,
+                                       zCell,
+                                       xVertex,
+                                       yVertex,
+                                       zVertex,
+                                       -1.0,
+                                       1.0,
+                                       "bwr")
                     else:
                         axes[iMethod, iTestType*2+1].axis('off')
 
