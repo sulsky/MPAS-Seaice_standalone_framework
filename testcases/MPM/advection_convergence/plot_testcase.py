@@ -66,7 +66,7 @@ def plot_subfigure(axis, array, nCells, nEdgesOnCell, verticesOnCell, xCell, yCe
 
 #-------------------------------------------------------------
 
-def plot_testcase():
+def plot_testcase(runtype):
 
     nGrids = [2562,10242,40962,163842]
     testTypes = ["cosine_bell","slotted_cylinder"]
@@ -159,7 +159,7 @@ def plot_testcase():
                     else:
                         axes[iMethod, iTestType*2+1].axis('off')
 
-            plt.savefig("advection_%6.6i.png" %(nGrid),dpi=300)
+            plt.savefig("advection_%6.6i.%s.png" %(nGrid,runtype),dpi=300)
             plt.cla()
             plt.close(fig)
 
@@ -167,4 +167,4 @@ def plot_testcase():
 
 if __name__ == "__main__":
 
-    plot_testcase()
+    plot_testcase("")

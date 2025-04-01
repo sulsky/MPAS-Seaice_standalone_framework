@@ -15,6 +15,9 @@ sys.path.append("../advection")
 from add_deldyn_to_ics import add_deldyn_to_ics
 from check_particles_moved import check_particles_moved
 
+sys.path.append("../../../testing")
+from testing_utils import create_new_namelist
+
 particleFilename1 = "/particles_output.2000-01-01_00.00.00.nc"
 particleFilename2 = "/particles_output.2000-03-01_00.00.00.nc"
 
@@ -28,6 +31,8 @@ outDirs = [
     "output_slotted_cylinder_2562",
     "output_slotted_cylinder_40962"]
 
+usePolympos = [False, True]
+
 get_testcase_data()
 
 create_ics()
@@ -36,16 +41,27 @@ add_deldyn_to_ics(3600.0)
 
 create_particles()
 
-run_model()
+for usePolympo in usePolympos:
 
-for outDir in outDirs:
-    check_particles_moved(outDir+particleFilename1,
-                          outDir+particleFilename2)
+    print("usePolympo: ", usePolympo)
 
-plot_testcase()
+    nmlChanges = {"mpm":{"config_use_mpm_polympo":usePolympo}}
+    create_new_namelist("namelist.seaice.advection_convergence", "namelist.seaice", nmlChanges)
 
-advection_map()
+    run_model(usePolympo)
 
-advection_equatorial()
+    for outDir in outDirs:
+        check_particles_moved(outDir+particleFilename1,
+                              outDir+particleFilename2)
 
-advection_error_convergence()
+    if (usePolympo):
+        runtype = "polympo"
+    else:
+        runtype = "original"
+    plot_testcase(runtype)
+
+    advection_map()
+
+    advection_equatorial()
+
+    advection_error_convergence()

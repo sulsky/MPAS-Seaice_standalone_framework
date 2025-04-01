@@ -4,10 +4,11 @@ try:
 except ImportError:
     print("Module f90nml needed and not available")
     raise
+from datetime import datetime
 
 #-------------------------------------------------------------------------------
 
-def run_model():
+def run_model(usePolympo):
 
     MPAS_SEAICE_EXECUTABLE = os.environ.get('MPAS_SEAICE_EXECUTABLE')
     if (MPAS_SEAICE_EXECUTABLE is None):
@@ -38,15 +39,24 @@ def run_model():
              os.system("ln -s ic_%s_%i.nc ic.nc" %(icType, gridSize))
              os.system("ln -s particles_%s_%i.nc particles.nc" %(icType, gridSize))
 
-
              os.system("rm -rf output_%s_%i" %(icType, gridSize))
 
-             os.system("%s %s" %(MPAS_SEAICE_TESTCASES_RUN_COMMAND, MPAS_SEAICE_EXECUTABLE))
+             cmd = "%s %s" %(MPAS_SEAICE_TESTCASES_RUN_COMMAND, MPAS_SEAICE_EXECUTABLE)
+             #print("      cmd:", cmd)
+             #print("        start: ", datetime.now())
+             os.system(cmd)
+             #print("        end:   ", datetime.now())
 
              os.system("mv output output_%s_%i" %(icType, gridSize))
+
+             if (usePolympo):
+                 usePolympoStr = "polympo"
+             else:
+                 usePolympoStr = "nonpolympo"
+             os.system("mv log.seaice.0000.out log.seaice.0000.out_%s_%i_%s" %(icType, gridSize, usePolympoStr))
 
 #-----------------------------------------------------------------------------
 
 if __name__ == "__main__":
 
-    run_model()
+    run_model(False)
