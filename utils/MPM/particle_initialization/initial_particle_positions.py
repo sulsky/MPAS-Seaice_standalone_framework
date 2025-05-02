@@ -1,12 +1,15 @@
 import sys
 from math import fabs, sqrt, pow, pi, sin, cos, asin, acos, atan2
 import numpy as np
+import numpy.ma as ma
 import argparse
 from netCDF4 import Dataset
 import matplotlib.pyplot as plt
+from numba import njit
 
 #-------------------------------------------------------------------------------
 
+@njit
 def mpas_arc_length(ax, ay, az, bx, by, bz):
 
     cx = bx - ax
@@ -25,6 +28,7 @@ def mpas_arc_length(ax, ay, az, bx, by, bz):
 
 #-------------------------------------------------------------------------------
 
+@njit
 def mpas_sphere_angle(ax, ay, az, bx, by, bz, cx, cy, cz):
 
     a = acos(max(min(bx*cx + by*cy + bz*cz,1.0),-1.0))      # Eqn. (3)
@@ -54,6 +58,7 @@ def mpas_sphere_angle(ax, ay, az, bx, by, bz, cx, cy, cz):
 
 #-------------------------------------------------------------------------------
 
+@njit
 def mpas_rotate_about_vector(x, y, z, theta, a, b, c, u, v, w):
 
     vw2 = v*v + w*w
@@ -69,6 +74,7 @@ def mpas_rotate_about_vector(x, y, z, theta, a, b, c, u, v, w):
 
 #-------------------------------------------------------------------------------
 
+@njit
 def mpas_mirror_point(xPoint,
                       yPoint,
                       zPoint,
@@ -102,6 +108,7 @@ def mpas_mirror_point(xPoint,
 
 #-------------------------------------------------------------------------------
 
+@njit
 def mpas_in_cell(xPoint,
                  yPoint,
                  zPoint,
@@ -149,6 +156,7 @@ def mpas_in_cell(xPoint,
 
 #-------------------------------------------------------------------------------
 
+@njit
 def in_geom(x,
             y,
             z,
@@ -265,23 +273,23 @@ def place_particles(posnMP,
                     z = earthRadius * sin(lat)
 
                     inCell = mpas_in_cell(x,
-                                     y,
-                                     z,
-                                     xCell,
-                                     yCell,
-                                     zCell,
-                                     nEdgesOnCell,
-                                     verticesOnCell[:],
-                                     xVertex,
-                                     yVertex,
-                                     zVertex)
+                                          y,
+                                          z,
+                                          xCell,
+                                          yCell,
+                                          zCell,
+                                          nEdgesOnCell,
+                                          verticesOnCell[:],
+                                          xVertex,
+                                          yVertex,
+                                          zVertex)
 
-                    inGeom, iceArea, iceVolume  = in_geom(x/earthRadius,
-                                     y/earthRadius,
-                                     z/earthRadius,
-                                     icType)
+                    inGeom, iceArea, iceVolume = in_geom(x/earthRadius,
+                                                         y/earthRadius,
+                                                         z/earthRadius,
+                                                         icType)
 
-                    if(inCell and inGeom):
+                    if (inCell and inGeom):
                         k = k + 1
                         posnMP.append([x, y, z])
                         latCellMP.append(lat)
@@ -436,18 +444,18 @@ def initial_particle_positions(filenameMesh,
 
     nCells = len(fileMesh.dimensions["nCells"])
 
-    nEdgesOnCell = fileMesh.variables["nEdgesOnCell"][:]
-    verticesOnCell = fileMesh.variables["verticesOnCell"][:]
+    nEdgesOnCell   = ma.getdata(fileMesh.variables["nEdgesOnCell"][:])
+    verticesOnCell = ma.getdata(fileMesh.variables["verticesOnCell"][:])
 
-    areaCell = fileMesh.variables["areaCell"][:]
-    latVertex = fileMesh.variables["latVertex"][:]
-    lonVertex = fileMesh.variables["lonVertex"][:]
-    xVertex = fileMesh.variables["xVertex"][:]
-    yVertex = fileMesh.variables["yVertex"][:]
-    zVertex = fileMesh.variables["zVertex"][:]
-    xCell = fileMesh.variables["xCell"][:]
-    yCell = fileMesh.variables["yCell"][:]
-    zCell = fileMesh.variables["zCell"][:]
+    areaCell  = ma.getdata(fileMesh.variables["areaCell"][:])
+    latVertex = ma.getdata(fileMesh.variables["latVertex"][:])
+    lonVertex = ma.getdata(fileMesh.variables["lonVertex"][:])
+    xVertex   = ma.getdata(fileMesh.variables["xVertex"][:])
+    yVertex   = ma.getdata(fileMesh.variables["yVertex"][:])
+    zVertex   = ma.getdata(fileMesh.variables["zVertex"][:])
+    xCell     = ma.getdata(fileMesh.variables["xCell"][:])
+    yCell     = ma.getdata(fileMesh.variables["yCell"][:])
+    zCell     = ma.getdata(fileMesh.variables["zCell"][:])
 
     fileMesh.close()
 

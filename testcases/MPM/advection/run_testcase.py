@@ -22,7 +22,7 @@ import os
 nCells = 2562
 
 particleFilename1 = "particles_output.2000-01-01_00.00.00.nc"
-particleFilename2 = "particles_output.2000-03-01_00.00.00.nc"
+particleFilename2 = "particles_output.2000-01-11_00.00.00.nc"
 
 runtypes = [{"name":"original",
              "polympo":False,
@@ -34,14 +34,19 @@ runtypes = [{"name":"original",
              "polympo":True,
              "nProcs":[]}]
 
+print("Get testcase data")
 get_testcase_data()
 
+print("Create ICs")
 create_ics()
 
+print("Add deldyn to ICs")
 add_deldyn_to_ics(3600.0)
 
+print("Create particles")
 create_particles()
 
+print("Create graph files")
 create_graph_file_basic(nCells, 2)
 create_graph_file_basic(nCells, 4)
 
