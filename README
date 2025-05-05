@@ -1,0 +1,7 @@
+MPAS-Seaice Standalone Framework
+================================
+
+Test cases
+----------
+
+Several idealized test cases are defined. Input data is available at https://portal.nersc.gov/cfs/m4227/mpas-seaice.tar. Download the file, extract with "tar -xzvf mpas-seaice.tar" and set the MPAS_SEAICE_STANDALONE_DATA to the location of the extracted directory.
