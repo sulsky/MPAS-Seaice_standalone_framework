@@ -34,15 +34,19 @@ outDirs = [
 usePolympos = [False, True]
 
 print("Get testcase data")
+print("=================")
 get_testcase_data()
 
-print("Create ICs")
+print("\nCreate ICs")
+print("==========")
 create_ics()
 
-print("Add deldyn to ICs")
+print("\nAdd deldyn to ICs")
+print("=================")
 add_deldyn_to_ics(3600.0)
 
-print("Create particles")
+print("\nCreate particles")
+print("================")
 create_particles()
 
 for usePolympo in usePolympos:
@@ -52,26 +56,32 @@ for usePolympo in usePolympos:
     nmlChanges = {"mpm":{"config_use_mpm_polympo":usePolympo}}
     create_new_namelist("namelist.seaice.advection_convergence", "namelist.seaice", nmlChanges)
 
-    print("Run models")
+    print("\nRun models")
+    print("==========")
     run_model(usePolympo)
 
-    print("Check particles moved")
+    print("\nCheck particles moved")
+    print("=====================")
     for outDir in outDirs:
         check_particles_moved(outDir+particleFilename1,
                               outDir+particleFilename2)
 
-    print("Plot test case")
+    print("\nPlot test case")
+    print("==============")
     if (usePolympo):
         runtype = "polympo"
     else:
         runtype = "original"
     plot_testcase(runtype)
 
-    print("Advection map")
+    print("\nAdvection map")
+    print("=============")
     advection_map()
 
-    print("Advection equatorial")
+    print("\nAdvection equatorial")
+    print("====================")
     advection_equatorial()
 
-    print("Advection error convergence")
+    print("\nAdvection error convergence")
+    print("===========================")
     advection_error_convergence()

@@ -15,7 +15,7 @@ def check_particle_positions_nprocs(nProcs1, nProcs2):
     print()
     message = "Check particles positions for %i and %i" %(nProcs1, nProcs2)
     print(message)
-    print("="*len(message))
+    print("-"*len(message))
 
     filenames1 = sorted(glob.glob("./output_%i/particles*" %(nProcs1)))
     filenames2 = sorted(glob.glob("./output_%i/particles*" %(nProcs2)))

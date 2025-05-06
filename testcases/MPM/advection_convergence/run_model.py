@@ -1,4 +1,5 @@
 import os
+import time
 try:
     import f90nml
 except ImportError:
@@ -25,11 +26,12 @@ def run_model(usePolympo):
 
     for icType in icTypes:
 
-         print("  IC type: ", icType)
-
          for gridSize in gridSizes:
 
-             print("    Gridsize: ", gridSize)
+             print()
+             message = "IC type: %s, Gridsize: %i" %(icType, gridSize)
+             print(message)
+             print("-"*len(message))
 
              if (not os.path.isdir("output")):
                  os.mkdir("output")
@@ -42,10 +44,10 @@ def run_model(usePolympo):
              os.system("rm -rf output_%s_%i" %(icType, gridSize))
 
              cmd = "%s %s" %(MPAS_SEAICE_TESTCASES_RUN_COMMAND, MPAS_SEAICE_EXECUTABLE)
-             #print("      cmd:", cmd)
-             #print("        start: ", datetime.now())
+             start = time.perf_counter()
              os.system(cmd)
-             #print("        end:   ", datetime.now())
+             end = time.perf_counter()
+             print(f"Elapsed time: {end - start:.6f} seconds")
 
              os.system("mv output output_%s_%i" %(icType, gridSize))
 
