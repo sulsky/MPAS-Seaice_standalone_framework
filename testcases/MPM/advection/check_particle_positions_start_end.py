@@ -17,7 +17,7 @@ def check_particle_positions_start_end(filenameTemplate):
     print()
     message = "Check particles start-end positions for %s" %(filenameTemplate)
     print(message)
-    print("="*len(message))
+    print("-"*len(message))
 
     filenames = sorted(glob.glob(filenameTemplate))
 

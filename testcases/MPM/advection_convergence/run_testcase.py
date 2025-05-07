@@ -19,7 +19,7 @@ sys.path.append("../../../testing")
 from testing_utils import create_new_namelist
 
 particleFilename1 = "/particles_output.2000-01-01_00.00.00.nc"
-particleFilename2 = "/particles_output.2000-03-01_00.00.00.nc"
+particleFilename2 = "/particles_output.2000-01-11_00.00.00.nc"
 
 outDirs = [
     "output_cosine_bell_10242",
@@ -33,12 +33,20 @@ outDirs = [
 
 usePolympos = [False, True]
 
+print("Get testcase data")
+print("=================")
 get_testcase_data()
 
+print("\nCreate ICs")
+print("==========")
 create_ics()
 
+print("\nAdd deldyn to ICs")
+print("=================")
 add_deldyn_to_ics(3600.0)
 
+print("\nCreate particles")
+print("================")
 create_particles()
 
 for usePolympo in usePolympos:
@@ -48,20 +56,32 @@ for usePolympo in usePolympos:
     nmlChanges = {"mpm":{"config_use_mpm_polympo":usePolympo}}
     create_new_namelist("namelist.seaice.advection_convergence", "namelist.seaice", nmlChanges)
 
+    print("\nRun models")
+    print("==========")
     run_model(usePolympo)
 
+    print("\nCheck particles moved")
+    print("=====================")
     for outDir in outDirs:
         check_particles_moved(outDir+particleFilename1,
                               outDir+particleFilename2)
 
+    print("\nPlot test case")
+    print("==============")
     if (usePolympo):
         runtype = "polympo"
     else:
         runtype = "original"
     plot_testcase(runtype)
 
+    print("\nAdvection map")
+    print("=============")
     advection_map()
 
+    print("\nAdvection equatorial")
+    print("====================")
     advection_equatorial()
 
+    print("\nAdvection error convergence")
+    print("===========================")
     advection_error_convergence()

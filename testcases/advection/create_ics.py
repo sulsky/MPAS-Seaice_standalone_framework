@@ -1,5 +1,113 @@
 from netCDF4 import Dataset
 import math, os, sys
+import numpy as np
+import numpy.ma as ma
+from numba import njit
+
+#--------------------------------------------------------------------
+
+@njit
+def slotted_cylinder(nCells,
+                     xCell,
+                     yCell,
+                     zCell):
+
+    iceAreaCell = np.zeros(nCells)
+    iceVolumeCell = np.zeros(nCells)
+
+    circleRadius = 0.5
+
+    for iCell in range(0,nCells):
+
+        r = math.sqrt(math.pow(zCell[iCell],2) + math.pow(xCell[iCell],2))
+
+        if (r < circleRadius and yCell[iCell] > 0.0):
+
+            iceAreaCell[iCell]   = 1.0
+            iceVolumeCell[iCell] = 1.0
+
+    for iCell in range(0,nCells):
+
+        if (math.fabs(xCell[iCell]) < 1.0/12.0 and zCell[iCell] > -2.0/6.0):
+
+            iceAreaCell[iCell]   = 0.0
+            iceVolumeCell[iCell] = 0.0
+
+    return iceAreaCell, iceVolumeCell
+
+#--------------------------------------------------------------------
+
+@njit
+def cosine_bell_volume(nCells,
+                       xCell,
+                       yCell,
+                       zCell):
+
+    iceAreaCell = np.zeros(nCells)
+    iceVolumeCell = np.zeros(nCells)
+
+    circleRadius = 1.0/3.0
+
+    for iCell in range(0,nCells):
+
+        r = math.sqrt(math.pow(zCell[iCell],2) + math.pow(xCell[iCell],2))
+
+        if (r < circleRadius and yCell[iCell] > 0.0):
+
+            iceAreaCell[iCell]   = 1.0
+
+            iceVolumeCell[iCell] = 0.5 * (1.0 + math.cos((math.pi * r) / circleRadius))
+
+    return iceAreaCell, iceVolumeCell
+
+#--------------------------------------------------------------------
+
+@njit
+def cosine_bell(nCells,
+                xCell,
+                yCell,
+                zCell):
+
+    iceAreaCell = np.zeros(nCells)
+    iceVolumeCell = np.zeros(nCells)
+
+    circleRadius = 1.0/3.0
+
+    for iCell in range(0,nCells):
+
+        r = math.sqrt(math.pow(zCell[iCell],2) + math.pow(xCell[iCell],2))
+
+        if (r < circleRadius and yCell[iCell] > 0.0):
+
+            iceAreaCell[iCell] = 0.5 * (1.0 + math.cos((math.pi * r) / circleRadius))
+
+            iceVolumeCell[iCell] = 1.0
+
+    return iceAreaCell, iceVolumeCell
+
+#--------------------------------------------------------------------
+
+@njit
+def cylinder(nCells,
+             xCell,
+             yCell,
+             zCell):
+
+    iceAreaCell = np.zeros(nCells)
+    iceVolumeCell = np.zeros(nCells)
+
+    circleRadius = 0.5
+
+    for iCell in range(0,nCells):
+
+        r = math.sqrt(math.pow(zCell[iCell],2) + math.pow(xCell[iCell],2))
+
+        if (r < circleRadius and yCell[iCell] > 0.0):
+
+            iceAreaCell[iCell]   = 1.0
+            iceVolumeCell[iCell] = 1.0
+
+    return iceAreaCell, iceVolumeCell
 
 #--------------------------------------------------------------------
 
@@ -12,11 +120,11 @@ def create_ic_file(res, icType):
     nCells = len(gridFile.dimensions["nCells"])
     nVertices = len(gridFile.dimensions["nVertices"])
 
-    xCell = gridFile.variables["xCell"][:]
-    yCell = gridFile.variables["yCell"][:]
-    zCell = gridFile.variables["zCell"][:]
+    xCell = ma.getdata(gridFile.variables["xCell"][:])
+    yCell = ma.getdata(gridFile.variables["yCell"][:])
+    zCell = ma.getdata(gridFile.variables["zCell"][:])
 
-    latVertex = gridFile.variables["latVertex"][:]
+    latVertex = ma.getdata(gridFile.variables["latVertex"][:])
 
     gridFile.close()
 
@@ -35,7 +143,7 @@ def create_ic_file(res, icType):
         uVelocity = icFile.createVariable("uVelocity", 'd', dimensions=("nVertices"))
         vVelocity = icFile.createVariable("vVelocity", 'd', dimensions=("nVertices"))
 
-        days = 120.0
+        days = 10.0
         seconds = days * 24.0 * 3600.0
         radius = 6371229.0
         uVelocityEquator = (2.0 * math.pi * radius) / (seconds)
@@ -50,72 +158,43 @@ def create_ic_file(res, icType):
         iceAreaCategory   = icFile.createVariable("iceAreaCategory",   'd', dimensions=("nCells","nCategories","ONE"))
         iceVolumeCategory = icFile.createVariable("iceVolumeCategory", 'd', dimensions=("nCells","nCategories","ONE"))
 
-        iceAreaCell[:]   = 0.0
-        iceVolumeCell[:] = 0.0
-
         if (icType == "slotted_cylinder"):
 
-            circleRadius = 0.5
-
-            for iCell in range(0,nCells):
-
-                r = math.sqrt(math.pow(zCell[iCell],2) + math.pow(xCell[iCell],2))
-
-                if (r < circleRadius and yCell[iCell] > 0.0):
-
-                    iceAreaCell[iCell]   = 1.0
-                    iceVolumeCell[iCell] = 1.0
-
-            for iCell in range(0,nCells):
-
-                if (math.fabs(xCell[iCell]) < 1.0/12.0 and zCell[iCell] > -2.0/6.0):
-
-                    iceAreaCell[iCell]   = 0.0
-                    iceVolumeCell[iCell] = 0.0
+            iceAreaCellArray, iceVolumeCellArray = slotted_cylinder(
+                nCells,
+                xCell,
+                yCell,
+                zCell)
 
         elif (icType == "cosine_bell_volume"):
 
-            circleRadius = 1.0/3.0
-
-            for iCell in range(0,nCells):
-
-                r = math.sqrt(math.pow(zCell[iCell],2) + math.pow(xCell[iCell],2))
-
-                if (r < circleRadius and yCell[iCell] > 0.0):
-
-                    iceAreaCell[iCell]   = 1.0
-
-                    iceVolumeCell[iCell] = 0.5 * (1.0 + math.cos((math.pi * r) / circleRadius))
+            iceAreaCellArray, iceVolumeCellArray = cosine_bell_volume(
+                nCells,
+                xCell,
+                yCell,
+                zCell)
 
         elif (icType == "cosine_bell"):
 
-            circleRadius = 1.0/3.0
-
-            for iCell in range(0,nCells):
-
-                r = math.sqrt(math.pow(zCell[iCell],2) + math.pow(xCell[iCell],2))
-
-                if (r < circleRadius and yCell[iCell] > 0.0):
-
-                    iceAreaCell[iCell] = 0.5 * (1.0 + math.cos((math.pi * r) / circleRadius))
-
-                    iceVolumeCell[iCell]   = 1.0
+            iceAreaCellArray, iceVolumeCellArray = cosine_bell(
+                nCells,
+                xCell,
+                yCell,
+                zCell)
 
         elif (icType == "cylinder"):
 
-            circleRadius = 0.5
+            iceAreaCellArray, iceVolumeCellArray = cylinder(
+                nCells,
+                xCell,
+                yCell,
+                zCell)
 
-            for iCell in range(0,nCells):
+        iceAreaCell[:] = iceAreaCellArray[:]
+        iceVolumeCell[:] = iceVolumeCellArray[:]
 
-                r = math.sqrt(math.pow(zCell[iCell],2) + math.pow(xCell[iCell],2))
-
-                if (r < circleRadius and yCell[iCell] > 0.0):
-
-                    iceAreaCell[iCell]   = 1.0
-                    iceVolumeCell[iCell] = 1.0
-
-        iceAreaCategory[:,0]   = iceAreaCell[:]
-        iceVolumeCategory[:,0] = iceVolumeCell[:]
+        iceAreaCategory[:,0]   = iceAreaCellArray[:]
+        iceVolumeCategory[:,0] = iceVolumeCellArray[:]
 
         icFile.close()
 

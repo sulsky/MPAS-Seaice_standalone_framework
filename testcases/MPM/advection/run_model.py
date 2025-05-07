@@ -1,5 +1,6 @@
 import os
 import argparse
+import time
 
 #-------------------------------------------------------------------------------
 
@@ -8,7 +9,7 @@ def run_model(nCells, nProcs):
     print()
     message = "Run model for nCells: %i and nProcs: %i" %(nCells, nProcs)
     print(message)
-    print("="*len(message))
+    print("-"*len(message))
 
     MPAS_SEAICE_EXECUTABLE = os.environ.get('MPAS_SEAICE_EXECUTABLE')
     if (MPAS_SEAICE_EXECUTABLE is None):
@@ -45,7 +46,10 @@ def run_model(nCells, nProcs):
 
     cmd = "mpirun -oversubscribe -np %i %s" %(nProcs, MPAS_SEAICE_EXECUTABLE)
     print(cmd)
+    start = time.perf_counter()
     os.system(cmd)
+    end = time.perf_counter()
+    print(f"Elapsed time: {end - start:.6f} seconds")
 
     cmd = "mv output output_%i" %(nProcs)
     print(cmd)
