@@ -1,8 +1,9 @@
 import sys
 
-sys.path.append("../../advection")
+sys.path.append("../../../utils/testcases")
+from get_testcase_data_spherical import get_testcase_data_spherical
 
-from get_testcase_data import get_testcase_data
+sys.path.append("../../advection")
 from create_ics import create_ics
 from create_particles import create_particles
 from run_model import run_model
@@ -35,7 +36,7 @@ usePolympos = [False, True]
 
 print("Get testcase data")
 print("=================")
-get_testcase_data()
+get_testcase_data_spherical()
 
 print("\nCreate ICs")
 print("==========")

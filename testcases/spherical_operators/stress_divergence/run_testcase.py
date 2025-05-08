@@ -1,4 +1,8 @@
-from get_testcase_data import get_testcase_data
+import sys
+
+sys.path.append("../../../../utils/testcases")
+from get_testcase_data_spherical import get_testcase_data_spherical
+
 from randomize_mesh import randomize_mesh
 from create_ic import create_ic
 from run_model import run_model
@@ -10,7 +14,7 @@ import argparse
 
 def run_stress_divergence_testcase(meshType, meshScale):
 
-    get_testcase_data()
+    get_testcase_data_spherical(getGraphFiles=False)
 
     testName = randomize_mesh(meshType, meshScale)
 
