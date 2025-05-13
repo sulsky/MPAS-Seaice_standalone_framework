@@ -31,7 +31,7 @@ def create_particles():
                                            filenameOut,
                                            "number",
                                            9,
-                                           "even",
+                                           "onePerEdge",
                                            icType,
                                            6371229.0)
 

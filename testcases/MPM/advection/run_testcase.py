@@ -1,4 +1,4 @@
-import sys
+import sys, math
 
 sys.path.append("../../advection")
 from get_testcase_data import get_testcase_data
@@ -40,7 +40,7 @@ get_testcase_data()
 
 print("\nCreate ICs")
 print("==========")
-create_ics()
+create_ics(math.pi / 6.0)
 
 print("\nAdd deldyn to ICs")
 print("=================")
