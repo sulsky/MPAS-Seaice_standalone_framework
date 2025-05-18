@@ -3,7 +3,7 @@ import sys, math, f90nml
 sys.path.append("../../advection")
 
 from get_testcase_data import get_testcase_data
-from create_ics import create_ic_file
+from create_ics import create_ics
 from create_particles import create_particles
 from run_model import run_model
 from plot_testcase import plot_testcase
@@ -33,12 +33,7 @@ outDirs = [
 
 reses = ["2562", "10242", "40962", "163842"]
 icTypes = ["cosine_bell", "slotted_cylinder"]
-#DynamicsTimeStep = [3600.0, 1800.0, 900.0, 450.0]
-DynamicsTimeStep = [7200.0, 3600.0, 1800.0, 900.0]
-#Duration = ['10_00:00:00', '20_00:00:00', '40_00:00:00', '80_00:00:00']
-Duration = ['05_00:00:00', '10_00:00:00', '20_00:00:00', '40_00:00:00']
-#days = [10.0, 20.0, 40.0, 80.0]
-days = [5.0, 10.0, 20.0, 40.0]
+DynamicsTimeStep = [3600.0, 1800.0, 900.0, 450.0]
 usePolympos = [False, True]
 
 print("Get testcase data")
@@ -47,13 +42,7 @@ get_testcase_data()
 
 print("\nCreate ICs")
 print("==========")
-for icType in icTypes:
-    print("icType ",icType)
-    r = 0
-    for res in reses:
-        print("res ", res)
-        create_ic_file(res, icType, days[r], math.pi / 6.0)
-        r = r + 1
+create_ics(math.pi / 6.0)
 
 print("\nAdd deldyn to IC")
 print("==========")
@@ -83,8 +72,8 @@ for usePolympo in usePolympos:
     for res in reses:
 
         nmlChanges = {"mpm":{"config_use_mpm_polympo":usePolympo},
-                      "seaice_model":{"config_dt":DynamicsTimeStep[r],
-                                      "config_run_duration":Duration[r]}}
+                      "seaice_model":{"config_dt":DynamicsTimeStep[r]}}
+
         new_namelist = "namelist.seaice.%s.%s" %(usePolympoStr, res)
         create_new_namelist("namelist.seaice.advection_convergence", new_namelist, nmlChanges)
 

@@ -171,7 +171,7 @@ def advection_error_convergence(runtype):
     plt.minorticks_off()
 
     axes.set_xlabel("Grid resolution (km)")
-    axes.set_ylabel(r"$L_2$ error norm")
+    axes.set_ylabel(r"max error norm")
     axes.set_xticks([60,120,240,480])
     axes.set_xticklabels(["60","120","240","480"])
     axes.tick_params(

@@ -40,8 +40,8 @@ get_testcase_data()
 
 print("\nCreate ICs")
 print("==========")
-create_ic_file("2562", "slotted_cylinder" , 10.0, math.pi / 6.0)
-create_ic_file("2562", "cosine_bell"      , 10.0, math.pi / 6.0)
+create_ic_file("2562", "slotted_cylinder" , math.pi / 6.0)
+create_ic_file("2562", "cosine_bell"      , math.pi / 6.0)
 
 print("\nAdd deldyn to ICs")
 print("=================")

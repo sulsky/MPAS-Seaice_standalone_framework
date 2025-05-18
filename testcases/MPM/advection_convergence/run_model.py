@@ -42,9 +42,8 @@ def run_model(usePolympo):
              if (not os.path.isdir("output")):
                  os.mkdir("output")
 
-             os.system("rm grid.nc ic.nc particles.nc namelist.seaice streams.seaice")
+             os.system("rm grid.nc ic.nc particles.nc namelist.seaice")
              os.system("ln -s namelist.seaice.%s.%i namelist.seaice" %(usePolympoStr, gridSize))
-             os.system("ln -s streams.seaice.%i streams.seaice" %(gridSize))
              os.system("ln -s grid.%i.nc grid.nc" %(gridSize))
              os.system("ln -s ic_%s_%i.nc ic.nc" %(icType, gridSize))
              os.system("ln -s particles_%s_%i.nc particles.nc" %(icType, gridSize))
