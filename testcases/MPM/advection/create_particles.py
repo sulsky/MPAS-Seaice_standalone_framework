@@ -7,36 +7,33 @@ import os
 
 #--------------------------------------------------------------------
 
-def create_particles():
+def create_particles(res="2562"):
 
-    reses = ["2562","10242","40962","163842"]
-
-    icTypes = ["cosine_bell","slotted_cylinder"]
+    #icTypes = ["cosine_bell","slotted_cylinder"]
+    icTypes = ["slotted_cylinder"]
 
     for icType in icTypes:
 
         print("icType: ", icType)
 
-        for res in reses:
+        print("  Res: ", res)
 
-            print("  Res: ", res)
+        filenameOut = "particles_%s_%s.nc" %(icType,res)
 
-            filenameOut = "particles_%s_%s.nc" %(icType,res)
+        if (not os.path.isfile(filenameOut)):
 
-            if (not os.path.isfile(filenameOut)):
+            filenameMesh = "grid.%s.nc" %(res)
 
-                filenameMesh = "grid.%s.nc" %(res)
-
-                initial_particle_positions(filenameMesh,
-                                           filenameOut,
-                                           "number",
-                                           9,
-                                           "onePerEdge",
-                                           icType,
-                                           6371229.0)
+            initial_particle_positions(filenameMesh,
+                                       filenameOut,
+                                       "number",
+                                       9,
+                                       "onePerEdge",
+                                       icType,
+                                       6371229.0)
 
 #-------------------------------------------------------------------------------
 
 if __name__ == "__main__":
 
-    create_particles()
+    create_particles(res)

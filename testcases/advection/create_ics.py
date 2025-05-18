@@ -111,7 +111,7 @@ def cylinder(nCells,
 
 #--------------------------------------------------------------------
 
-def create_ic_file(res, icType, angle):
+def create_ic_file(res, icType, days, angle):
 
     # grid in
     gridFilename = "grid.%s.nc" %(res)
@@ -144,7 +144,6 @@ def create_ic_file(res, icType, angle):
         uVelocity = icFile.createVariable("uVelocity", 'd', dimensions=("nVertices"))
         vVelocity = icFile.createVariable("vVelocity", 'd', dimensions=("nVertices"))
 
-        days = 10.0
         seconds = days * 24.0 * 3600.0
         radius = 6371229.0
         uVelocityEquator = (2.0 * math.pi * radius) / (seconds)
@@ -204,7 +203,7 @@ def create_ic_file(res, icType, angle):
 
 #--------------------------------------------------------------------
 
-def create_ics(angle = 0):
+def create_ics(days = 10.0, angle = 0):
 
     reses = ["2562","10242","40962","163842"]
 

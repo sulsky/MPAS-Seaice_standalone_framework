@@ -77,7 +77,7 @@ def plot_testcase(runtype):
         print("nGrid: ", nGrid)
         filesExist = False
         for testType in testTypes:
-            filenamein = "./output_%s_%i/output.2000.nc" %(testType,nGrid)
+            filenamein = "./output_%s_%i_%s/output.2000.nc" %(testType,nGrid,runtype)
             if (os.path.exists(filenamein)):
                 filesExist = True
 
@@ -92,7 +92,7 @@ def plot_testcase(runtype):
                 print("  Test type: ", testType)
 
                 # mesh
-                filenamein = "./output_%s_%i/output.2000.nc" %(testType,nGrid)
+                filenamein = "./output_%s_%i_%s/output.2000.nc" %(testType,nGrid,runtype)
 
                 filein = Dataset(filenamein,"r")
 
@@ -111,7 +111,7 @@ def plot_testcase(runtype):
                 filein.close()
 
                 # iceArea
-                filenameParticlesTemplate = "./output_%s_%i/particles_output*" %(testType,nGrid)
+                filenameParticlesTemplate = "./output_%s_%i_%s/particles_output*" %(testType,nGrid,runtype)
                 filenames = sorted(glob.glob(filenameParticlesTemplate))
 
                 iceAreaCell0 = average_particle_ice_area_to_cell(filenames[0], nCells)

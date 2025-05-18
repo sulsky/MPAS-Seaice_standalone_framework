@@ -4,9 +4,7 @@ import os
 
 #--------------------------------------------------------------------
 
-def add_deldyn_to_ics(dynamicsTimeStep):
-
-    reses = ["2562","10242","40962","163842"]
+def add_deldyn_to_ics(dynamicsTimeStep, res="2562"):
 
     icTypes = ["cosine_bell","slotted_cylinder"]
 
@@ -14,33 +12,32 @@ def add_deldyn_to_ics(dynamicsTimeStep):
 
         print("icType: ", icType)
 
-        for res in reses:
+        print("  Res: ", res)
 
-            print("  Res: ", res)
+        icFilename = "ic_%s_%s.nc" %(icType, res)
 
-            icFilename = "ic_%s_%s.nc" %(icType, res)
+        if (not os.path.isfile(icFilename)):
+            raise Exception("IC file missing: "+icFilename)
 
-            if (not os.path.isfile(icFilename)):
-                raise Exception("IC file missing: "+icFilename)
+        filein = Dataset(icFilename,"a")
 
-            filein = Dataset(icFilename,"a")
+        uVelocity = filein.variables["uVelocity"][:]
+        vVelocity = filein.variables["vVelocity"][:]
 
-            uVelocity = filein.variables["uVelocity"][:]
-            vVelocity = filein.variables["vVelocity"][:]
+        try:
+            filein.createDimension("TWO",2)
+        except:
+            pass
 
-            try:
-                filein.createDimension("TWO",2)
-            except:
-                pass
+        try:
+           deluDyn = filein.createVariable("deluDyn","d",dimensions=["nVertices","TWO"])
+        except:
+           deluDyn = filein.variables["deluDyn"][:]
 
-            try:
-                deluDyn = filein.createVariable("deluDyn","d",dimensions=["nVertices","TWO"])
-            except:
-                deluDyn = filein.variables["deluDyn"][:]
-            deluDyn[:,0] = uVelocity[:] * dynamicsTimeStep
-            deluDyn[:,1] = vVelocity[:] * dynamicsTimeStep
+        deluDyn[:,0] = uVelocity[:] * dynamicsTimeStep
+        deluDyn[:,1] = vVelocity[:] * dynamicsTimeStep
 
-            filein.close()
+        filein.close()
 
 #--------------------------------------------------------------------
 

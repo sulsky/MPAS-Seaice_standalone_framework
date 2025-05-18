@@ -80,7 +80,7 @@ def get_equatorial_array(nCells, latCell, lonCell, xCell, yCell, zCell, cellsOnC
 
 #---------------------------------------------------------
 
-def advection_equatorial():
+def advection_equatorial(runtype):
 
     #res = "2562"
     #res = "10242"
@@ -93,7 +93,7 @@ def advection_equatorial():
     iTime = -1
 
     # mesh
-    filename = "./output_%s_%s/output.2000.nc" %(experiment1,res)
+    filename = "./output_%s_%s_%s/output.2000.nc" %(experiment1,res,runtype)
 
     print(filename)
     fileMPAS = Dataset(filename,"r")
@@ -113,13 +113,13 @@ def advection_equatorial():
     fileMPAS.close()
 
     # cosine bell
-    filenamesParticleCB = sorted(glob.glob("./output_%s_%s/particles_output*" %(experiment1,res)))
+    filenamesParticleCB = sorted(glob.glob("./output_%s_%s_%s/particles_output*" %(experiment1,res,runtype)))
 
     iceArea_CB_Initial = average_particle_ice_area_to_cell(filenamesParticleCB[ 0], nCells)
     iceArea_CB         = average_particle_ice_area_to_cell(filenamesParticleCB[-1], nCells)
 
     # slotted cylinder
-    filenamesParticleSC = sorted(glob.glob("./output_%s_%s/particles_output*" %(experiment2,res)))
+    filenamesParticleSC = sorted(glob.glob("./output_%s_%s_%s/particles_output*" %(experiment2,res,runtype)))
 
     iceArea_SC_Initial = average_particle_ice_area_to_cell(filenamesParticleSC[ 0], nCells)
     iceArea_SC         = average_particle_ice_area_to_cell(filenamesParticleSC[-1], nCells)
@@ -168,8 +168,8 @@ def advection_equatorial():
     axes[1].set_title("(b) Slotted cylinder", loc='left')
 
     plt.tight_layout(pad=0.2, w_pad=0.6, h_pad=0.2)
-    plt.savefig("advection_equatorial.png",dpi=300)
-    plt.savefig("advection_equatorial.eps")
+    plt.savefig("advection_equatorial_%s.png" %(runtype),dpi=300)
+    plt.savefig("advection_equatorial_%s.eps" %(runtype))
 
 #-------------------------------------------------------------------------------
 

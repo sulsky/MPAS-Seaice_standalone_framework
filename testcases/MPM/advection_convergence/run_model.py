@@ -24,6 +24,12 @@ def run_model(usePolympo):
     gridSizes = [2562, 10242, 40962, 163842]
     #gridSizes = [2562]
 
+    if (usePolympo):
+         usePolympoStr = "polympo"
+    else:
+         usePolympoStr = "nonpolympo"
+
+
     for icType in icTypes:
 
          for gridSize in gridSizes:
@@ -36,12 +42,14 @@ def run_model(usePolympo):
              if (not os.path.isdir("output")):
                  os.mkdir("output")
 
-             os.system("rm grid.nc ic.nc particles.nc")
+             os.system("rm grid.nc ic.nc particles.nc namelist.seaice streams.seaice")
+             os.system("ln -s namelist.seaice.%s.%i namelist.seaice" %(usePolympoStr, gridSize))
+             os.system("ln -s streams.seaice.%i streams.seaice" %(gridSize))
              os.system("ln -s grid.%i.nc grid.nc" %(gridSize))
              os.system("ln -s ic_%s_%i.nc ic.nc" %(icType, gridSize))
              os.system("ln -s particles_%s_%i.nc particles.nc" %(icType, gridSize))
 
-             os.system("rm -rf output_%s_%i" %(icType, gridSize))
+             os.system("rm -rf output_%s_%i_%s" %(icType, gridSize, usePolympoStr))
 
              cmd = "%s %s" %(MPAS_SEAICE_TESTCASES_RUN_COMMAND, MPAS_SEAICE_EXECUTABLE)
              start = time.perf_counter()
@@ -49,12 +57,7 @@ def run_model(usePolympo):
              end = time.perf_counter()
              print(f"Elapsed time: {end - start:.6f} seconds")
 
-             os.system("mv output output_%s_%i" %(icType, gridSize))
-
-             if (usePolympo):
-                 usePolympoStr = "polympo"
-             else:
-                 usePolympoStr = "nonpolympo"
+             os.system("mv output output_%s_%i_%s" %(icType, gridSize, usePolympoStr))
              os.system("mv log.seaice.0000.out log.seaice.0000.out_%s_%i_%s" %(icType, gridSize, usePolympoStr))
 
 #-----------------------------------------------------------------------------

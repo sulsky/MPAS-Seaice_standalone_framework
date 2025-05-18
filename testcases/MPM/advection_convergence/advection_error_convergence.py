@@ -1,3 +1,4 @@
+import sys
 from netCDF4 import Dataset
 import math
 import matplotlib.pyplot as plt
@@ -5,6 +6,8 @@ import matplotlib as mpl
 import numpy as np
 import glob
 from average_particle_ice_area_to_cell import average_particle_ice_area_to_cell
+from check_particle_positions_start_end import check_particle_positions_start_end
+import argparse
 
 #--------------------------------------------------------
 
@@ -78,7 +81,7 @@ def get_grid_size(filename):
 
 #--------------------------------------------------------
 
-def advection_error_convergence():
+def advection_error_convergence(runtype):
 
     resolutions = [2562,10242,40962,163842]
 
@@ -104,6 +107,15 @@ def advection_error_convergence():
     scaleMinArea2 = math.pow(xMin,2) * scaleArea2
     scaleMaxArea2 = math.pow(xMax,2) * scaleArea2
 
+    scalePos1 = 0.15e4 / math.pow(xMax,1)
+    scaleMinPos1 = math.pow(xMin,1) * scalePos1
+    scaleMaxPos1 = math.pow(xMax,1) * scalePos1
+
+    scalePos2 = 0.15e4 / math.pow(xMax,2)
+    scaleMinPos2 = math.pow(xMin,2) * scalePos2
+    scaleMaxPos2 = math.pow(xMax,2) * scalePos2
+
+
     scaleThickness = 10e-1 / math.pow(xMin,1)
 
     scaleMinThickness = math.pow(xMin,1) * scaleThickness
@@ -123,38 +135,38 @@ def advection_error_convergence():
     plt.rc('legend', fontsize=SMALL_SIZE)    # legend fontsize
     plt.rc('figure', titlesize=BIGGER_SIZE)  # fontsize of the figure title
 
+    #positions
+
     fig, axes = plt.subplots(1, 1, figsize=(8*cm,6.5*cm))
 
-    axes.loglog([xMin, xMax], [scaleMinArea1, scaleMaxArea1], linestyle=':', color='k', label="_nolegend_", lw=1)
-    axes.loglog([xMin, xMax], [scaleMinArea2, scaleMaxArea2], linestyle=':', color='k', label="_nolegend_", lw=1)
+    axes.loglog([xMin, xMax], [scaleMinPos1, scaleMaxPos1], linestyle=':', color='k', label="_nolegend_", lw=1)
+    axes.loglog([xMin, xMax], [scaleMinPos2, scaleMaxPos2], linestyle=':', color='k', label="_nolegend_", lw=1)
 
     iPlot = 0
     for experiment in experiments:
 
-         xArea = []
-         yArea = []
+         xPos = []
+         yPos = []
 
          for resolution in resolutions:
 
-             filename = "./output_%s_%i/output.2000.nc" %(experiment,resolution)
-             filenameParticlesTemplate = "./output_%s_%i/particles_output*" %(experiment,resolution)
+             filename = "./output_%s_%i_%s/output.2000.nc" %(experiment,resolution,runtype)
+             filenameParticlesTemplate = "./output_%s_%i_%s/particles_output*" %(experiment,resolution,runtype)
 
-             norm = get_norm_area(filename, filenameParticlesTemplate)
-             xArea.append(get_resolution(filename))
-             yArea.append(norm)
+             #norm = get_norm_area(filename, filenameParticlesTemplate)
+             norm = check_particle_positions_start_end(filenameParticlesTemplate)
+             xPos.append(get_resolution(filename))
+             yPos.append(norm)
 
          error = float('nan')
-         print(xArea, yArea)
-         error = sum(yArea)
+         print(xPos, yPos)
 
-         axes.loglog(xArea, yArea, marker=markers[iPlot], dashes=dashes[iPlot], color="black", markersize=5.0)
+         axes.loglog(xPos, yPos, marker=markers[iPlot], dashes=dashes[iPlot], color="black", markersize=5.0)
 
          iPlot = iPlot + 1
 
 
     axes.legend(legendLabels, frameon=False, loc=4, fontsize=8, handlelength=4)
-
-    # area
 
     plt.minorticks_off()
 
@@ -170,8 +182,57 @@ def advection_error_convergence():
         labelbottom='off')
 
     plt.tight_layout(pad=0.2, w_pad=0.2, h_pad=0.2)
-    plt.savefig("advection_error_convergence.png",dpi=300)
-    plt.savefig("advection_error_convergence.eps")
+    plt.savefig("advection_error_pos_convergence_%s.png" %(runtype),dpi=300)
+    plt.savefig("advection_error_pos_convergence_%s.eps" %(runtype))
+
+    #area
+    fig, axes = plt.subplots(1, 1, figsize=(8*cm,6.5*cm))
+
+    axes.loglog([xMin, xMax], [scaleMinArea1, scaleMaxArea1], linestyle=':', color='k', label="_nolegend_", lw=1)
+    axes.loglog([xMin, xMax], [scaleMinArea2, scaleMaxArea2], linestyle=':', color='k', label="_nolegend_", lw=1)
+
+    iPlot = 0
+    for experiment in experiments:
+
+         xArea = []
+         yArea = []
+
+         for resolution in resolutions:
+
+             filename = "./output_%s_%i_%s/output.2000.nc" %(experiment,resolution,runtype)
+             filenameParticlesTemplate = "./output_%s_%i_%s/particles_output*" %(experiment,resolution,runtype)
+
+             norm = get_norm_area(filename, filenameParticlesTemplate)
+             xArea.append(get_resolution(filename))
+             yArea.append(norm)
+
+         error = float('nan')
+         print(xArea, yArea)
+         error = yArea[-1]
+
+         axes.loglog(xArea, yArea, marker=markers[iPlot], dashes=dashes[iPlot], color="black", markersize=5.0)
+
+         iPlot = iPlot + 1
+
+
+    axes.legend(legendLabels, frameon=False, loc=4, fontsize=8, handlelength=4)
+
+    plt.minorticks_off()
+
+    axes.set_xlabel("Grid resolution (km)")
+    axes.set_ylabel(r"$L_2$ error norm")
+    axes.set_xticks([60,120,240,480])
+    axes.set_xticklabels(["60","120","240","480"])
+    axes.tick_params(
+        axis='x',          # changes apply to the x-axis
+        which='minor',      # both major and minor ticks are affected
+        bottom='off',      # ticks along the bottom edge are off
+        top='off',         # ticks along the top edge are off
+        labelbottom='off')
+
+    plt.tight_layout(pad=0.2, w_pad=0.2, h_pad=0.2)
+    plt.savefig("advection_error_convergence_%s.png" %(runtype),dpi=300)
+    plt.savefig("advection_error_convergence_%s.eps" %(runtype))
 
     try:
         import colorama
@@ -188,4 +249,10 @@ def advection_error_convergence():
 
 if __name__ == "__main__":
 
-    advection_error_convergence()
+    parser = argparse.ArgumentParser(description='Plot the advection error as a function of mesh size')
+
+    parser.add_argument('-t', required=True, dest='runtype', help='plot data for polympo or nonpolympo run')
+
+    args = parser.parse_args()
+
+    advection_error_convergence(args.runtype)
