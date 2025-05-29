@@ -3,13 +3,13 @@
     config_calendar_type = 'noleap'
     config_start_time = '2000-01-01_00:00:00'
     config_stop_time = 'none'
-    config_run_duration = '01-00-00_00:00:00'
+    config_run_duration = '00-00-10_00:00:00'
     config_num_halos = 2
 /
 &io
     config_pio_num_iotasks = 0
     config_pio_stride = 1
-    config_write_output_on_startup = false
+    config_write_output_on_startup = true
     config_test_case_diag = false
     config_test_case_diag_type = 'none'
     config_full_abort_write = true
@@ -37,26 +37,26 @@
     config_nCategories = 5
     config_nFloeCategories = 1
     config_nIceLayers = 7
-    config_nSnowLayers = 5
+    config_nSnowLayers = 1
 /
 &initialize
     config_earth_radius = 6371229.0
-    config_initial_condition_type = 'cice_default'
+    config_initial_condition_type = 'none'
     config_initial_ice_area = 1.0
     config_initial_ice_volume = 1.0
     config_initial_snow_volume = 0.0
     config_initial_latitude_north = 70.0
     config_initial_latitude_south = -60.0
-    config_initial_velocity_type = 'uniform'
+    config_initial_velocity_type = 'none'
     config_initial_uvelocity = 0.0
     config_initial_vvelocity = 0.0
-    config_calculate_coriolis = true
+    config_calculate_coriolis = false
 /
 &use_sections
     config_use_dynamics = true
     config_use_velocity_solver = false
-    config_use_advection = false
     config_use_mpm = false
+    config_use_advection = true
     config_use_forcing = true
     config_use_column_physics = true
     config_use_prescribed_ice = false
@@ -66,10 +66,10 @@
     config_atmospheric_forcing_type = 'CORE'
     config_forcing_start_time = '2000-01-01_00:00:00'
     config_forcing_cycle_start = '2000-01-01_00:00:00'
-    config_forcing_cycle_duration = '2-00-00_00:00:00'
+    config_forcing_cycle_duration = '1-00-00_00:00:00'
     config_forcing_precipitation_units = 'mm_per_sec'
     config_forcing_sst_type = 'ncar'
-    config_forcing_bgc_type = 'ISPOL'
+    config_forcing_bgc_type = 'none'
     config_update_ocean_fluxes = false
     config_frazil_coupling_type = 'external'
     config_include_pond_freshwater_feedback = false
@@ -115,13 +115,14 @@
 &mpm
     config_use_mpm_transport = true
     config_use_mpm_velocity_solver = true
-    config_use_mpm_freeze_melt = false
+    config_use_mpm_tracers = false
     config_use_mpm_polympo = false
     config_mpm_create_particles = false
     config_mpm_particle_init_type = 'number'
-    config_mpm_particle_posn_init_type = 'even'
+    config_mpm_particle_posn_init_type = 'xyprojection'
     config_mpm_particle_init_number = 9
-    config_mpm_particle_block_size = 1024
+    config_mpm_particle_block_size = 4096
+    config_mpm_interpolation_test = false
     config_mpm_assembly_test = false
     config_mpm_polympo_init_test = false
 /
@@ -322,7 +323,7 @@
     config_minimum_wind_compaction = 10.0
     config_wind_compaction_factor = 27.3
     config_snow_redistribution_factor = 0.3
-    config_max_dry_snow_radius = 1500.0
+    config_max_dry_snow_radius = 1800.0
     config_snow_thermal_conductivity = 0.3
 /
 &meltponds
@@ -370,7 +371,7 @@
     config_boundary_layer_iteration_number = 5
 /
 &ocean
-    config_use_ocean_mixed_layer = false
+    config_use_ocean_mixed_layer = true
     config_ocean_mixed_layer_type = 'cice'
     config_min_friction_velocity = 0.0005
     config_ocean_heat_transfer_type = 'constant'
@@ -507,7 +508,7 @@
     config_AM_timeSeriesStatsDaily_backward_output_offset = '00-00-01_00:00:00'
 /
 &AM_timeSeriesStatsMonthly
-    config_AM_timeSeriesStatsMonthly_enable = false
+    config_AM_timeSeriesStatsMonthly_enable = true
     config_AM_timeSeriesStatsMonthly_compute_on_startup = false
     config_AM_timeSeriesStatsMonthly_write_on_startup = false
     config_AM_timeSeriesStatsMonthly_compute_interval = 'dt'
