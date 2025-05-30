@@ -20,13 +20,6 @@ def get_testcase_data_square():
         if (not os.path.isfile(filanameDst)):
             os.symlink(filenameSrc, filanameDst)
 
-    args = ["wget", dirName+filename]
-
-    process = subprocess.Popen(args, stdout=subprocess.PIPE)
-
-    while process.poll() is None:
-        line = process.stdout.readline()
-
 #-------------------------------------------------------------------------------
 
 if __name__ == "__main__":
