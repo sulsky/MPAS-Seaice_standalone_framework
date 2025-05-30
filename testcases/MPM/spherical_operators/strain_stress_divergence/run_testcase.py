@@ -1,17 +1,21 @@
+import sys
+
+sys.path.append("../../../../utils/testcases")
+from get_testcase_data_spherical import get_testcase_data_spherical
+
+sys.path.append("../../../spherical_operators/strain_stress_divergence")
+from create_ic import create_ic
+
 from create_particles import create_particles
 from run_model import run_model
 from strain_stress_divergence_map import strain_stress_divergence_map
 from strain_stress_divergence_scaling import strain_stress_divergence_scaling
-import sys
-sys.path.append("../../../spherical_operators/strain_stress_divergence")
-from get_testcase_data import get_testcase_data
-from create_ic import create_ic
 
 #-------------------------------------------------------------------------------
 
 def run_strain_stress_divergence_testcase():
 
-    get_testcase_data()
+    get_testcase_data_spherical(getGraphFiles=False)
 
     create_ic()
 

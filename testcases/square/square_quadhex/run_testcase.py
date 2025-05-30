@@ -1,3 +1,8 @@
+import sys
+
+sys.path.append("../../../utils/testcases")
+from get_testcase_data_square import get_testcase_data_square
+
 from create_grids import create_grids
 from create_ics import create_ics
 from run_model import run_model

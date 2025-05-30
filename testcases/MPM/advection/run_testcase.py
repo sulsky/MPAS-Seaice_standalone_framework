@@ -1,8 +1,11 @@
 import sys
 
+sys.path.append("../../../utils/testcases")
+from get_testcase_data_spherical import get_testcase_data_spherical
+
 sys.path.append("../../advection")
-from get_testcase_data import get_testcase_data
 from create_ics import create_ics
+
 from add_deldyn_to_ics import add_deldyn_to_ics
 from create_particles import create_particles
 
@@ -36,7 +39,7 @@ runtypes = [{"name":"original",
 
 print("Get testcase data")
 print("=================")
-get_testcase_data()
+get_testcase_data_spherical()
 
 print("\nCreate ICs")
 print("==========")
