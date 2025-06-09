@@ -164,7 +164,7 @@ def plot_subfigure_contour(axes,
 
 #---------------------------------------------------------------
 
-def advection_map():
+def advection_map(runtype):
 
     iTime = -1
 
@@ -179,7 +179,7 @@ def advection_map():
     print("Load data...")
 
     # mesh
-    filename = "./output_%s_%s/output.2000.nc" %(experiment2,res)
+    filename = "./output_%s_%s_%s/output.2000.nc" %(experiment2,res,runtype)
 
     file = Dataset(filename, "r")
 
@@ -200,13 +200,13 @@ def advection_map():
     file.close()
 
     # slotted cylinder
-    filenamesParticleSC = sorted(glob.glob("./output_%s_%s/particles_output*" %(experiment2,res)))
+    filenamesParticleSC = sorted(glob.glob("./output_%s_%s_%s/particles_output*" %(experiment2,res,runtype)))
 
     iceAreaInitialSC = average_particle_ice_area_to_cell(filenamesParticleSC[ 0], nCells)
     iceAreaSC        = average_particle_ice_area_to_cell(filenamesParticleSC[-1], nCells)
 
     # cosine bell
-    filenamesParticleCB = sorted(glob.glob("./output_%s_%s/particles_output*" %(experiment1,res)))
+    filenamesParticleCB = sorted(glob.glob("./output_%s_%s_%s/particles_output*" %(experiment1,res,runtype)))
 
     iceAreaInitialCB = average_particle_ice_area_to_cell(filenamesParticleCB[ 0], nCells)
     iceAreaCB        = average_particle_ice_area_to_cell(filenamesParticleCB[-1], nCells)
@@ -258,8 +258,8 @@ def advection_map():
 
         #plt.tight_layout()
         plt.tight_layout(pad=0.2, w_pad=0.2, h_pad=0.2)
-        plt.savefig("advection_map.png",dpi=300)
-        plt.savefig("advection_map.eps")
+        plt.savefig("advection_map_%s.png" %(runtype),dpi=300)
+        plt.savefig("advection_map_%s.eps" %(runtype))
 
     else:
 

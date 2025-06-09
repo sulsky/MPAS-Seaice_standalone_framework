@@ -111,7 +111,7 @@ def cylinder(nCells,
 
 #--------------------------------------------------------------------
 
-def create_ic_file(res, icType):
+def create_ic_file(res, icType, angle):
 
     # grid in
     gridFilename = "grid.%s.nc" %(res)
@@ -125,6 +125,7 @@ def create_ic_file(res, icType):
     zCell = ma.getdata(gridFile.variables["zCell"][:])
 
     latVertex = ma.getdata(gridFile.variables["latVertex"][:])
+    lonVertex = ma.getdata(gridFile.variables["lonVertex"][:])
 
     gridFile.close()
 
@@ -148,9 +149,12 @@ def create_ic_file(res, icType):
         radius = 6371229.0
         uVelocityEquator = (2.0 * math.pi * radius) / (seconds)
         print("uVelocityEquator: ",uVelocityEquator)
+        print("advection angle wrt equator: ",angle)
         for iVertex in range(0,nVertices):
-            uVelocity[iVertex] = uVelocityEquator * math.cos(latVertex[iVertex])
-            vVelocity[iVertex] = 0.0
+
+            uVelocity[iVertex] =  uVelocityEquator * (math.cos(latVertex[iVertex]) * math.cos(angle)
+                               + math.sin(latVertex[iVertex]) * math.cos(lonVertex[iVertex]) * math.sin(angle))
+            vVelocity[iVertex] = -uVelocityEquator * (math.sin(lonVertex[iVertex]) * math.sin(angle))
 
         iceAreaCell   = icFile.createVariable("iceAreaCell",   'd', dimensions=("nCells"))
         iceVolumeCell = icFile.createVariable("iceVolumeCell", 'd', dimensions=("nCells"))
@@ -200,7 +204,7 @@ def create_ic_file(res, icType):
 
 #--------------------------------------------------------------------
 
-def create_ics():
+def create_ics(angle = 0):
 
     reses = ["2562","10242","40962","163842"]
 
@@ -214,7 +218,7 @@ def create_ics():
 
             print("  Res: ", res)
 
-            create_ic_file(res, icType)
+            create_ic_file(res, icType, angle)
 
 #-------------------------------------------------------------------------------
 

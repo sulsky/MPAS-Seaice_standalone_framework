@@ -55,7 +55,7 @@
 &use_sections
     config_use_dynamics = true
     config_use_velocity_solver = false
-    config_use_advection = false
+    config_use_advection = true
     config_use_mpm = true
     config_use_forcing = false
     config_use_column_physics = false
@@ -105,7 +105,7 @@
     config_use_special_boundaries_velocity_masks = false
 /
 &advection
-    config_advection_type = 'incremental_remap'
+    config_advection_type = 'none'
     config_monotonic = true
     config_conservation_check = false
     config_monotonicity_check = false

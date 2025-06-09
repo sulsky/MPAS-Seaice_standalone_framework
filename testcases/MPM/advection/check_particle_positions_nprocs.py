@@ -4,7 +4,7 @@ import glob
 
 #-------------------------------------------------------------------------------
 
-def check_particle_positions_nprocs(nProcs1, nProcs2):
+def check_particle_positions_nprocs(nProcs1, nProcs2, runtype):
 
     try:
         import colorama
@@ -17,8 +17,8 @@ def check_particle_positions_nprocs(nProcs1, nProcs2):
     print(message)
     print("-"*len(message))
 
-    filenames1 = sorted(glob.glob("./output_%i/particles*" %(nProcs1)))
-    filenames2 = sorted(glob.glob("./output_%i/particles*" %(nProcs2)))
+    filenames1 = sorted(glob.glob("./output_%s_%i/particles*" %(runtype, nProcs1)))
+    filenames2 = sorted(glob.glob("./output_%s_%i/particles*" %(runtype, nProcs2)))
 
     print("filename for %i: %s" %(nProcs1, filenames1[-1]))
     print("filename for %i: %s" %(nProcs2, filenames2[-1]))
@@ -113,9 +113,10 @@ if __name__ == "__main__":
 
     parser = argparse.ArgumentParser(help="Check that two different processor counts give the same answer")
 
-    parser.add_argument('--n1', dest='nProcs1', type=int)
-    parser.add_argument('--n2', dest='nProcs2', type=int)
+    parser.add_argument('--n1', dest='nProcs1', type=int, required=True)
+    parser.add_argument('--n2', dest='nProcs2', type=int, required=True)
+    parser.add_argument('--r',  dest='runtype', type=char,required=False)
 
     args = parser.parse_args()
 
-    check_particle_positions_nprocs(args.nProcs1, args.nProcs2)
+    check_particle_positions_nprocs(args.nProcs1, args.nProcs2, args.runtype)

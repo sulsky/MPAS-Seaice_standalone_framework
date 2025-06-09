@@ -4,7 +4,7 @@ import time
 
 #-------------------------------------------------------------------------------
 
-def run_model(nCells, nProcs):
+def run_model(nCells, nProcs, runtype):
 
     print()
     message = "Run model for nCells: %i and nProcs: %i" %(nCells, nProcs)
@@ -19,7 +19,7 @@ def run_model(nCells, nProcs):
     print(cmd)
     os.system(cmd)
 
-    cmd = "rm -rf output output_%i" %(nProcs)
+    cmd = "rm -rf output output_%s_%i" %(runtype,nProcs)
     print(cmd)
     os.system(cmd)
 
@@ -51,7 +51,7 @@ def run_model(nCells, nProcs):
     end = time.perf_counter()
     print(f"Elapsed time: {end - start:.6f} seconds")
 
-    cmd = "mv output output_%i" %(nProcs)
+    cmd = "mv output output_%s_%i" %(runtype, nProcs)
     print(cmd)
     os.system(cmd)
 
@@ -64,6 +64,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument('-c', dest="nCells", type=int, required=True)
     parser.add_argument('-p', dest="nProcs", type=int, required=True)
+    parser.add_argument('-r', dest="runtype", type=char, required=False)
     args = parser.parse_args()
 
-    run_model(args.nCells, args.nProcs)
+    run_model(args.nCells, args.nProcs, args.runtype)

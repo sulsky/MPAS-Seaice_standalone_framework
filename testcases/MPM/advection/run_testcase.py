@@ -1,11 +1,10 @@
-import sys
+import sys, math
 
 sys.path.append("../../../utils/testcases")
 from get_testcase_data_spherical import get_testcase_data_spherical
 
 sys.path.append("../../advection")
-from create_ics import create_ics
-
+from create_ics import create_ic_file
 from add_deldyn_to_ics import add_deldyn_to_ics
 from create_particles import create_particles
 
@@ -43,7 +42,8 @@ get_testcase_data_spherical()
 
 print("\nCreate ICs")
 print("==========")
-create_ics()
+create_ic_file("2562", "slotted_cylinder" , math.pi / 6.0)
+create_ic_file("2562", "cosine_bell"      , math.pi / 6.0)
 
 print("\nAdd deldyn to ICs")
 print("=================")
@@ -69,19 +69,19 @@ for runtype in runtypes:
     nmlChanges = {"mpm":{"config_use_mpm_polympo":runtype["polympo"]}}
     create_new_namelist("namelist.seaice.advection", "namelist.seaice", nmlChanges)
 
-    run_model(nCells, 1)
-    check_particles_moved("./output_1/"+particleFilename1,
-                          "./output_1/"+particleFilename2)
+    run_model(nCells, 1, runtype["name"])
+    check_particles_moved(("./output_%s_1/"%(runtype["name"]))+particleFilename1,
+                          ("./output_%s_1/"%(runtype["name"]))+particleFilename2)
 
-    check_particle_positions_start_end("./output_1/particles*")
+    check_particle_positions_start_end("./output_%s_1/particles*"%(runtype["name"]))
 
     for nProcs in runtype["nProcs"]:
 
         print("nProcsRun:",nProcs["nProcsRun"])
 
-        run_model(nCells, nProcs["nProcsRun"])
-        check_particles_moved(("./output_%i/" %(nProcs["nProcsRun"]))+particleFilename1,
-                              ("./output_%i/" %(nProcs["nProcsRun"]))+particleFilename2)
+        run_model(nCells, nProcs["nProcsRun"], runtype["name"])
+        check_particles_moved(("./output_%s_%i/" %(runtype["name"],nProcs["nProcsRun"]))+particleFilename1,
+                              ("./output_%s_%i/" %(runtype["name"],nProcs["nProcsRun"]))+particleFilename2)
 
         for nProcsComp in nProcs["nProcsComp"]:
-            check_particle_positions_nprocs(nProcs["nProcsRun"],nProcsComp)
+            check_particle_positions_nprocs(nProcs["nProcsRun"],nProcsComp,runtype["name"])
