@@ -1,16 +1,28 @@
 import sys
+
 sys.path.append("../../../utils/MPM/particle_initialization/")
 from empty_particle_file import empty_particle_file
+
+sys.path.append("../../../utils/testcases/")
+from log_messages import log_message
 
 from create_ic import create_ic
 from create_forcing import create_forcing
 from plot_particles_scatter import plot_particles_scatter
 from plot_cells_scatter import plot_cells_scatter
+
 import os
+import argparse
 
 #-------------------------------------------------------------------------------
 
-def run_testcase():
+def run_testcase(logFilename=None):
+
+    if (logFilename is not None):
+        logFile = open(logFilename,"a")
+        logFile.write("\nPolynya test case\n")
+        logFile.write(  "=================\n")
+        logFile.flush()
 
     print("Get grid file")
     print("=============")
@@ -39,7 +51,8 @@ def run_testcase():
 
     MPAS_SEAICE_EXECUTABLE = os.environ.get('MPAS_SEAICE_EXECUTABLE')
     if (MPAS_SEAICE_EXECUTABLE is None):
-        raise Exception("MPAS_SEAICE_EXECUTABLE must be set")
+        MPAS_SEAICE_EXECUTABLE = "../../../../MPAS-Seaice-MPM/components/mpas-seaice/seaice_model"
+        print("Using executable in standard location: %s" %(MPAS_SEAICE_EXECUTABLE))
 
     print("\nRun tests")
     print(  "=========")
@@ -81,8 +94,20 @@ def run_testcase():
         elif (test == "particles"):
             plot_particles_scatter()
 
+    if (logFilename is not None):
+        scriptDir = os.path.dirname(os.path.abspath(__file__))
+        log_message("Check plots", "yellow", logFile=logFile)
+        log_message("  "+scriptDir+"/cells_scatter.png", "magenta", logFile=logFile)
+        log_message("  "+scriptDir+"/particles_scatter.png", "magenta", logFile=logFile)
+
 #-------------------------------------------------------------------------------
 
 if __name__ == "__main__":
 
-    run_testcase()
+    parser = argparse.ArgumentParser()
+
+    parser.add_argument('-l', dest='logFilename')
+
+    args = parser.parse_args()
+
+    run_testcase(args.logFilename)

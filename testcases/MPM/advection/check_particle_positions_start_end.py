@@ -1,12 +1,17 @@
-from netCDF4 import Dataset
 import sys
+
+sys.path.append("../../../utils/testcases")
+from log_messages import log_message
+
+from netCDF4 import Dataset
 import math
 import glob
 import argparse
 
 #-------------------------------------------------------------------------------
 
-def check_particle_positions_start_end(filenameTemplate):
+def check_particle_positions_start_end(filenameTemplate,
+                                       logFile=None):
 
     try:
         import colorama
@@ -50,7 +55,9 @@ def check_particle_positions_start_end(filenameTemplate):
         filein.close()
 
         if (nParticles1 != nParticles2):
-            raise Exception("nParticles not consistent for " + filenameIn)
+            message = "nParticles not consistent for " + filenameIn
+            log_message(message, "red", logFile=logFile)
+            raise Exception(message)
 
 
         particleIDToIndex = {}
@@ -73,11 +80,7 @@ def check_particle_positions_start_end(filenameTemplate):
         errors.append(maxDistance)
 
     message = "Final max distance: %g" %(errors[-1])
-    try:
-        import colorama
-        print(colorama.Style.BRIGHT + colorama.Fore.MAGENTA + message + colorama.Style.RESET_ALL)
-    except ImportError:
-        print(message)
+    log_message(message, "magenta", logFile=logFile)
     print()
 
     return maxDistance

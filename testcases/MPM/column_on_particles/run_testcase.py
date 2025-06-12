@@ -1,11 +1,17 @@
-import os
 import sys
 sys.path.append("../../../testing")
 from testing_utils import get_domain, add_pio_namelist_changes, create_new_namelist, test_summary
+
 sys.path.append("../../../utils/MPM/particle_initialization/")
 from empty_particle_file import empty_particle_file
+
+sys.path.append("../../../utils/testcases")
+from log_messages import regression_summary
+
 from convert_particles_to_cell import convert_particles_to_cell
 from compare_mpas_files import compare_files
+
+import os
 import argparse
 
 #-------------------------------------------------------------------------------
@@ -48,7 +54,14 @@ def add_output_fields_to_stream(filenameIn,
 
 def run_testcase(nProcs,
                  runDuration,
-                 outputInterval):
+                 outputInterval,
+                 logFilenameOverview=None):
+
+    if (logFilenameOverview is not None):
+        logFileOverview = open(logFilenameOverview,"a")
+        logFileOverview.write("\nColumn on particles test case\n")
+        logFileOverview.write(  "=============================\n")
+        logFileOverview.flush()
 
     fieldNamesCell = [
         "iceAreaCell",
@@ -98,7 +111,8 @@ def run_testcase(nProcs,
     # executable
     MPAS_SEAICE_EXECUTABLE = os.environ.get('MPAS_SEAICE_EXECUTABLE')
     if (MPAS_SEAICE_EXECUTABLE is None):
-        raise Exception("MPAS_SEAICE_EXECUTABLE must be set")
+        MPAS_SEAICE_EXECUTABLE = "../../../../MPAS-Seaice-MPM/components/mpas-seaice/seaice_model"
+        print("Using executable in standard location: %s" %(MPAS_SEAICE_EXECUTABLE))
 
     # create output file if doesn't exist
     if (not os.path.isdir("output")):
@@ -224,6 +238,7 @@ def run_testcase(nProcs,
     nErrorsArray, nErrorsNonArray = compare_files(file1,file2,logfile)
 
     failed = test_summary(nErrorsNonArray, nErrorsArray, logfile, "particles_on_column")
+    regression_summary(nErrorsNonArray, nErrorsArray, logFileOverview, "particles_on_column")
 
     logfile.close()
 
@@ -235,8 +250,11 @@ if __name__ == "__main__":
     parser.add_argument('-n', dest="nProcs", type=int, default=1)
     parser.add_argument('-d', dest="runDuration", default='00-00-01_00:00:00')
     parser.add_argument('-o', dest="outputInterval", default='00-00-01_00:00:00')
+    parser.add_argument('-l', dest='logFilename')
+
     args = parser.parse_args()
 
     run_testcase(args.nProcs,
                  args.runDuration,
-                 args.outputInterval)
+                 args.outputInterval,
+                 args.logFilename)

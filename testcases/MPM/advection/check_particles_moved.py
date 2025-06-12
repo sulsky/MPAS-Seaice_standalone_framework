@@ -1,3 +1,8 @@
+import sys
+
+sys.path.append("../../../utils/testcases")
+from log_messages import log_message
+
 from netCDF4 import Dataset
 import numpy as np
 import argparse
@@ -11,7 +16,8 @@ def set_globalID(creationIndexMP,cellIDCreationMP):
 #-------------------------------------------------------------------------------
 
 def check_particles_moved(particleFile0,
-                          particleFile1):
+                          particleFile1,
+                          logFile=None):
 
     file1 = Dataset(particleFile0,"r")
     file2 = Dataset(particleFile1,"r")
@@ -55,10 +61,14 @@ def check_particles_moved(particleFile0,
     posnMP1 = posnMP1[0,(statusMP2 == 1)][particlesOrder2]
 
     if (posnMP0.shape != posnMP1.shape):
-        raise Exception("check_particles_moved: posnMP0.shape != posnMP1.shape")
+        message = "check_particles_moved: posnMP0.shape != posnMP1.shape"
+        log_message(message, "red", logFile=logFile)
+        raise Exception(message)
 
     if (np.array_equal(posnMP0,posnMP1)):
-        raise Exception("check_particles_moved: Particles did not apparently move: "+particleFile0+" to "+particleFile1)
+        message = "check_particles_moved: Particles did not apparently move: "+particleFile0+" to "+particleFile1
+        log_message(message, "red", logFile=logFile)
+        raise Exception(message)
 
 #-------------------------------------------------------------------------------
 

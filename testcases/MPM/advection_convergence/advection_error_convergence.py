@@ -1,12 +1,17 @@
 import sys
+
+sys.path.append("../../../utils/testcases")
+from log_messages import log_message
+
+from average_particle_ice_area_to_cell import average_particle_ice_area_to_cell
+from check_particle_positions_start_end import check_particle_positions_start_end
+
 from netCDF4 import Dataset
 import math
 import matplotlib.pyplot as plt
 import matplotlib as mpl
 import numpy as np
 import glob
-from average_particle_ice_area_to_cell import average_particle_ice_area_to_cell
-from check_particle_positions_start_end import check_particle_positions_start_end
 import argparse
 
 #--------------------------------------------------------
@@ -81,7 +86,8 @@ def get_grid_size(filename):
 
 #--------------------------------------------------------
 
-def advection_error_convergence(runtype):
+def advection_error_convergence(runtype,
+                                logFile=None):
 
     resolutions = [2562,10242,40962,163842]
 
@@ -234,16 +240,12 @@ def advection_error_convergence(runtype):
     plt.savefig("advection_error_convergence_%s.png" %(runtype),dpi=300)
     plt.savefig("advection_error_convergence_%s.eps" %(runtype))
 
-    try:
-        import colorama
-        if (error < 1e-12):
-           message = "TEST PASSED: Absolute convergence error: %g" %(error)
-           print(colorama.Style.BRIGHT + colorama.Fore.GREEN + message + colorama.Style.RESET_ALL)
-        else:
-           message = "TEST FAILED: Absolute convergence error: %g" %(error)
-           print(colorama.Style.BRIGHT + colorama.Fore.MAGENTA + message + colorama.Style.RESET_ALL)
-    except ImportError:
-        print(message)
+    if (error < 1e-12):
+        message = "TEST PASSED: Absolute convergence error: %g" %(error)
+        log_message(message, "green", logFile=logFile)
+    else:
+        message = "TEST FAILED: Absolute convergence error: %g" %(error)
+        log_message(message, "red", logFile=logFile)
 
 #-------------------------------------------------------------------------------
 

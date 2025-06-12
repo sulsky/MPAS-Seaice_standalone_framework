@@ -1,9 +1,16 @@
+import sys
+
+sys.path.append("../../../utils/testcases")
+from log_messages import log_message
+
 import os
 from netCDF4 import Dataset
 
 #-------------------------------------------------------------------------------
 
-def check_results(n1,n2):
+def check_results(n1,
+                  n2,
+                  logFile=None):
 
     try:
         import colorama
@@ -34,11 +41,7 @@ def check_results(n1,n2):
     filein.close()
 
     message = "fieldAssemblyTest diff min/max: %g %g" %(fieldAssemblyTestMin, fieldAssemblyTestMax)
-    try:
-        import colorama
-        print(colorama.Style.BRIGHT + colorama.Fore.MAGENTA + message + colorama.Style.RESET_ALL)
-    except ImportError:
-        print(message)
+    log_message(message, "magenta", logFile=logFile)
     print()
 
 #-------------------------------------------------------------------------------

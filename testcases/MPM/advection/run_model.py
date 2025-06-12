@@ -13,7 +13,8 @@ def run_model(nCells, nProcs, runtype):
 
     MPAS_SEAICE_EXECUTABLE = os.environ.get('MPAS_SEAICE_EXECUTABLE')
     if (MPAS_SEAICE_EXECUTABLE is None):
-        raise Exception("MPAS_SEAICE_EXECUTABLE must be set")
+        MPAS_SEAICE_EXECUTABLE = "../../../../MPAS-Seaice-MPM/components/mpas-seaice/seaice_model"
+        print("Using executable in standard location: %s" %(MPAS_SEAICE_EXECUTABLE))
 
     cmd = "rm grid.nc ic.nc particles.nc log.seaice.*"
     print(cmd)
