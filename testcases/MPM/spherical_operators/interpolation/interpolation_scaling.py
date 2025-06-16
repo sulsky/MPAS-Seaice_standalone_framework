@@ -3,6 +3,7 @@ import math
 import glob
 import matplotlib.pyplot as plt
 import matplotlib as mpl
+import os
 
 #--------------------------------------------------------
 
@@ -127,11 +128,21 @@ def interpolation_scaling():
 
             for resolution in resolutions:
 
-                filenames = sorted(glob.glob("./output_%s_%i/particles_output*" %(test,resolution)))
+                outputDir = "./output_%s_%i/" %(test,resolution)
+                if (not os.path.isdir(outputDir)):
+                    raise Exception("Missing output directory")
+                filenames = sorted(glob.glob(outputDir+"/particles_output*"))
+                if (len(filenames) == 0):
+                    raise Exception("No output particle files: "+outputDir+"/particles_output*")
+
                 filename = filenames[-1]
                 filenameIC = "particles_%s_%s.nc" %(test,resolution)
 
                 print(filename, filenameIC)
+                if (not os.path.exists(filename)):
+                    raise Exception("Missing output file: %s" %(filename))
+                if (not os.path.exists(filenameIC)):
+                    raise Exception("Missing IC file: %s" %(filenameIC))
 
                 normU, normV = get_norm_particle(filenameIC, filename, latitudeLimit)
 

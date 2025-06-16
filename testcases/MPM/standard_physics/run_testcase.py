@@ -35,6 +35,11 @@ def check_run(n1, n2, method, logFileOverview):
     # run comparison
     file1 = "output_%s_%i/output.2000.nc" %(method, n1)
     file2 = "output_%s_%i/output.2000.nc" %(method, n2)
+    if (not os.path.exists(file1)):
+        raise Exception("Output file does not exists: %s" %(file1))
+    if (not os.path.exists(file2)):
+        raise Exception("Output file does not exists: %s" %(file2))
+
     nErrorsArray, nErrorsNonArray = compare_files(file1,file2,logfile)
     failed = test_summary(nErrorsNonArray, nErrorsArray, logfile, "standard_physics")
     regression_summary(nErrorsNonArray, nErrorsArray, logFileOverview, "standard_physics")
@@ -54,6 +59,8 @@ def run_testcase(logFilename=None):
         logFile.write("\nStandard physics test case\n")
         logFile.write(  "==========================\n")
         logFile.flush()
+    else:
+        logFile = None
 
     # domains directory
     domainsDir = os.environ.get('MPAS_SEAICE_DOMAINS_DIR')
@@ -70,7 +77,7 @@ def run_testcase(logFilename=None):
     empty_particle_file("particles.nc")
 
     # run models
-    run_model()
+    run_model(logFile)
 
     # check output
     operatorMethods = ["mpmvar", "mpmweak"]

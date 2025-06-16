@@ -5,7 +5,15 @@ from netCDF4 import Dataset
 
 def check_results(n1, n2, method):
 
-    cmd = "ncdiff -O output_%s_%i/output.2000.nc output_%s_%i/output.2000.nc diff.nc" %(method,n1,n2)
+    filename1 = "output_%s_%i/output.2000.nc" %(method,n1)
+    filename2 = "output_%s_%i/output.2000.nc" %(method,n2)
+
+    if (not os.path.exists(filename1)):
+        raise Exception("Output file does not exists: %s" %(filename1))
+    if (not os.path.exists(filename2)):
+        raise Exception("Output file does not exists: %s" %(filename2))
+
+    cmd = "ncdiff -O %s %s diff.nc" %(filename1,filename2)
     os.system(cmd)
 
     cmd = "ncwa -O -y min diff.nc min.nc"

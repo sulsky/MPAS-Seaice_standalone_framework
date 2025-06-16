@@ -23,6 +23,8 @@ def run_testcase(logFilename=None):
         logFile.write("\nAssembly test case\n")
         logFile.write(  "==================\n")
         logFile.flush()
+    else:
+        logFile = None
 
     nCells = 10242
     n1 = 16
@@ -34,9 +36,9 @@ def run_testcase(logFilename=None):
 
     empty_particle_file("particles.nc")
 
-    run_model(nCells, n1)
+    run_model(nCells, n1, logFile)
 
-    run_model(nCells, n2)
+    run_model(nCells, n2, logFile)
 
     check_results(n1, n2, logFile)
 

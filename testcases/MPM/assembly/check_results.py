@@ -23,7 +23,15 @@ def check_results(n1,
     print(message)
     print("="*len(message))
 
-    cmd = "ncdiff -O output_%i/output.2000.nc output_%i/output.2000.nc diff.nc" %(n1,n2)
+    filename1 = "output_%i/output.2000.nc" %(n1)
+    filename2 = "output_%i/output.2000.nc" %(n2)
+    if (not os.path.exists(filename1) or
+        not os.path.exists(filename1)):
+        log_message("   Missing check files", "red", logFile=logFile)
+        raise Exception("Missing check files")
+        return
+
+    cmd = "ncdiff -O %s %s diff.nc" %(filename1, filename2)
     os.system(cmd)
 
     cmd = "ncwa -O -y min diff.nc min.nc"
@@ -40,8 +48,14 @@ def check_results(n1,
     fieldAssemblyTestMax = filein.variables["fieldAssemblyTest"][:]
     filein.close()
 
-    message = "fieldAssemblyTest diff min/max: %g %g" %(fieldAssemblyTestMin, fieldAssemblyTestMax)
-    log_message(message, "magenta", logFile=logFile)
+    if (fieldAssemblyTestMin == 0 and
+        fieldAssemblyTestMax == 0):
+        message = "fieldAssemblyTest diff min/max: %g %g" %(fieldAssemblyTestMin, fieldAssemblyTestMax)
+        log_message(message, "green", logFile=logFile)
+    else:
+        message = "fieldAssemblyTest diff min/max: %g %g" %(fieldAssemblyTestMin, fieldAssemblyTestMax)
+        log_message(message, "red", logFile=logFile)
+
     print()
 
 #-------------------------------------------------------------------------------

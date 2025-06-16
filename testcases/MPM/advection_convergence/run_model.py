@@ -1,24 +1,24 @@
+import sys
+
+sys.path.append("../../../utils/testcases")
+from execute_model import execute_model
+
 import os
-import time
 try:
     import f90nml
 except ImportError:
     print("Module f90nml needed and not available")
     raise
-from datetime import datetime
 
 #-------------------------------------------------------------------------------
 
-def run_model(usePolympo):
+def run_model(usePolympo,
+              logFile=None):
 
     MPAS_SEAICE_EXECUTABLE = os.environ.get('MPAS_SEAICE_EXECUTABLE')
     if (MPAS_SEAICE_EXECUTABLE is None):
         MPAS_SEAICE_EXECUTABLE = "../../../../MPAS-Seaice-MPM/components/mpas-seaice/seaice_model"
         print("Using executable in standard location: %s" %(MPAS_SEAICE_EXECUTABLE))
-
-    MPAS_SEAICE_TESTCASES_RUN_COMMAND = os.environ.get('MPAS_SEAICE_TESTCASES_RUN_COMMAND')
-    if (MPAS_SEAICE_TESTCASES_RUN_COMMAND is None):
-        MPAS_SEAICE_TESTCASES_RUN_COMMAND = ""
 
     icTypes = ["cosine_bell","slotted_cylinder"]
     #icTypes = ["cosine_bell"]
@@ -30,7 +30,6 @@ def run_model(usePolympo):
          usePolympoStr = "polympo"
     else:
          usePolympoStr = "nonpolympo"
-
 
     for icType in icTypes:
 
@@ -52,11 +51,9 @@ def run_model(usePolympo):
 
              os.system("rm -rf output_%s_%i_%s" %(icType, gridSize, usePolympoStr))
 
-             cmd = "%s %s" %(MPAS_SEAICE_TESTCASES_RUN_COMMAND, MPAS_SEAICE_EXECUTABLE)
-             start = time.perf_counter()
-             os.system(cmd)
-             end = time.perf_counter()
-             print(f"Elapsed time: {end - start:.6f} seconds")
+             execute_model(MPAS_SEAICE_EXECUTABLE,
+                           1,
+                           logFile)
 
              os.system("mv output output_%s_%i_%s" %(icType, gridSize, usePolympoStr))
              os.system("mv log.seaice.0000.out log.seaice.0000.out_%s_%i_%s" %(icType, gridSize, usePolympoStr))

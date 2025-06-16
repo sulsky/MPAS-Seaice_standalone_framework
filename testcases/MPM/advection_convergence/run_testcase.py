@@ -32,6 +32,8 @@ def run_testcase(logFilename=None):
         logFile.write("\nAdvection convergence test case\n")
         logFile.write(  "===============================\n")
         logFile.flush()
+    else:
+        logFile = None
 
     particleFilename1 = "/particles_output.2000-01-01_00.00.00.nc"
     particleFilename2 = "/particles_output.2000-01-06_00.00.00.nc"
@@ -96,7 +98,8 @@ def run_testcase(logFilename=None):
 
         print("\nRun models")
         print("==========")
-        run_model(usePolympo)
+        run_model(usePolympo,
+                  logFile)
 
         print("\nCheck particles moved")
         print("=====================")

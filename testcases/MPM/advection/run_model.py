@@ -1,10 +1,17 @@
+import sys
+
+sys.path.append("../../../utils/testcases")
+from execute_model import execute_model
+
 import os
 import argparse
-import time
 
 #-------------------------------------------------------------------------------
 
-def run_model(nCells, nProcs, runtype):
+def run_model(nCells,
+              nProcs,
+              runtype,
+              logFile):
 
     print()
     message = "Run model for nCells: %i and nProcs: %i" %(nCells, nProcs)
@@ -45,12 +52,9 @@ def run_model(nCells, nProcs, runtype):
 
         os.chdir("..")
 
-    cmd = "mpirun -oversubscribe -np %i %s" %(nProcs, MPAS_SEAICE_EXECUTABLE)
-    print(cmd)
-    start = time.perf_counter()
-    os.system(cmd)
-    end = time.perf_counter()
-    print(f"Elapsed time: {end - start:.6f} seconds")
+    execute_model(MPAS_SEAICE_EXECUTABLE,
+                  nProcs,
+                  logFile)
 
     cmd = "mv output output_%s_%i" %(runtype, nProcs)
     print(cmd)

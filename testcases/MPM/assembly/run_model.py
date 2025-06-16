@@ -1,9 +1,14 @@
+import sys
+
+sys.path.append("../../../utils/testcases")
+from execute_model import execute_model
+
 import os
 import argparse
 
 #-------------------------------------------------------------------------------
 
-def run_model(nCells, nProcs):
+def run_model(nCells, nProcs, logFile):
 
     MPAS_SEAICE_EXECUTABLE = os.environ.get('MPAS_SEAICE_EXECUTABLE')
     if (MPAS_SEAICE_EXECUTABLE is None):
@@ -45,9 +50,9 @@ def run_model(nCells, nProcs):
     print(cmd)
     os.system(cmd)
 
-    cmd = "mpirun -np %i %s" %(nProcs, MPAS_SEAICE_EXECUTABLE)
-    print(cmd)
-    os.system(cmd)
+    execute_model(MPAS_SEAICE_EXECUTABLE,
+                  nProcs,
+                  logFile)
 
     cmd = "mv output output_%i" %(nProcs)
     print(cmd)

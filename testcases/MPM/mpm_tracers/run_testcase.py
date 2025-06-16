@@ -24,6 +24,8 @@ def run_testcase(logFilenameOverview=None):
         logFileOverview.write("\nMPM tracers test case\n")
         logFileOverview.write(  "=====================\n")
         logFileOverview.flush()
+    else:
+        logFileOverview = None
 
     # domains directory
     domainsDir = os.environ.get('MPAS_SEAICE_DOMAINS_DIR')
@@ -40,7 +42,7 @@ def run_testcase(logFilenameOverview=None):
     empty_particle_file("particles.nc")
 
     # run models
-    run_model()
+    run_model(logFileOverview)
 
     # check output
     # make a test directory
@@ -57,6 +59,11 @@ def run_testcase(logFilenameOverview=None):
     # run comparison
     file1 = "output_mpm_tracers/output.2000.nc"
     file2 = "output_mpas/output.2000.nc"
+
+    if (not os.path.exists(file1) or
+        not os.path.exists(file2)):
+        raise Exception("Missing comparison file")
+
     nErrorsArray, nErrorsNonArray = compare_files(file1,file2,logfile)
     failed = test_summary(nErrorsNonArray, nErrorsArray, logfile, "mpm_tracers")
     regression_summary(nErrorsNonArray, nErrorsArray, logFileOverview, "mpm_tracers")

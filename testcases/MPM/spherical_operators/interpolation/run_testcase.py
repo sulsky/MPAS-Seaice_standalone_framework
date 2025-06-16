@@ -21,6 +21,8 @@ def run_testcase(logFilename=None):
         logFile.write("\nInterpolation test case\n")
         logFile.write(  "=======================\n")
         logFile.flush()
+    else:
+        logFile = None
 
     get_testcase_data_spherical(getGraphFiles=False)
 
@@ -28,11 +30,11 @@ def run_testcase(logFilename=None):
 
     create_particles()
 
-    run_model()
+    run_model(logFile)
 
     interpolation_scaling()
 
-    if (logFilename is not None):
+    if (logFile is not None):
         scriptDir = os.path.dirname(os.path.abspath(__file__))
         log_message("Check plots", "yellow", logFile=logFile)
         log_message("  "+scriptDir+"/interpolation_scaling.png", "magenta", logFile=logFile)

@@ -5,6 +5,7 @@ from empty_particle_file import empty_particle_file
 
 sys.path.append("../../../utils/testcases/")
 from log_messages import log_message
+from execute_model import execute_model
 
 from create_ic import create_ic
 from create_forcing import create_forcing
@@ -23,6 +24,8 @@ def run_testcase(logFilename=None):
         logFile.write("\nPolynya test case\n")
         logFile.write(  "=================\n")
         logFile.flush()
+    else:
+        logFile = None
 
     print("Get grid file")
     print("=============")
@@ -81,9 +84,9 @@ def run_testcase(logFilename=None):
         print(cmd)
         os.system(cmd)
 
-        cmd = "%s" %(MPAS_SEAICE_EXECUTABLE)
-        print(cmd)
-        os.system(cmd)
+        execute_model(MPAS_SEAICE_EXECUTABLE,
+                      1,
+                      logFile)
 
         cmd = "cp log.seaice.0000.out log.seaice.0000.out_%s" %(test)
         print(cmd)
@@ -94,7 +97,7 @@ def run_testcase(logFilename=None):
         elif (test == "particles"):
             plot_particles_scatter()
 
-    if (logFilename is not None):
+    if (logFile is not None):
         scriptDir = os.path.dirname(os.path.abspath(__file__))
         log_message("Check plots", "yellow", logFile=logFile)
         log_message("  "+scriptDir+"/cells_scatter.png", "magenta", logFile=logFile)

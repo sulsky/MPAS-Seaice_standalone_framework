@@ -33,6 +33,8 @@ def run_testcase(logFilename=None):
         logFile.write("\nAdvection test case\n")
         logFile.write(  "===================\n")
         logFile.flush()
+    else:
+        logFile = None
 
     nCells = 2562
 
@@ -80,9 +82,14 @@ def run_testcase(logFilename=None):
         print("Runtype name: ",runtype["name"])
 
         nmlChanges = {"mpm":{"config_use_mpm_polympo":runtype["polympo"]}}
-        create_new_namelist("namelist.seaice.advection", "namelist.seaice", nmlChanges)
+        create_new_namelist("namelist.seaice.advection",
+                            "namelist.seaice",
+                            nmlChanges)
 
-        run_model(nCells, 1, runtype["name"])
+        run_model(nCells,
+                  1,
+                  runtype["name"],
+                  logFile)
         check_particles_moved(("./output_%s_1/"%(runtype["name"]))+particleFilename1,
                               ("./output_%s_1/"%(runtype["name"]))+particleFilename2,
                               logFile)
@@ -94,7 +101,10 @@ def run_testcase(logFilename=None):
 
             print("nProcsRun:",nProcs["nProcsRun"])
 
-            run_model(nCells, nProcs["nProcsRun"], runtype["name"])
+            run_model(nCells,
+                      nProcs["nProcsRun"],
+                      runtype["name"],
+                      logFile)
             check_particles_moved(("./output_%s_%i/" %(runtype["name"],nProcs["nProcsRun"]))+particleFilename1,
                                   ("./output_%s_%i/" %(runtype["name"],nProcs["nProcsRun"]))+particleFilename2,
                                   logFile)
@@ -105,7 +115,7 @@ def run_testcase(logFilename=None):
                                                 runtype["name"],
                                                 logFile)
 
-    if (logFilename is not None):
+    if (logFile is not None):
         logFile.close()
 
 #-------------------------------------------------------------------------------
