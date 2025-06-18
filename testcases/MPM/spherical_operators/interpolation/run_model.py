@@ -13,7 +13,7 @@ except ImportError:
 
 #-------------------------------------------------------------------------------
 
-def run_model(logFile):
+def run_model(logFile=None):
 
     MPAS_SEAICE_EXECUTABLE = os.environ.get('MPAS_SEAICE_EXECUTABLE')
     if (MPAS_SEAICE_EXECUTABLE is None):

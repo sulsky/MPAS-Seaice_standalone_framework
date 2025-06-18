@@ -11,9 +11,19 @@ from run_model import run_model
 from strain_stress_divergence_map import strain_stress_divergence_map
 from strain_stress_divergence_scaling import strain_stress_divergence_scaling
 
+import argparse
+
 #-------------------------------------------------------------------------------
 
-def run_strain_stress_divergence_testcase():
+def run_strain_stress_divergence_testcase(logFilename=None):
+
+    if (logFilename is not None):
+        logFile = open(logFilename,"a")
+        logFile.write("\nstrain stress divergence test case\n")
+        logFile.write(  "==================================\n")
+        logFile.flush()
+    else:
+        logFile = None
 
     get_testcase_data_spherical(getGraphFiles=False)
 
@@ -21,7 +31,7 @@ def run_strain_stress_divergence_testcase():
 
     create_particles()
 
-    run_model()
+    run_model(logFile)
 
     strain_stress_divergence_map()
 
@@ -31,4 +41,8 @@ def run_strain_stress_divergence_testcase():
 
 if __name__ == "__main__":
 
-    run_strain_stress_divergence_testcase()
+    parser = argparse.ArgumentParser()
+    parser.add_argument('-l', dest='logFilename')
+    args = parser.parse_args()
+
+    run_strain_stress_divergence_testcase(args.logFilename)

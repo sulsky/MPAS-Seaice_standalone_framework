@@ -6,10 +6,11 @@ from log_messages import log_message
 import os
 import subprocess
 import time
+import argparse
 
 #-------------------------------------------------------------------------------
 
-def run_testcases():
+def run_testcases(optional=False):
 
     # List of test case directories
     testCaseDirs = [
@@ -23,9 +24,14 @@ def run_testcases():
         "spherical_operators/reconstruction",
         "standard_physics"
     ]
-    testCaseDirs = [
-        "column_on_particles"
+    testCaseDirsOptional = [
+        "spherical_operators/strain",
+        "spherical_operators/strain_stress_divergence"
     ]
+
+    testCaseDirsUse = testCaseDirs
+    if (optional):
+        testCaseDirsUse += testCaseDirsOptional
 
     scriptDir = os.path.dirname(os.path.abspath(__file__))
 
@@ -36,9 +42,28 @@ def run_testcases():
 
     MPAS_SEAICE_EXECUTABLE = os.environ.get('MPAS_SEAICE_EXECUTABLE')
     if (MPAS_SEAICE_EXECUTABLE is None):
-        logFile.write("\nMPAS_SEAICE_EXECUTABLE not specified. Using standard location.\n")
+        message = "\nMPAS_SEAICE_EXECUTABLE not specified. Using standard location.\n"
+        logFile.write(message)
+        print(message)
     else:
-        logFile.write("\nUsing MPAS-Seaice-MPM executable: %s\n" %(MPAS_SEAICE_EXECUTABLE))
+        message = "\nUsing MPAS-Seaice-MPM executable: %s\n" %(MPAS_SEAICE_EXECUTABLE)
+        logFile.write(message)
+        print(message)
+
+    MPAS_SEAICE_TESTCASES_RUN_COMMAND = os.environ.get('MPAS_SEAICE_TESTCASES_RUN_COMMAND')
+    if (MPAS_SEAICE_TESTCASES_RUN_COMMAND == "mpirun" or
+        MPAS_SEAICE_TESTCASES_RUN_COMMAND == "srun"):
+        message = "Using MPAS_SEAICE_TESTCASES_RUN_COMMAND: %s\n" %(MPAS_SEAICE_TESTCASES_RUN_COMMAND)
+        logFile.write(message)
+        print(message)
+    else:
+        message = "Unsupported MPAS_SEAICE_TESTCASES_RUN_COMMAND type: %s\n" %(MPAS_SEAICE_TESTCASES_RUN_COMMAND)
+        logFile.write(message)
+        print(message)
+        message = "  Must be 'mpirun' or 'srun'\n"
+        logFile.write(message)
+        print(message)
+        sys.exit()
 
     logFile.flush()
     logFile.close()
@@ -69,4 +94,10 @@ def run_testcases():
 
 if __name__ == "__main__":
 
-    run_testcases()
+    parser = argparse.ArgumentParser("Run MPM test cases")
+
+    parser.add_argument('-o', dest='optional', action='store_true', help="Run the optional test cases")
+
+    args = parser.parse_args()
+
+    run_testcases(args.optional)
