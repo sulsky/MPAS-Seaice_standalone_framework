@@ -8,21 +8,48 @@ from create_ics import create_ics
 
 sys.path.append("../../../utils/MPM/particle_initialization/")
 from empty_particle_file import empty_particle_file
+
 from run_model import run_model
 from check_results import check_results
 
-nCells = 10242
-n1 = 16
-n2 = 32
+import argparse
 
-get_testcase_data_spherical()
+#-------------------------------------------------------------------------------
 
-create_ics(nCells)
+def run_testcase(logFilename=None):
 
-empty_particle_file("particles.nc")
+    if (logFilename is not None):
+        logFile = open(logFilename,"a")
+        logFile.write("\nAssembly test case\n")
+        logFile.write(  "==================\n")
+        logFile.flush()
+    else:
+        logFile = None
 
-run_model(nCells, n1)
+    nCells = 10242
+    n1 = 16
+    n2 = 32
 
-run_model(nCells, n2)
+    get_testcase_data_spherical()
 
-check_results(n1, n2)
+    create_ics(nCells)
+
+    empty_particle_file("particles.nc")
+
+    run_model(nCells, n1, logFile)
+
+    run_model(nCells, n2, logFile)
+
+    check_results(n1, n2, logFile)
+
+#-------------------------------------------------------------------------------
+
+if __name__ == "__main__":
+
+    parser = argparse.ArgumentParser()
+
+    parser.add_argument('-l', dest='logFilename')
+
+    args = parser.parse_args()
+
+    run_testcase(args.logFilename)

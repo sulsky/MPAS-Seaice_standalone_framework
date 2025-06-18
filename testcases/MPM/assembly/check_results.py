@@ -1,9 +1,16 @@
+import sys
+
+sys.path.append("../../../utils/testcases")
+from log_messages import log_message
+
 import os
 from netCDF4 import Dataset
 
 #-------------------------------------------------------------------------------
 
-def check_results(n1,n2):
+def check_results(n1,
+                  n2,
+                  logFile=None):
 
     try:
         import colorama
@@ -16,7 +23,15 @@ def check_results(n1,n2):
     print(message)
     print("="*len(message))
 
-    cmd = "ncdiff -O output_%i/output.2000.nc output_%i/output.2000.nc diff.nc" %(n1,n2)
+    filename1 = "output_%i/output.2000.nc" %(n1)
+    filename2 = "output_%i/output.2000.nc" %(n2)
+    if (not os.path.exists(filename1) or
+        not os.path.exists(filename1)):
+        log_message("   Missing check files", "red", logFile=logFile)
+        raise Exception("Missing check files")
+        return
+
+    cmd = "ncdiff -O %s %s diff.nc" %(filename1, filename2)
     os.system(cmd)
 
     cmd = "ncwa -O -y min diff.nc min.nc"
@@ -33,12 +48,14 @@ def check_results(n1,n2):
     fieldAssemblyTestMax = filein.variables["fieldAssemblyTest"][:]
     filein.close()
 
-    message = "fieldAssemblyTest diff min/max: %g %g" %(fieldAssemblyTestMin, fieldAssemblyTestMax)
-    try:
-        import colorama
-        print(colorama.Style.BRIGHT + colorama.Fore.MAGENTA + message + colorama.Style.RESET_ALL)
-    except ImportError:
-        print(message)
+    if (fieldAssemblyTestMin == 0 and
+        fieldAssemblyTestMax == 0):
+        message = "fieldAssemblyTest diff min/max: %g %g" %(fieldAssemblyTestMin, fieldAssemblyTestMax)
+        log_message(message, "green", logFile=logFile)
+    else:
+        message = "fieldAssemblyTest diff min/max: %g %g" %(fieldAssemblyTestMin, fieldAssemblyTestMax)
+        log_message(message, "red", logFile=logFile)
+
     print()
 
 #-------------------------------------------------------------------------------

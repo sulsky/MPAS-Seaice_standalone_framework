@@ -1,10 +1,17 @@
+import sys
+
+sys.path.append("../../../utils/testcases")
+from execute_model import execute_model
+
 import os
 import argparse
-import time
 
 #-------------------------------------------------------------------------------
 
-def run_model(nCells, nProcs, runtype):
+def run_model(nCells,
+              nProcs,
+              runtype,
+              logFile):
 
     print()
     message = "Run model for nCells: %i and nProcs: %i" %(nCells, nProcs)
@@ -13,7 +20,8 @@ def run_model(nCells, nProcs, runtype):
 
     MPAS_SEAICE_EXECUTABLE = os.environ.get('MPAS_SEAICE_EXECUTABLE')
     if (MPAS_SEAICE_EXECUTABLE is None):
-        raise Exception("MPAS_SEAICE_EXECUTABLE must be set")
+        MPAS_SEAICE_EXECUTABLE = "../../../../MPAS-Seaice-MPM/components/mpas-seaice/seaice_model"
+        print("Using executable in standard location: %s" %(MPAS_SEAICE_EXECUTABLE))
 
     cmd = "rm grid.nc ic.nc particles.nc log.seaice.*"
     print(cmd)
@@ -44,12 +52,9 @@ def run_model(nCells, nProcs, runtype):
 
         os.chdir("..")
 
-    cmd = "mpirun -oversubscribe -np %i %s" %(nProcs, MPAS_SEAICE_EXECUTABLE)
-    print(cmd)
-    start = time.perf_counter()
-    os.system(cmd)
-    end = time.perf_counter()
-    print(f"Elapsed time: {end - start:.6f} seconds")
+    execute_model(MPAS_SEAICE_EXECUTABLE,
+                  nProcs,
+                  logFile)
 
     cmd = "mv output output_%s_%i" %(runtype, nProcs)
     print(cmd)

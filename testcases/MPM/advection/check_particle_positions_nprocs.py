@@ -1,10 +1,18 @@
+import sys
+
+sys.path.append("../../../utils/testcases")
+from log_messages import log_message
+
 from netCDF4 import Dataset
 import argparse
 import glob
 
 #-------------------------------------------------------------------------------
 
-def check_particle_positions_nprocs(nProcs1, nProcs2, runtype):
+def check_particle_positions_nprocs(nProcs1,
+                                    nProcs2,
+                                    runtype,
+                                    logFile=None):
 
     try:
         import colorama
@@ -51,14 +59,8 @@ def check_particle_positions_nprocs(nProcs1, nProcs2, runtype):
     if (nActive1 != nActive2):
         message1 = "Difference in number of active material points detected for nProcs: %i %i" %(nProcs1, nProcs2)
         message2 = "%i procs has %i acitve mps; %i procs has %i active MPs" %(nProcs1, nActive1, nProcs2, nActive2)
-        try:
-            import colorama
-            print(colorama.Fore.RED + message1 + colorama.Style.RESET_ALL)
-            print(colorama.Fore.RED + message2 + colorama.Style.RESET_ALL)
-        except ImportError:
-            print(message1)
-            print(message2)
-        print()
+        log_message(message1, "red", logFile=logFile)
+        log_message(message2, "red", logFile=logFile)
         raise Exception("Difference in number of active material points")
 
 
@@ -91,20 +93,11 @@ def check_particle_positions_nprocs(nProcs1, nProcs2, runtype):
 
     if (error):
         message = "Error: Differences in particle position detected for nProcs: %i %i" %(nProcs1, nProcs2)
-        try:
-            import colorama
-            print(colorama.Fore.RED + message + colorama.Style.RESET_ALL)
-        except ImportError:
-            print(message)
-        print()
+        log_message(message, "red", logFile=logFile)
         raise Exception(message)
 
     message = "No differences detected in particle position for nProcs: %i %i" %(nProcs1, nProcs2)
-    try:
-        import colorama
-        print(colorama.Fore.GREEN + message + colorama.Style.RESET_ALL)
-    except ImportError:
-        print(message)
+    log_message(message, "green", logFile=logFile)
     print()
 
 #-------------------------------------------------------------------------------

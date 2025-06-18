@@ -1,11 +1,18 @@
-import os
 import sys
 sys.path.append("../../../testing")
 from testing_utils import get_domain, add_pio_namelist_changes, create_new_namelist, test_summary
+
 sys.path.append("../../../utils/MPM/particle_initialization/")
 from empty_particle_file import empty_particle_file
+
+sys.path.append("../../../utils/testcases")
+from log_messages import log_message, regression_summary
+from execute_model import execute_model
+
 from convert_particles_to_cell import convert_particles_to_cell
 from compare_mpas_files import compare_files
+
+import os
 import argparse
 
 #-------------------------------------------------------------------------------
@@ -48,7 +55,16 @@ def add_output_fields_to_stream(filenameIn,
 
 def run_testcase(nProcs,
                  runDuration,
-                 outputInterval):
+                 outputInterval,
+                 logFilenameOverview=None):
+
+    if (logFilenameOverview is not None):
+        logFileOverview = open(logFilenameOverview,"a")
+        logFileOverview.write("\nColumn on particles test case\n")
+        logFileOverview.write(  "=============================\n")
+        logFileOverview.flush()
+    else:
+        logFileOverview = None
 
     fieldNamesCell = [
         "iceAreaCell",
@@ -98,7 +114,8 @@ def run_testcase(nProcs,
     # executable
     MPAS_SEAICE_EXECUTABLE = os.environ.get('MPAS_SEAICE_EXECUTABLE')
     if (MPAS_SEAICE_EXECUTABLE is None):
-        raise Exception("MPAS_SEAICE_EXECUTABLE must be set")
+        MPAS_SEAICE_EXECUTABLE = "../../../../MPAS-Seaice-MPM/components/mpas-seaice/seaice_model"
+        print("Using executable in standard location: %s" %(MPAS_SEAICE_EXECUTABLE))
 
     # create output file if doesn't exist
     if (not os.path.isdir("output")):
@@ -132,10 +149,9 @@ def run_testcase(nProcs,
                                 changes,
                                 fieldsToAdd)
 
-    cmd = "mpirun -np %i %s" %(nProcs, MPAS_SEAICE_EXECUTABLE)
-    logfile.write("  %s\n" %(cmd))
-    print(cmd)
-    os.system(cmd)
+    execute_model(MPAS_SEAICE_EXECUTABLE,
+                  nProcs,
+                  logFileOverview)
 
     cmd = "rm -rf output_original"
     logfile.write("  %s\n" %(cmd))
@@ -172,7 +188,7 @@ def run_testcase(nProcs,
     nmlChanges = add_pio_namelist_changes(nmlChanges, nProcs)
     create_new_namelist("namelist.seaice.original", "namelist.seaice", nmlChanges)
 
-    cmd = "cp ../../../configurations/standard_physics/streams.seaice namelist.seaice.original"
+    cmd = "cp ../../../configurations/standard_physics/streams.seaice streams.seaice.original"
     logfile.write("  %s\n" %(cmd))
     print(cmd)
     os.system(cmd)
@@ -187,10 +203,9 @@ def run_testcase(nProcs,
                                 changes,
                                 fieldsToAdd)
 
-    cmd = "mpirun -np %i %s" %(nProcs, MPAS_SEAICE_EXECUTABLE)
-    logfile.write("  %s\n" %(cmd))
-    print(cmd)
-    os.system(cmd)
+    execute_model(MPAS_SEAICE_EXECUTABLE,
+                  nProcs,
+                  logFileOverview)
 
     cmd = "rm -rf output_mpm"
     logfile.write("  %s\n" %(cmd))
@@ -209,6 +224,8 @@ def run_testcase(nProcs,
 
     # convert particle column data to cells
     logfile.write("Convert particle files to cell format for comparison\n")
+    if (not os.path.exists("./output_mpm/output.2000.nc")):
+        raise Exception("Missing output file: ./output_mpm/output.2000.nc")
     convert_particles_to_cell("./output_mpm/output.2000.nc",
                               "./output_mpm/output.2000.particles.nc")
 
@@ -224,6 +241,7 @@ def run_testcase(nProcs,
     nErrorsArray, nErrorsNonArray = compare_files(file1,file2,logfile)
 
     failed = test_summary(nErrorsNonArray, nErrorsArray, logfile, "particles_on_column")
+    regression_summary(nErrorsNonArray, nErrorsArray, logFileOverview, "particles_on_column")
 
     logfile.close()
 
@@ -235,8 +253,11 @@ if __name__ == "__main__":
     parser.add_argument('-n', dest="nProcs", type=int, default=1)
     parser.add_argument('-d', dest="runDuration", default='00-00-01_00:00:00')
     parser.add_argument('-o', dest="outputInterval", default='00-00-01_00:00:00')
+    parser.add_argument('-l', dest='logFilename')
+
     args = parser.parse_args()
 
     run_testcase(args.nProcs,
                  args.runDuration,
-                 args.outputInterval)
+                 args.outputInterval,
+                 args.logFilename)

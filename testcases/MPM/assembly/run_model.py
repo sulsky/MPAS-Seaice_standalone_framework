@@ -1,13 +1,19 @@
+import sys
+
+sys.path.append("../../../utils/testcases")
+from execute_model import execute_model
+
 import os
 import argparse
 
 #-------------------------------------------------------------------------------
 
-def run_model(nCells, nProcs):
+def run_model(nCells, nProcs, logFile):
 
     MPAS_SEAICE_EXECUTABLE = os.environ.get('MPAS_SEAICE_EXECUTABLE')
     if (MPAS_SEAICE_EXECUTABLE is None):
-        raise Exception("MPAS_SEAICE_EXECUTABLE must be set")
+        MPAS_SEAICE_EXECUTABLE = "../../../../MPAS-Seaice-MPM/components/mpas-seaice/seaice_model"
+        print("Using executable in standard location: %s" %(MPAS_SEAICE_EXECUTABLE))
 
     MPAS_SEAICE_METIS_PATH = os.environ.get('MPAS_SEAICE_METIS_PATH')
     if (MPAS_SEAICE_METIS_PATH is None):
@@ -44,9 +50,9 @@ def run_model(nCells, nProcs):
     print(cmd)
     os.system(cmd)
 
-    cmd = "mpirun -np %i %s" %(nProcs, MPAS_SEAICE_EXECUTABLE)
-    print(cmd)
-    os.system(cmd)
+    execute_model(MPAS_SEAICE_EXECUTABLE,
+                  nProcs,
+                  logFile)
 
     cmd = "mv output output_%i" %(nProcs)
     print(cmd)

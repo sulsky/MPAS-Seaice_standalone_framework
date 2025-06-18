@@ -2,6 +2,7 @@ from netCDF4 import Dataset
 import math
 import matplotlib.pyplot as plt
 import matplotlib as mpl
+import os
 
 #--------------------------------------------------------
 
@@ -134,6 +135,10 @@ def reconstruction_scaling():
                 filenameIC = "./ic_%s_%i.nc" %(test,resolution)
 
                 print(filename, filenameIC)
+                if (not os.path.exists(filename)):
+                    raise Exception("Missing output file: %s" %(filename))
+                if (not os.path.exists(filenameIC)):
+                    raise Exception("Missing IC file: %s" %(filenameIC))
 
                 normU, normV = get_norm(filenameIC, filename, latitudeLimit)
 

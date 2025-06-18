@@ -6,6 +6,7 @@ from matplotlib.collections import PatchCollection
 import matplotlib.pyplot as plt
 from mpl_toolkits.axes_grid1 import make_axes_locatable
 import math
+import os
 
 degreesToRadians = math.pi / 180.0
 
@@ -139,7 +140,10 @@ def reconstruction_map():
     fileIC.close()
 
     # mpm
-    fileMPM = Dataset("./output_latlon_40962/output.2000.nc","r")
+    filenameMPM = "./output_latlon_40962/output.2000.nc"
+    if (not os.path.exists(filenameMPM)):
+        raise Exception("Missing output file: %s" %(filenameMPM))
+    fileMPM = Dataset(filenameMPM,"r")
 
     uVelocityMPM = fileMPM.variables["uVelocity"][0,:]
     vVelocityMPM = fileMPM.variables["vVelocity"][0,:]

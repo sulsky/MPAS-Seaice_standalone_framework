@@ -1,8 +1,13 @@
-import os
-import argparse
 import sys
+
 sys.path.append("../../../testing")
 from testing_utils import add_pio_namelist_changes, create_new_namelist
+
+sys.path.append("../../../utils/testcases")
+from execute_model import execute_model
+
+import os
+import argparse
 
 #-------------------------------------------------------------------------------
 
@@ -23,7 +28,9 @@ def run_model(nProcs):
     nmlChanges = add_pio_namelist_changes(nmlChanges, nProcs)
     create_new_namelist("namelist.seaice.default", "namelist.seaice", nmlChanges)
 
-    cmd = "mpirun -np %i %s" %(nProcs, MPAS_SEAICE_EXECUTABLE)
+    execute_model(MPAS_SEAICE_EXECUTABLE,
+                  nProcs,
+                  logFile)
 
     print(cmd)
     os.system(cmd)

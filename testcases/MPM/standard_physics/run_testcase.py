@@ -1,64 +1,99 @@
 import sys
-from run_model import run_model
-from check_results import check_results
-from check_particle_positions_nprocs import check_particle_positions_nprocs
+
 sys.path.append("../../../testing")
 from compare_mpas_files import compare_files
 from testing_utils import get_domain, print_colour, create_test_directory, test_summary
-import os
+
 sys.path.append("../../../utils/MPM/particle_initialization/")
 from empty_particle_file import empty_particle_file
 
-#-------------------------------------------------------------------------------
+sys.path.append("../../../utils/testcases")
+from log_messages import regression_summary
 
-def check_run(n1, n2, method):
+from run_model import run_model
+from check_results import check_results
+from check_particle_positions_nprocs import check_particle_positions_nprocs
 
-        # make a test directory
-        testDir = "testDir_%s_%i_%i" %(method, n1, n2)
-        create_test_directory(testDir)
-        os.chdir("../")
-
-        # make log file
-        logfile = open("log_test.txt", "w")
-        title = "Test: Parallelism for method %s, n1=%i, n2=%i" %(method, n1, n2)
-        print_colour(title, "title")
-        logfile.write(title)
-
-        # run comparison
-        file1="output_%s_%i/output.2000.nc" %(method, n1)
-        file2="output_%s_%i/output.2000.nc" %(method, n2)
-        nErrorsArray, nErrorsNonArray = compare_files(file1,file2,logfile)
-        failed = test_summary(nErrorsNonArray, nErrorsArray, logfile, "standard_physics")
-
-        if (os.path.isfile("vars_differ.nc")):
-                cmd = "mv vars_differ.nc %s" %(testDir)
-                os.system(cmd)
-
-        check_particle_positions_nprocs(n1,n2, method)
+import os
+import argparse
 
 #-------------------------------------------------------------------------------
 
-# domains directory
-domainsDir = os.environ.get('MPAS_SEAICE_DOMAINS_DIR')
-if (domainsDir == None):
+def check_run(n1, n2, method, logFileOverview):
+
+    # make a test directory
+    testDir = "testDir_%s_%i_%i" %(method, n1, n2)
+    create_test_directory(testDir)
+    os.chdir("../")
+
+    # make log file
+    logfile = open("log_test.txt", "w")
+    title = "Test: Parallelism for method %s, n1=%i, n2=%i" %(method, n1, n2)
+    print_colour(title, "title")
+    logfile.write(title)
+
+    # run comparison
+    file1 = "output_%s_%i/output.2000.nc" %(method, n1)
+    file2 = "output_%s_%i/output.2000.nc" %(method, n2)
+    if (not os.path.exists(file1)):
+        raise Exception("Output file does not exists: %s" %(file1))
+    if (not os.path.exists(file2)):
+        raise Exception("Output file does not exists: %s" %(file2))
+
+    nErrorsArray, nErrorsNonArray = compare_files(file1,file2,logfile)
+    failed = test_summary(nErrorsNonArray, nErrorsArray, logfile, "standard_physics")
+    regression_summary(nErrorsNonArray, nErrorsArray, logFileOverview, "standard_physics")
+
+    if (os.path.isfile("vars_differ.nc")):
+        cmd = "mv vars_differ.nc %s" %(testDir)
+        os.system(cmd)
+
+    check_particle_positions_nprocs(n1, n2, method, logFileOverview)
+
+#-------------------------------------------------------------------------------
+
+def run_testcase(logFilename=None):
+
+    if (logFilename is not None):
+        logFile = open(logFilename,"a")
+        logFile.write("\nStandard physics test case\n")
+        logFile.write(  "==========================\n")
+        logFile.flush()
+    else:
+        logFile = None
+
+    # domains directory
+    domainsDir = os.environ.get('MPAS_SEAICE_DOMAINS_DIR')
+    if (domainsDir == None):
         raise Exception("Environment variable MPAS_SEAICE_DOMAINS_DIR must be set if no domains directory specified")
-if (not os.path.exists(domainsDir)):
+    if (not os.path.exists(domainsDir)):
         raise Exception("Requested domains directory does not exist")
 
-# get domain
-domain="domain_QU120km"
-get_domain(domainsDir, domain)
+    # get domain
+    domain ="domain_QU120km"
+    get_domain(domainsDir, domain)
 
-# empty particles
-empty_particle_file("particles.nc")
+    # empty particles
+    empty_particle_file("particles.nc")
 
-# run models
-run_model()
+    # run models
+    run_model(logFile)
 
-# check output
-operatorMethods = ["mpmvar", "mpmweak"]
-#operatorMethods = ["mpmvar"]
-for operatorMethod in operatorMethods:
-    print("   operatorMethod: ", operatorMethod)
-    check_run(1,  16, operatorMethod)
-    check_run(16, 32, operatorMethod)
+    # check output
+    operatorMethods = ["mpmvar", "mpmweak"]
+    #operatorMethods = ["mpmvar"]
+    for operatorMethod in operatorMethods:
+        print("   operatorMethod: ", operatorMethod)
+        check_run(1,  16, operatorMethod, logFile)
+        check_run(16, 32, operatorMethod, logFile)
+
+#-------------------------------------------------------------------------------
+
+if __name__ == "__main__":
+
+    parser = argparse.ArgumentParser()
+    parser.add_argument('-l', dest='logFilename')
+
+    args = parser.parse_args()
+
+    run_testcase(args.logFilename)

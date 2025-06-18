@@ -12,10 +12,19 @@ from average_variational_stress import average_variational_stress
 from stress_scaling import stress_scaling
 from velocity_scaling import velocity_scaling
 from velocity_map import velocity_map
+import argparse
 
 #-------------------------------------------------------------------------------
 
-def run_strain_testcase():
+def run_strain_testcase(logFilename=None):
+
+    if (logFilename is not None):
+        logFile = open(logFilename,"a")
+        logFile.write("\nstrain test case\n")
+        logFile.write(  "================\n")
+        logFile.flush()
+    else:
+        logFile = None
 
     get_testcase_data_spherical(getGraphFiles=False)
 
@@ -23,7 +32,7 @@ def run_strain_testcase():
 
     create_particles()
 
-    run_model()
+    run_model(logFile)
 
     average_variational_stress()
 
@@ -39,4 +48,8 @@ def run_strain_testcase():
 
 if __name__ == "__main__":
 
-    run_strain_testcase()
+    parser = argparse.ArgumentParser()
+    parser.add_argument('-l', dest='logFilename')
+    args = parser.parse_args()
+
+    run_strain_testcase(args.logFilename)
