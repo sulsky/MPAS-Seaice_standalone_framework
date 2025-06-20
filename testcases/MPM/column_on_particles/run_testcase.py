@@ -179,7 +179,6 @@ def run_testcase(nProcs,
     logfile.write("  Modify namelist\n")
     nmlChanges = {"seaice_model":{"config_run_duration":runDuration},
                   "mpm": {"config_use_mpm_velocity_solver":False,
-                          "config_use_mpm_transport":False,
                           "config_use_mpm_freeze_melt":False,
                           "config_mpm_particle_init_type":'cell',
                           "config_mpm_particle_posn_init_type":'cell'},
