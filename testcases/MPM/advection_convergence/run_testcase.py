@@ -51,7 +51,8 @@ def run_testcase(logFilename=None):
     reses = ["2562", "10242", "40962", "163842"]
     icTypes = ["cosine_bell", "slotted_cylinder"]
     DynamicsTimeStep = [3600.0, 1800.0, 900.0, 450.0]
-    usePolympos = [False, True]
+    #usePolympos = [False, True]
+    usePolympos = [False]
 
     print("Get testcase data")
     print("=================")
