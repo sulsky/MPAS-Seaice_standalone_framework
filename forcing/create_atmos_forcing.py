@@ -1,4 +1,3 @@
-from __future__ import print_function
 from netCDF4 import Dataset
 import netCDF4
 import numpy as np
@@ -11,17 +10,21 @@ from create_forcing import create_scrip_grid_file, get_mpas_grid_info, create_sc
 
 #-------------------------------------------------------------------------------
 
-def create_T62_remap_file(filenameScrip, title, dataDirSixHourly):
+def create_T62_remap_file(filenameT62,
+                          filenameScrip,
+                          title,
+                          latDimname,
+                          lonDimname,
+                          latVarname,
+                          lonVarname):
 
-    nLat = 94
-    nLon = 192
-
-    filenames = sorted(glob.glob(dataDirSixHourly+"/t_10/t_10.*.nc"))
-    filenameT62 = filenames[0]
     fileT62 = Dataset(filenameT62,"r")
 
-    LATin = fileT62.variables["LAT"][:]
-    LONin = fileT62.variables["LON"][:]
+    nLat = len(fileT62.dimensions[latDimname])
+    nLon = len(fileT62.dimensions[lonDimname])
+
+    LATin = fileT62.variables[latVarname][:]
+    LONin = fileT62.variables[lonVarname][:]
 
     fileT62.close()
 
@@ -88,23 +91,33 @@ def create_T62_remap_file(filenameScrip, title, dataDirSixHourly):
                 latCornerScrip[ij,iCorner] = latCorner[iLat,iLon,iCorner]
                 lonCornerScrip[ij,iCorner] = lonCorner[iLat,iLon,iCorner]
 
-    create_scrip_grid_file(filenameScrip, nGridSize, nGridCorners, gridRank, gridDims, latCenter.flatten(), lonCenter.flatten(), gridImask, latCornerScrip, lonCornerScrip, title)
+    create_scrip_grid_file(filenameScrip,
+                           nGridSize,
+                           nGridCorners,
+                           gridRank,
+                           gridDims,
+                           latCenter.flatten(),
+                           lonCenter.flatten(),
+                           gridImask,
+                           latCornerScrip,
+                           lonCornerScrip,
+                           title)
 
     return nGridSize
 
 #-------------------------------------------------------------------------------
 
-def create_forcing(\
-        filenameOutTemplate, \
-        varnameInput, \
-        yearStart, \
-        yearStop, \
-        filenameInputTemplate, \
-        varnameOutput, \
-        inputTimesPerYear, \
-        yearStartData, \
-        remapMatrix, \
-        dstGridSize):
+def create_forcing(yearStart,
+                   yearStop,
+                   timeType,
+                   inputDir,
+                   filenameTemplatesIn,
+                   varnamesIn,
+                   outputDir,
+                   filenameOutTemplate,
+                   varnamesOut,
+                   remapMatrix,
+                   dstGridSize):
 
     # loop over years
     for year in range(yearStart,yearStop+1):
@@ -112,7 +125,7 @@ def create_forcing(\
         print("  Year: %i of %i to %i" %(year, yearStart, yearStop))
 
         # create output file
-        filenameOut = filenameOutTemplate.replace("$Y",str(year))
+        filenameOut = outputDir+"/"+filenameOutTemplate.replace("$Y",str(year))
         fileForcing = Dataset(filenameOut,"w",format="NETCDF3_CLASSIC")
 
         # dimensions
@@ -121,33 +134,38 @@ def create_forcing(\
         Time   = fileForcing.createDimension("Time",)
 
         # time
-        xtimes = create_output_times(inputTimesPerYear, year)
+        xtimes = create_output_times(timeType, year)
+        nTimes = len(xtimes)
         varXtime = fileForcing.createVariable("xtime","c",dimensions=["Time","StrLen"])
-        for iTime in range(0,inputTimesPerYear):
+        for iTime in range(0,nTimes):
             varXtime[iTime,0:19] = netCDF4.stringtochar(np.array(xtimes[iTime], 'S19'))
             varXtime[iTime,19:] = " "*45
 
         # loop over variables
-        for iVariable in range(0,len(varnameInput)):
+        for iVariable in range(0,len(varnamesIn)):
 
-            print("    Variable: %s to %s" %(varnameInput[iVariable], varnameOutput[iVariable]))
+            print("    Variable: %s to %s" %(varnamesIn[iVariable], varnamesOut[iVariable]))
 
             # open input file
-            filenameInput = sorted(glob.glob(filenameInputTemplate[iVariable].replace("$Y",str(year))))[0]
+            filenameTemplate = inputDir+filenameTemplatesIn[iVariable].replace("$Y",str(year))
+            filenamesInput = sorted(glob.glob(filenameTemplate))
+            if (len(filenamesInput) == 0):
+                raise Exception("Empty filenamesInput list: "+filenameTemplate)
+            filenameInput = filenamesInput[0]
             fileInput = Dataset(filenameInput,"r")
-            arrayIn = fileInput.variables[varnameInput[iVariable]][:]
+            arrayIn = fileInput.variables[varnamesIn[iVariable]][:]
             fileInput.close()
 
-            arrayOut = np.zeros((inputTimesPerYear,dstGridSize))
+            arrayOut = np.zeros((nTimes,dstGridSize))
 
             # loop over times
-            for iTime in range(0,inputTimesPerYear):
+            for iTime in range(0,nTimes):
 
                 arrayInTime = arrayIn[iTime,:,:].flatten()
                 arrayOut[iTime,:] = remapMatrix.dot(arrayInTime)
 
             # output variable to netcdf file
-            var = fileForcing.createVariable(varnameOutput[iVariable],"d",dimensions=["Time","nCells"])
+            var = fileForcing.createVariable(varnamesOut[iVariable],"d",dimensions=["Time","nCells"])
             var[:] = arrayOut[:]
 
         # close forcing file
@@ -180,23 +198,40 @@ def write_scrip_in_file(srcTitle):
 
 #-------------------------------------------------------------------------------
 
-def perform_remapping(\
-        filenameMPASGrid, \
-        outputDir, \
-        startYear, \
-        endYear, \
-        dataDirSixHourly, \
-        dataDirMonthly):
+def perform_remapping(startYear,
+                      endYear,
+                      timeType,
+                      meshDir,
+                      meshFilename,
+                      latDimname,
+                      lonDimname,
+                      latVarname,
+                      lonVarname,
+                      inputDir,
+                      filenameTemplatesIn,
+                      varnamesIn,
+                      filenameMPASGrid,
+                      outputDir,
+                      filenameOutTemplate,
+                      varnamesOut):
 
     # create MPAS scrip grid file
     print("create_scrip_file_MPAS")
     scripGridFilename  = "remap_grid_MPAS_tmp.nc"
-    dstGridSize = create_scrip_file_MPAS(filenameMPASGrid, scripGridFilename)
+    dstGridSize = create_scrip_file_MPAS(filenameMPASGrid,
+                                         scripGridFilename)
 
     # create T62 remapping file
     print("create_T62_remap_file")
+    filenameT62 = meshDir+meshFilename
     scripT62Filename = "remap_grid_T62_tmp.nc"
-    srcGridSize = create_T62_remap_file(scripT62Filename, "T62", dataDirSixHourly)
+    srcGridSize = create_T62_remap_file(filenameT62,
+                                        scripT62Filename,
+                                        "T62",
+                                        latDimname,
+                                        lonDimname,
+                                        latVarname,
+                                        lonVarname)
 
     # create input scrip file
     print("write_scrip_in_file")
@@ -204,7 +239,12 @@ def perform_remapping(\
 
     # run scrip to generate weights
     print("ESMF_RegridWeightGen")
-    process = subprocess.Popen(["ESMF_RegridWeightGen","--source","remap_grid_T62_tmp.nc","--destination","remap_grid_MPAS_tmp.nc","--weight","remap_T62_to_MPAS_tmp.nc","--method","bilinear","--weight_only"])
+    process = subprocess.Popen(["ESMF_RegridWeightGen",
+                                "--source",     "remap_grid_T62_tmp.nc",
+                                "--destination","remap_grid_MPAS_tmp.nc",
+                                "--weight",     "remap_T62_to_MPAS_tmp.nc",
+                                "--method",     "bilinear",
+                                "--weight_only"])
     process.wait()
     if (process.returncode != 0):
         print("ESMF_RegridWeightGen error: ", process.returncode)
@@ -213,43 +253,80 @@ def perform_remapping(\
     # get remapping weights
     print("get_remapping_data")
     filenameRemapping = "remap_T62_to_MPAS_tmp.nc"
-    remapMatrix = get_remapping_data(filenameRemapping, srcGridSize, dstGridSize)
+    remapMatrix = get_remapping_data(filenameRemapping,
+                                     srcGridSize,
+                                     dstGridSize)
 
-    print("create_forcing six hourly")
-    # combined six hourly file
-    create_forcing(\
-       outputDir+"/LYq_six_hourly.$Y.nc", \
-       ["T_10_MOD","Q_10_MOD","U_10_MOD","V_10_MOD"], \
-       startYear, \
-       endYear, \
-       [dataDirSixHourly+"/t_10/t_10.$Y.*.nc", \
-        dataDirSixHourly+"/q_10/q_10.$Y.*.nc", \
-        dataDirSixHourly+"/u_10/u_10.$Y.*.nc", \
-        dataDirSixHourly+"/v_10/v_10.$Y.*.nc"], \
-       ["airTemperature", \
-        "airSpecificHumidity", \
-        "uAirVelocity", \
-        "vAirVelocity"], \
-       1460, \
-       1948, \
-       remapMatrix, \
-       dstGridSize)
+    # combined output file
+    print("create_forcing")
+    create_forcing(startYear,
+                   endYear,
+                   timeType,
+                   inputDir,
+                   filenameTemplatesIn,
+                   varnamesIn,
+                   outputDir,
+                   filenameOutTemplate,
+                   varnamesOut,
+                   remapMatrix,
+                   dstGridSize)
 
-    print("create_forcing monthly")
-    # combined monthly file
-    create_forcing(\
-       outputDir+"/LYq_monthly.nc", \
-       ["cldf","prec"], \
-       0, \
-       0, \
-       [dataDirMonthly+"/cldf.omip.nc", \
-        dataDirMonthly+"/prec.nmyr.nc"], \
-       ["cloudFraction", \
-        "rainfallRate"], \
-       12, \
-       0, \
-       remapMatrix, \
-       dstGridSize)
+#-------------------------------------------------------------------------------
+
+def create_forcing_from_config(configFilename):
+
+    config = configparser.ConfigParser()
+    config.read(configFilename)
+
+    # time
+    startYear              = config.getint('time',         'startYear')
+    endYear                = config.getint('time',         'endYear')
+    timeType               = config.get   ('time',         'timeType')
+
+    # input_mesh
+    meshDir                = config.get   ('input_mesh',   'meshDir')
+    meshFilename           = config.get   ('input_mesh',   'meshFilename')
+    latDimname             = config.get   ('input_mesh',   'latDimname')
+    lonDimname             = config.get   ('input_mesh',   'lonDimname')
+    latVarname             = config.get   ('input_mesh',   'latVarname')
+    lonVarname             = config.get   ('input_mesh',   'lonVarname')
+
+    # input_fields
+    inputDir               = config.get   ('input_fields', 'inputDir')
+    filenameTemplatesInStr = config.get   ('input_fields', 'filenameTemplatesIn')
+    varnamesInStr          = config.get   ('input_fields', 'varnamesIn')
+
+    # output
+    filenameMPASGrid       = config.get   ('output',       'filenameMPASGrid')
+    outputDir              = config.get   ('output',       'outputDir')
+    filenameOutTemplate    = config.get   ('output',       'filenameOutTemplate')
+    varnamesOutStr         = config.get   ('output',       'varnamesOut')
+
+    # list conversion
+    filenameTemplatesIn = list(filter(None, [x.strip() for x in filenameTemplatesInStr.splitlines()]))
+    varnamesIn          = list(filter(None, [x.strip() for x in varnamesInStr.splitlines()]))
+    varnamesOut         = list(filter(None, [x.strip() for x in varnamesOutStr.splitlines()]))
+
+    if (len(filenameTemplatesIn) != len(varnamesIn) or
+        len(filenameTemplatesIn) != len(varnamesOut)):
+        raise Exception("Config lists not same size")
+
+    perform_remapping(startYear,
+                      endYear,
+                      timeType,
+                      meshDir,
+                      meshFilename,
+                      latDimname,
+                      lonDimname,
+                      latVarname,
+                      lonVarname,
+                      inputDir,
+                      filenameTemplatesIn,
+                      varnamesIn,
+                      filenameMPASGrid,
+                      outputDir,
+                      filenameOutTemplate,
+                      varnamesOut)
 
 #-------------------------------------------------------------------------------
 
@@ -260,28 +337,54 @@ create_atmos_forcing.py
 Usage
 -----
 
-This script creates atmospheric forcing using six hourly CORE-II data and
-monthly AOMIP climatologies.
+This script creates atmospheric forcing from input data defined on lat/lon grids.
+Examples include CORE-II, AOMIP climatologies, and JRA-3Q.
 
-Usage: python create_atmos_forcing.py configFilename
+Usage: python create_atmos_forcing.py -c configFilename
 
-where configFilename is a python config file with the following example format:
+where configFilename is a python config file. The following example gives values
+appropriate for CORE-II forcing:
 
-[forcing_generation]
-filenameMPASGrid = /location/of/MPAS/grid
-outputDir = /location/to/put/output/forcing
-startYear = 1948
-endYear = 2007
-dataDirSixHourly = /location/of/CORE-II/data
-dataDirMonthly = /location/of/AOMIP/climatologies
+[time]
+startYear = 2000
+endYear = 2000
+timeType = sixhourly_noleap
 
-SCRIP
------
+[input_mesh]
+meshDir = data/CORE-II/
+meshFilename = /t_10/t_10.2000.nc
+latDimname = LAT
+lonDimname = LON
+latVarname = LAT
+lonVarname = LON
 
-This script requires the SCRIP package to be installed.
-SCRIP is a software package which computes addresses and weights for remapping
-and interpolating fields between grids in spherical coordinates. It can be
-obtained from https://github.com/SCRIP-Project/SCRIP
+[input_fields]
+inputDir = data/CORE-II/
+filenameTemplatesIn =
+                    /t_10/t_10.$Y.*nc
+                    /q_10/q_10.$Y.*nc
+                    /u_10/u_10.$Y.*nc
+                    /v_10/v_10.$Y.*nc
+varnamesIn =
+           T_10_MOD
+           Q_10_MOD
+           U_10_MOD
+           V_10_MOD
+
+[output]
+filenameMPASGrid = domain_QU120km/seaice_QU_120km.nc
+outputDir = tmp
+filenameOutTemplate = LYq_six_hourly.$Y.nc
+varnamesOut =
+            airTemperature
+            airSpecificHumidity
+            uAirVelocity
+            vAirVelocity
+
+ESMF_RegridWeightGen
+--------------------
+
+This script requires the ESMF_RegridWeightGen utility to be installed.
 
 CORE-II data
 ------------
@@ -309,24 +412,12 @@ https://web.lcrc.anl.gov/public/e3sm/mpas_standalonedata/mpas-seaice/forcing/
 MPAS-Seaice_clim_data.tar.gz
 '''
 
-if (len(sys.argv) != 2):
-    print("Usage: python create_atmos_forcing.py configFilename")
-    sys.exit()
+if __name__ == "__main__":
 
-config = configparser.ConfigParser()
-config.read(sys.argv[1])
+    parser = argparse.ArgumentParser(description='Create atmospheric forcing from lat/lon input data')
 
-filenameMPASGrid = config.get   ('forcing_generation','filenameMPASGrid')
-outputDir        = config.get   ('forcing_generation','outputDir')
-startYear        = config.getint('forcing_generation','startYear')
-endYear          = config.getint('forcing_generation','endYear')
-dataDirSixHourly = config.get   ('forcing_generation','dataDirSixHourly')
-dataDirMonthly   = config.get   ('forcing_generation','dataDirMonthly')
+    parser.add_argument('-c', dest='configFilename', required=True, help='Config filename')
 
-perform_remapping(\
-        filenameMPASGrid, \
-        outputDir, \
-        startYear, \
-        endYear, \
-        dataDirSixHourly, \
-        dataDirMonthly)
+    args = parser.parse_args()
+
+    create_forcing_from_config(args.configFilename)

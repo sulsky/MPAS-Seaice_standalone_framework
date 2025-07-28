@@ -1,10 +1,21 @@
 from netCDF4 import Dataset
 import numpy as np
 import scipy.sparse as sparse
+import calendar
 
 #-------------------------------------------------------------------------------
 
-def create_scrip_grid_file(filenameScrip, nGridSize, nGridCorners, gridRank, gridDims, gridCenterLat, gridCenterLon, gridImask, gridCornerLat, gridCornerLon, title):
+def create_scrip_grid_file(filenameScrip,
+                           nGridSize,
+                           nGridCorners,
+                           gridRank,
+                           gridDims,
+                           gridCenterLat,
+                           gridCenterLon,
+                           gridImask,
+                           gridCornerLat,
+                           gridCornerLon,
+                           title):
 
     fileScrip = Dataset(filenameScrip,"w",format="NETCDF3_CLASSIC")
 
@@ -65,7 +76,8 @@ def get_mpas_grid_info(filenameMPASGrid):
 
 #-------------------------------------------------------------------------------
 
-def create_scrip_file_MPAS(filenameMPASGrid, filenameScrip):
+def create_scrip_file_MPAS(filenameMPASGrid,
+                           filenameScrip):
 
     nCells, maxEdges, nVertices, centerLat, centerLon, latVertex, lonVertex, nEdgesOnCell, verticesOnCell = get_mpas_grid_info(filenameMPASGrid)
 
@@ -124,13 +136,15 @@ def write_scrip_in_file(srcTitle):
 
 #-------------------------------------------------------------------------------
 
-def create_output_times(inputTimesPerYear, year):
+def create_output_times(timeType,
+                        year):
 
-    daysInMonth = [31,28,31,30,31,30,31,31,30,31,30,31]
+    daysInMonth     = [31,28,31,30,31,30,31,31,30,31,30,31]
+    daysInMonthLeap = [31,29,31,30,31,30,31,31,30,31,30,31]
 
     xtimes = []
 
-    if (inputTimesPerYear == 1460):
+    if (timeType == "sixhourly_noleap"):
 
         minute = 0
         second = 0
@@ -146,7 +160,28 @@ def create_output_times(inputTimesPerYear, year):
                     timeStr = "%4.4i-%2.2i-%2.2i_%2.2i:%2.2i:%2.2i" %(year,month,day,hour,minute,second)
                     xtimes.append(timeStr)
 
-    elif (inputTimesPerYear == 12):
+    elif (timeType == "sixhourly_gregorian"):
+
+        minute = 0
+        second = 0
+
+        if (calendar.isleap(year)):
+            daysInMonthUse = daysInMonthLeap
+        else:
+            daysInMonthUse = daysInMonth
+
+        for iMonth in range(0,12):
+            for iDay in range(0,daysInMonthUse[iMonth]):
+                for iSixHours in range(0,4):
+
+                    month = iMonth + 1
+                    day = iDay + 1
+                    hour = (iSixHours + 1) * 6
+
+                    timeStr = "%4.4i-%2.2i-%2.2i_%2.2i:%2.2i:%2.2i" %(year,month,day,hour,minute,second)
+                    xtimes.append(timeStr)
+
+    elif (timeType == "monthly"):
 
         day = 15
         hour = 0
@@ -164,7 +199,9 @@ def create_output_times(inputTimesPerYear, year):
 
 #-------------------------------------------------------------------------------
 
-def get_remapping_data(filenameRemapping, srcGridSize, dstGridSize):
+def get_remapping_data(filenameRemapping,
+                       srcGridSize,
+                       dstGridSize):
 
     fileRemap = Dataset(filenameRemapping, "r")
 

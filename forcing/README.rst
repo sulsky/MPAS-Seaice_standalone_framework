@@ -32,19 +32,7 @@ monthly AOMIP climatologies.
 
 .. code::
 
-   > python create_atmos_forcing.py configFilename
-
-where configFilename is a python config file with the following example format:
-
-.. code::
-
-   [forcing_generation]
-   filenameMPASGrid = /location/of/MPAS/grid
-   outputDir = /location/to/put/output/forcing
-   startYear = 1948
-   endYear = 2007
-   dataDirSixHourly = /location/of/CORE-II/data
-   dataDirMonthly = /location/of/AOMIP/climatologies
+   > python create_atmos_forcing.py -c configFilename
 
 CORE-II data
 ------------
