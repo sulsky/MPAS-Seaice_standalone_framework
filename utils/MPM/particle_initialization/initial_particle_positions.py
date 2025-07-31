@@ -202,6 +202,22 @@ def in_geom(x,
               iceArea = 1.0
               iceVolume = 1.0
 
+   elif (icType == 'cap'):
+
+          lat = asin(z)
+          if(lat > 1.22):
+              in_geom = True
+              iceArea = 1.0
+              iceVolume = 1.0
+
+   elif (icType == 'ring'):
+
+          lat = asin(z)
+          if(lat > 1.0 and lat < 1.25):
+               in_geom = True
+               iceArea = 1.0
+               iceVolume = 1.0
+
    return in_geom, iceArea, iceVolume
 
 #-------------------------------------------------------------------------------
