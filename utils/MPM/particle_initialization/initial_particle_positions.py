@@ -205,7 +205,7 @@ def in_geom(x,
    elif (icType == 'cap'):
 
           lat = asin(z)
-          if(lat > 1.22):
+          if (lat > 1.22):
               in_geom = True
               iceArea = 1.0
               iceVolume = 1.0
@@ -213,7 +213,7 @@ def in_geom(x,
    elif (icType == 'ring'):
 
           lat = asin(z)
-          if(lat > 1.0 and lat < 1.25):
+          if (lat > 1.0 and lat < 1.25):
                in_geom = True
                iceArea = 1.0
                iceVolume = 1.0
