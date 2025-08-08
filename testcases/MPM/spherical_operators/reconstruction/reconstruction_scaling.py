@@ -44,8 +44,8 @@ def get_norm(filenameIC, filename, latitudeLimit):
 
     areaTriangle = fileMPAS.variables["areaTriangle"][:]
 
-    uVelocity = fileMPAS.variables["uVelocity"][0,:]
-    vVelocity = fileMPAS.variables["vVelocity"][0,:]
+    uVelocity = fileMPAS.variables["uVelocityInitial"][0,:]
+    vVelocity = fileMPAS.variables["vVelocityInitial"][0,:]
 
     normU = L2_norm(uVelocity, uVelocityAnalytical, nVertices, latVertex, areaTriangle, latitudeLimit)
     normV = L2_norm(vVelocity, vVelocityAnalytical, nVertices, latVertex, areaTriangle, latitudeLimit)

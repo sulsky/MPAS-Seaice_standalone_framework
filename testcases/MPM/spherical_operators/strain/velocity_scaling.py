@@ -46,8 +46,8 @@ def get_norm_vertex(filenameIC, filename, latitudeLimit):
     latVertex = fileMPAS.variables["latVertex"][:]
     areaTriangle = fileMPAS.variables["areaTriangle"][:]
 
-    uVelocity= fileMPAS.variables["uVelocity"][:]
-    vVelocity= fileMPAS.variables["vVelocity"][:]
+    uVelocity= fileMPAS.variables["uVelocityInitial"][:]
+    vVelocity= fileMPAS.variables["vVelocityInitial"][:]
 
     fileMPAS.close()
 
