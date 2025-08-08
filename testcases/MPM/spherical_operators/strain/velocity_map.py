@@ -139,8 +139,8 @@ def velocity_map():
     # mpm
     fileMPM = Dataset("./output_mpmvar_40962/output.2000.nc","r")
 
-    uVelocityMPM = fileMPM.variables["uVelocity"][0,:]
-    vVelocityMPM = fileMPM.variables["vVelocity"][0,:]
+    uVelocityMPM = fileMPM.variables["uVelocityInitial"][0,:]
+    vVelocityMPM = fileMPM.variables["vVelocityInitial"][0,:]
 
     uVelocityDiff = uVelocity - uVelocityMPM
     vVelocityDiff = vVelocity - vVelocityMPM

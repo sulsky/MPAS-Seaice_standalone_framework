@@ -145,8 +145,8 @@ def reconstruction_map():
         raise Exception("Missing output file: %s" %(filenameMPM))
     fileMPM = Dataset(filenameMPM,"r")
 
-    uVelocityMPM = fileMPM.variables["uVelocity"][0,:]
-    vVelocityMPM = fileMPM.variables["vVelocity"][0,:]
+    uVelocityMPM = fileMPM.variables["uVelocityInitial"][0,:]
+    vVelocityMPM = fileMPM.variables["vVelocityInitial"][0,:]
 
     uVelocityDiff = (uVelocityMPM - uVelocityAnalytical)
     vVelocityDiff = (vVelocityMPM - vVelocityAnalytical)

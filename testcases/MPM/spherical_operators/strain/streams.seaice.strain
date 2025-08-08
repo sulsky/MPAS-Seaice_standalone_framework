@@ -67,8 +67,8 @@
 	<var name="cellVerticesAtVertex"/>
 	<var name="cellsOnVertex"/>
 	<var name="areaCell"/>
-	<var name="uVelocity"/>
-   <var name="vVelocity"/>
+	<var name="uVelocityInitial"/>
+   <var name="vVelocityInitial"/>
 	<var name="stress11var"/>
 	<var name="stress22var"/>
 	<var name="stress12var"/>

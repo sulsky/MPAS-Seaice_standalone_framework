@@ -23,14 +23,19 @@
 
         <var name="uVelocity"/>
         <var name="vVelocity"/>
-        <var name="delvDyn"/>
-	<var name="solveVelocityPrevious"/>
+	<var name="iceAreaCell"/>
+	<var name="iceVolumeCell"/>
+	<var name="iceAreaCategory"/>
+	<var name="iceVolumeCategory"/>
+        <var name="deluDyn"/>
+        <var name="uvVelMP"/>
 </stream>
 
 <immutable_stream name="restart"
                   type="input;output"
                   filename_template="restarts/restart.$Y-$M-$D_$h.$m.$s.nc"
                   filename_interval="00_00:00:01"
+		  clobber_mode="replace_files"
                   input_interval="initial_only"
                   output_interval="00-03-00_00:00:00" />
 
@@ -39,17 +44,20 @@
         filename_template="output/output.$Y.nc"
         filename_interval="01-00-00_00:00:00"
         clobber_mode="replace_files"
-        output_interval="00-00-00_01:00:00" >
+        output_interval="00-00-00_04:00:00" >
 
 	<var name="xtime"/>
 	<var name="daysSinceStartOfSim"/>
 	<stream name="mesh"/>
-	<var name="cellVerticesAtVertex"/>
 	<var name="iceAreaCell"/>
 	<var name="iceVolumeCell"/>
 	<var name="snowVolumeCell"/>
-	<var name="uVelocityInitial"/>
-	<var name="vVelocityInitial"/>
+	<var name="uVelocity"/>
+	<var name="vVelocity"/>
+	<var name="uVelocityGeo"/>
+	<var name="vVelocityGeo"/>
+        <var name="procID"/>
+        <var name="totalMassVertex"/>
 </stream>
 
 <stream name="particlesOut"
@@ -57,19 +65,19 @@
         filename_template="output/particles_output.$Y-$M-$D_$h.$m.$s.nc"
         filename_interval="00-00-00_00:00:01"
         clobber_mode="replace_files"
-        output_interval="00-00-00_01:00:00" >
+        output_interval="00-00-00_04:00:00" >
 
-   <var name="statusMP"/>
-   <var name="iCellMP"/>
+	<var name="xtime"/>
+	<var name="statusMP"/>
+	<var name="iCellMP"/>
         <var name="cellIDCreationMP"/>
         <var name="creationIndexMP"/>
         <var name="indexToCellIDMP"/>
         <var name="procIDParticle"/>
         <var name="posnMP"/>
+        <var name="iceAreaCellMP"/>
         <var name="uvVelMP"/>
-        <var name="latCellMP"/>
 </stream>
-
 
 <immutable_stream name="LYqSixHourlyForcing"
                   type="input"
