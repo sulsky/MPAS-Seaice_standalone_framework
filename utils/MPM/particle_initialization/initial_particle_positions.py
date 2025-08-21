@@ -6,6 +6,7 @@ import argparse
 from netCDF4 import Dataset
 import matplotlib.pyplot as plt
 from numba import njit
+from shapely.geometry import Point, Polygon
 
 #-------------------------------------------------------------------------------
 
@@ -160,94 +161,102 @@ def mpas_in_cell(xPoint,
 def in_geom(x,
             y,
             z,
-            icType):
+            geomType):
 
-   in_geom = False
+    in_geom = False
 
-   if (icType == "slotted_cylinder"):
+    if (geomType == "slotted_cylinder"):
 
-          iceArea = 0.0
-          iceVolume = 0.0
+        iceArea = 0.0
+        iceVolume = 0.0
 
-          circleRadius = 0.5
-          r = sqrt(pow(z,2) + pow(x,2))
+        circleRadius = 0.5
+        r = sqrt(pow(z,2) + pow(x,2))
 
-          if (r < circleRadius and y > 0.0):
+        if (r < circleRadius and y > 0.0):
 
-              in_geom = True
-              iceArea = 1.0
-              iceVolume = 1.0
+            in_geom = True
+            iceArea = 1.0
+            iceVolume = 1.0
 
-          if (fabs(x) < 1.0/12.0 and z > -2.0/6.0):
+        if (fabs(x) < 1.0/12.0 and z > -2.0/6.0):
 
-              in_geom = False
+            in_geom = False
 
-   elif (icType == 'cosine_bell'):
+    elif (geomType == 'cosine_bell'):
 
-          iceArea = 0.0
-          iceVolume = 0.0
+        iceArea = 0.0
+        iceVolume = 0.0
 
-          circleRadius = 1.0/3.0
-          r = sqrt(pow(z,2) + pow(x,2))
+        circleRadius = 1.0/3.0
+        r = sqrt(pow(z,2) + pow(x,2))
 
-          if (r < circleRadius and y > 0.0):
+        if (r < circleRadius and y > 0.0):
 
-              in_geom = True
-              iceArea = 0.5 * (1.0 + cos((pi * r) / circleRadius))
-              iceVolume = 1.0
+            in_geom = True
+            iceArea = 0.5 * (1.0 + cos((pi * r) / circleRadius))
+            iceVolume = 1.0
 
-   elif (icType == 'uniform'):
+    elif (geomType == 'uniform'):
 
-              in_geom = True
-              iceArea = 1.0
-              iceVolume = 1.0
+        in_geom = True
+        iceArea = 1.0
+        iceVolume = 1.0
 
-   elif (icType == 'cap'):
+    elif (geomType == 'cap'):
 
-          lat = asin(z)
-          if (lat > 1.22):
-              in_geom = True
-              iceArea = 1.0
-              iceVolume = 1.0
+        lat = asin(z)
+        if (lat > 1.22):
+            in_geom = True
+            iceArea = 1.0
+            iceVolume = 1.0
 
-   elif (icType == 'ring'):
+    elif (geomType == 'ring'):
 
-          lat = asin(z)
-          if (lat > 1.0 and lat < 1.25):
-               in_geom = True
-               iceArea = 1.0
-               iceVolume = 1.0
+        lat = asin(z)
+        if (lat > 1.0 and lat < 1.25):
+            in_geom = True
+            iceArea = 1.0
+            iceVolume = 1.0
 
-   return in_geom, iceArea, iceVolume
+    return in_geom, iceArea, iceVolume
 
 #-------------------------------------------------------------------------------
 
-def place_particles(posnMP,
-                    latCellMP,
-                    lonCellMP,
-                    iCellMP,
-                    creationIndexMP,
-                    iCell,
-                    nParticlesPerCellDesired,
-                    nParticlesPerCellActual,
-                    iceAreaCellMP,
-                    iceVolumeCellMP,
-                    posnInitType,
-                    icType,
-                    on_a_sphere,
-                    earthRadius,
-                    nEdgesOnCell,
-                    verticesOnCell,
-                    latVertex,
-                    lonVertex,
-                    xVertex,
-                    yVertex,
-                    zVertex,
-                    xCell,
-                    yCell,
-                    zCell):
+def place_particles_in_cell(particleInitType,
+                            particleInitNumber,
+                            areaCell,
+                            averageCellSize,
+                            particlePositionInitType,
+                            on_a_sphere,
+                            earthRadius,
+                            nEdgesOnCell,
+                            verticesOnCell,
+                            latVertex,
+                            lonVertex,
+                            xVertex,
+                            yVertex,
+                            zVertex,
+                            xCell,
+                            yCell,
+                            zCell):
 
-    if (posnInitType.strip() == 'even'):
+    # TODO add some checks for minimum sizes, possibly reduce
+    # number of added material points to consolidate
+    if (particleInitType.strip() == 'number'):
+        nParticlesPerCellDesired = particleInitNumber
+    elif (particleInitType.strip() == 'area'):
+        nParticlesPerCellDesired = particleInitNumber * int(areaCell / averageCellSize)
+        nParticlesPerCellDesired = max(1, nParticlesPerCellDesired)
+    else:
+        # error not a valid option
+        raise Exception("Invalid particle_init_type")
+
+    xTrial = []
+    yTrial = []
+    zTrial = []
+
+    if (particlePositionInitType.strip() == 'even'):
 
         # place points evenly in circumscribing rectangle
         # WARNING: for 'even' to work, numberToPlace must be a perfect square
@@ -288,34 +297,9 @@ def place_particles(posnMP,
                     y = earthRadius * sin(lon) * cos(lat)
                     z = earthRadius * sin(lat)
 
-                    inCell = mpas_in_cell(x,
-                                          y,
-                                          z,
-                                          xCell,
-                                          yCell,
-                                          zCell,
-                                          nEdgesOnCell,
-                                          verticesOnCell[:],
-                                          xVertex,
-                                          yVertex,
-                                          zVertex)
-
-                    inGeom, iceArea, iceVolume = in_geom(x/earthRadius,
-                                                         y/earthRadius,
-                                                         z/earthRadius,
-                                                         icType)
-
-                    if (inCell and inGeom):
-                        k = k + 1
-                        posnMP.append([x, y, z])
-                        latCellMP.append(lat)
-                        lonCellMP.append(lon)
-                        iCellMP.append(iCell+1)
-                        creationIndexMP.append(k)
-                        iceAreaCellMP.append(iceArea)
-                        iceVolumeCellMP.append(iceVolume)
-
-            nParticlesPerCellActual = k
+                    xTrial.append(x)
+                    yTrial.append(y)
+                    zTrial.append(z)
 
         else: # not on a sphere
 
@@ -342,21 +326,11 @@ def place_particles(posnMP,
                     y = ymin + dy * float(2 * j + 1)
                     z = 0.0
 
-                    inGeom, iceArea, iceVolume  = in_geom(x,y,z,icType)
+                    xTrial.append(x)
+                    yTrial.append(y)
+                    zTrial.append(z)
 
-                    if (inGeom):
-                      k = k + 1
-                      posnMP.append([x, y, z])
-                      latCellMP.append(0.0)
-                      lonCellMP.append(0.0)
-                      iCellMP.append(iCell+1)
-                      creationIndexMP.append(k)
-                      iceAreaCellMP.append(iceArea)
-                      iceVolumeCellMP.append(iceVolume)
-
-            nParticlesPerCellActual = k
-
-    elif (posnInitType.strip() == 'onePerEdge'):
+    elif (particlePositionInitType.strip() == 'onePerEdge'):
         # place one particle per edge in the polygon
 
         v1 = [0.,0.,0.]
@@ -370,189 +344,174 @@ def place_particles(posnMP,
 
         for iVertexOnCell in range (0, nEdgesOnCell):
 
-           v1[0] = xvert[iVertexOnCell]
-           if (iVertexOnCell < nEdgesOnCell - 1):
-              v2[0] = xvert[iVertexOnCell + 1]
-           else:
-              v2[0] = xvert[0]
-           v3[0] = xCell
-           x = (v1[0] + v2[0] + v3[0])/3.0
+            v1[0] = xvert[iVertexOnCell]
+            if (iVertexOnCell < nEdgesOnCell - 1):
+                v2[0] = xvert[iVertexOnCell + 1]
+            else:
+                v2[0] = xvert[0]
+            v3[0] = xCell
+            x = (v1[0] + v2[0] + v3[0])/3.0
 
-           v1[1] = yvert[iVertexOnCell]
-           if (iVertexOnCell < nEdgesOnCell - 1):
-              v2[1] = yvert[iVertexOnCell + 1]
-           else:
-              v2[1] = yvert[0]
-           v3[1] = yCell
-           y = (v1[1] + v2[1] + v3[1])/3.0
+            v1[1] = yvert[iVertexOnCell]
+            if (iVertexOnCell < nEdgesOnCell - 1):
+                v2[1] = yvert[iVertexOnCell + 1]
+            else:
+                v2[1] = yvert[0]
+            v3[1] = yCell
+            y = (v1[1] + v2[1] + v3[1])/3.0
 
-           v1[2] = zvert[iVertexOnCell]
-           if (iVertexOnCell < nEdgesOnCell - 1):
-              v2[2] = zvert[iVertexOnCell + 1]
-           else:
-              v2[2] = zvert[0]
-           v3[2] = zCell
-           z = (v1[2] + v2[2] + v3[2])/3.0
+            v1[2] = zvert[iVertexOnCell]
+            if (iVertexOnCell < nEdgesOnCell - 1):
+                v2[2] = zvert[iVertexOnCell + 1]
+            else:
+                v2[2] = zvert[0]
+            v3[2] = zCell
+            z = (v1[2] + v2[2] + v3[2])/3.0
 
-           if(on_a_sphere):
+            if (on_a_sphere):
 
-               R = sqrt(x*x + y*y + z*z)
-               x = x*earthRadius/R
-               y = y*earthRadius/R
-               z = z*earthRadius/R
+                R = sqrt(x*x + y*y + z*z)
+                x = x*earthRadius/R
+                y = y*earthRadius/R
+                z = z*earthRadius/R
 
-               inGeom, iceArea, iceVolume  = in_geom(x/earthRadius,
-                                y/earthRadius,
-                                z/earthRadius,
-                                icType)
-               if (inGeom):
-                  k = k + 1
-                  lon = atan2(y, x)
-                  lat = asin(z/earthRadius)
-                  posnMP.append([x, y, z])
-                  latCellMP.append(lat)
-                  lonCellMP.append(lon)
-                  iCellMP.append(iCell+1)
-                  creationIndexMP.append(k)
-                  iceAreaCellMP.append(iceArea)
-                  iceVolumeCellMP.append(iceVolume)
+            xTrial.append(x)
+            yTrial.append(y)
+            zTrial.append(z)
 
-           else:
-              k = k + 1
-              posnMP.append([x, y, z])
-              latCellMP.append(0.0)
-              lonCellMP.append(0.0)
-              iCellMP.append(iCell+1)
-              creationIndexMP.append(k)
-
-        nParticlesPerCellActual = k
-
-    elif (posnInitType.strip() == 'poisson'):
+    elif (particlePositionInitType.strip() == 'poisson'):
         # place points using a poisson distribution
         raise Exception("Poisson position init type not implemented")
-    elif (posnInitType.strip() == 'random'):
+    elif (particlePositionInitType.strip() == 'random'):
         # place points using a random distribution
         raise Exception("Random position init type not implemented")
     else:
         raise Exception("Invalid particle initType")
 
-    return posnMP, iCellMP, creationIndexMP, nParticlesPerCellActual, iceAreaCellMP, iceVolumeCellMP
+    # check if trial particles are in cell
+    xInCell = []
+    yInCell = []
+    zInCell = []
+
+    for x, y, z in zip(xTrial, yTrial, zTrial):
+
+        if (on_a_sphere):
+            inCell = mpas_in_cell(x,
+                                  y,
+                                  z,
+                                  xCell,
+                                  yCell,
+                                  zCell,
+                                  nEdgesOnCell,
+                                  verticesOnCell[:],
+                                  xVertex,
+                                  yVertex,
+                                  zVertex)
+        else:
+            vertices = []
+            for iVertexOnCell in range(0,nEdgesOnCell):
+                iVertex = verticesOnCell[iVertexOnCell]
+                vertices.append((xVertex[iVertex],yVertex[iVertex]))
+            polygon = Polygon(vertices)
+            inCell = polygon.contains(Point(x,y))
+
+        if (inCell):
+            xInCell.append(x)
+            yInCell.append(y)
+            zInCell.append(z)
+
+    return \
+        xInCell, \
+        yInCell, \
+        zInCell
 
 #-------------------------------------------------------------------------------
 
-def initial_particle_positions(filenameMesh,
-                               filenameOut,
-                               particleInitType,
-                               particleInitNumber,
-                               particlePositionInitType,
-                               initializationType,
-                               earthRadius):
+def check_cell_particles_in_geom(xInCell,
+                                 yInCell,
+                                 zInCell,
+                                 on_a_sphere,
+                                 earthRadius,
+                                 geomType,
+                                 iCell,
+                                 posnMP,
+                                 latCellMP,
+                                 lonCellMP,
+                                 cellIDCreationMP,
+                                 creationIndexMP,
+                                 iceAreaCellMP,
+                                 iceVolumeCellMP,
+                                 nParticlesPerCellActual):
 
-    # mesh info
-    fileMesh = Dataset(filenameMesh,"r")
+    # check if cell particles are in geometry
+    k = 0
+    for x, y, z in zip(xInCell, yInCell, zInCell):
 
-    on_a_sphere = fileMesh.on_a_sphere
-    sphere = fileMesh.on_a_sphere
-    if(sphere == "NO"):
-        on_a_sphere = False
-    elif(sphere == "YES"):
-        on_a_sphere = True
+        if (on_a_sphere):
 
-    nCells = len(fileMesh.dimensions["nCells"])
+            inGeom, iceArea, iceVolume  = in_geom(x/earthRadius,
+                                                  y/earthRadius,
+                                                  z/earthRadius,
+                                                  geomType)
 
-    nEdgesOnCell   = ma.getdata(fileMesh.variables["nEdgesOnCell"][:])
-    verticesOnCell = ma.getdata(fileMesh.variables["verticesOnCell"][:])
+            lon = atan2(y, x)
+            lat = asin(z/earthRadius)
 
-    areaCell  = ma.getdata(fileMesh.variables["areaCell"][:])
-    latVertex = ma.getdata(fileMesh.variables["latVertex"][:])
-    lonVertex = ma.getdata(fileMesh.variables["lonVertex"][:])
-    xVertex   = ma.getdata(fileMesh.variables["xVertex"][:])
-    yVertex   = ma.getdata(fileMesh.variables["yVertex"][:])
-    zVertex   = ma.getdata(fileMesh.variables["zVertex"][:])
-    xCell     = ma.getdata(fileMesh.variables["xCell"][:])
-    yCell     = ma.getdata(fileMesh.variables["yCell"][:])
-    zCell     = ma.getdata(fileMesh.variables["zCell"][:])
+        else:
 
-    fileMesh.close()
+            inGeom, iceArea, iceVolume  = in_geom(x,
+                                                  y,
+                                                  z,
+                                                  geomType)
 
-    verticesOnCell[:] -= 1
+            lon = 0.0
+            lat = 0.0
 
-    # average cell size
-    averageCellSize = np.mean(areaCell)
+        if (inGeom):
+            k = k + 1
+            posnMP.append([x, y, z])
+            latCellMP.append(lat)
+            lonCellMP.append(lon)
+            cellIDCreationMP.append(iCell+1)
+            creationIndexMP.append(k)
+            iceAreaCellMP.append(iceArea)
+            iceVolumeCellMP.append(iceVolume)
 
+    nParticlesPerCellActual = k
 
-    # particle positions
-    nParticlesCell = np.zeros(nCells,dtype="i")
+    return \
+        posnMP, \
+        latCellMP, \
+        lonCellMP, \
+        cellIDCreationMP, \
+        creationIndexMP, \
+        iceAreaCellMP, \
+        iceVolumeCellMP, \
+        nParticlesPerCellActual
 
-    posnMP = []
-    latCellMP = []
-    lonCellMP = []
-    cellIDCreationMP = []
-    creationIndexMP = []
-    iceAreaCellMP = []
-    iceVolumeCellMP = []
+#-------------------------------------------------------------------------------
 
-    for iCell in range(0, nCells):
-
-            # TODO add some checks for minimum sizes, possibly reduce
-            # number of added material points to consolidate
-            if (particleInitType.strip() == 'number'):
-                nParticlesPerCellDesired = particleInitNumber
-            elif (particleInitType.strip() == 'area'):
-                nParticlesPerCellDesired = particleInitNumber * int(areaCell[iCell] / averageCellSize)
-                nParticlesPerCellDesired = max(1, nParticlesPerCellDesired)
-            else:
-                # error not a valid option
-                raise Exception("Invalid particle_init_type")
-
-
-            posnMP, \
-                iCellMP, \
-                creationIndexMP, \
-                nParticlesCell[iCell], \
-                iceAreaCellMP, \
-                iceVolumeCellMP = place_particles(posnMP,
-                                                  latCellMP,
-                                                  lonCellMP,
-                                                  cellIDCreationMP,
-                                                  creationIndexMP,
-                                                  iCell,
-                                                  nParticlesPerCellDesired,
-                                                  nParticlesCell[iCell],
-                                                  iceAreaCellMP,
-                                                  iceVolumeCellMP,
-                                                  particlePositionInitType,
-                                                  initializationType,
-                                                  on_a_sphere,
-                                                  earthRadius,
-                                                  nEdgesOnCell[iCell],
-                                                  verticesOnCell[iCell,:],
-                                                  latVertex,
-                                                  lonVertex,
-                                                  xVertex,
-                                                  yVertex,
-                                                  zVertex,
-                                                  xCell[iCell],
-                                                  yCell[iCell],
-                                                  zCell[iCell])
-
-
-    nParticles = len(posnMP)
-    posnMP = np.array(posnMP)
-    latCellMP = np.array(latCellMP)
-    lonCellMP = np.array(lonCellMP)
-    cellIDCreationMP = np.array(cellIDCreationMP)
-    creationIndexMP = np.array(creationIndexMP)
-    nParticlesCell = np.array(nParticlesCell)
-    iceAreaCellMP = np.array(iceAreaCellMP)
-    iceVolumeCellMP = np.array(iceVolumeCellMP)
+def create_particles_file(filenameOut,
+                          nParticles,
+                          nCells,
+                          nCategories,
+                          posnMP,
+                          latCellMP,
+                          lonCellMP,
+                          cellIDCreationMP,
+                          creationIndexMP,
+                          nParticlesCell,
+                          iceAreaCellMP,
+                          iceVolumeCellMP,
+                          iceAreaCategoryMP,
+                          iceVolumeCategoryMP):
 
     # output
     fileOut = Dataset(filenameOut,"w",format="NETCDF3_CLASSIC")
 
     fileOut.createDimension("nParticles",nParticles)
     fileOut.createDimension("nCells", nCells)
-    fileOut.createDimension("nCategories", 1)
+    fileOut.createDimension("nCategories", nCategories)
     fileOut.createDimension("THREE", 3)
     fileOut.createDimension("TWO", 2)
     fileOut.createDimension("ONE", 1)
@@ -582,26 +541,181 @@ def initial_particle_positions(filenameMesh,
     var[:] = iceVolumeCellMP[:]
 
     var = fileOut.createVariable("iceAreaCategoryMP","d",dimensions=["nParticles","nCategories","ONE"])
-    var[:, 0] = iceAreaCellMP[:]
+    var[:] = iceAreaCategoryMP[:]
 
     var = fileOut.createVariable("iceVolumeCategoryMP","d",dimensions=["nParticles","nCategories","ONE"])
-    var[:, 0] = iceVolumeCellMP[:]
+    var[:] = iceVolumeCategoryMP[:]
 
     fileOut.close()
 
+#-------------------------------------------------------------------------------
+
+def plot_particles(on_a_sphere,
+                   posnMP,
+                   x,
+                   y,
+                   z,
+                   earthRadius,
+                   filenameOut):
+
+    if (on_a_sphere):
+
+        fig = plt.figure(figsize=(10,10))
+        axis = fig.add_subplot(projection='3d')
+        axis.scatter(posnMP[:,0],posnMP[:,1],posnMP[:,2])
+        axis.set_xlim(np.min([-earthRadius,np.amin(x)])*1.1,np.max([np.amax(x),earthRadius])*1.1)
+        axis.set_ylim(np.min([-earthRadius,np.amin(y)])*1.1,np.max([np.amax(y),earthRadius])*1.1)
+        axis.set_zlim(np.min([-earthRadius,np.amin(z)])*1.1,np.max([np.amax(z),earthRadius])*1.1)
+        axis.set_xlabel("x")
+        axis.set_ylabel("y")
+        axis.set_zlabel("z")
+
+    else:
+
+        fig, axis = plt.subplots(figsize=(10,10))
+        axis.scatter(posnMP[:,0],posnMP[:,1])
+        axis.set_xlim(np.amin(x),np.amax(x))
+        axis.set_ylim(np.amin(y),np.amax(y))
+        axis.set_xlabel("x")
+        axis.set_ylabel("y")
+
+    plt.tight_layout()
+    plt.savefig(filenameOut)
+
+#-------------------------------------------------------------------------------
+
+def initial_particle_positions(filenameMesh,
+                               filenameOut,
+                               particleInitType,
+                               particleInitNumber,
+                               particlePositionInitType,
+                               geomType,
+                               earthRadius):
+
+    # mesh info
+    fileMesh = Dataset(filenameMesh,"r")
+
+    on_a_sphere = fileMesh.on_a_sphere
+    sphere = fileMesh.on_a_sphere
+    if (sphere == "NO"):
+        on_a_sphere = False
+    elif (sphere == "YES"):
+        on_a_sphere = True
+
+    nCells = len(fileMesh.dimensions["nCells"])
+
+    nEdgesOnCell   = ma.getdata(fileMesh.variables["nEdgesOnCell"][:])
+    verticesOnCell = ma.getdata(fileMesh.variables["verticesOnCell"][:])
+
+    areaCell  = ma.getdata(fileMesh.variables["areaCell"][:])
+    latVertex = ma.getdata(fileMesh.variables["latVertex"][:])
+    lonVertex = ma.getdata(fileMesh.variables["lonVertex"][:])
+    xVertex   = ma.getdata(fileMesh.variables["xVertex"][:])
+    yVertex   = ma.getdata(fileMesh.variables["yVertex"][:])
+    zVertex   = ma.getdata(fileMesh.variables["zVertex"][:])
+    xCell     = ma.getdata(fileMesh.variables["xCell"][:])
+    yCell     = ma.getdata(fileMesh.variables["yCell"][:])
+    zCell     = ma.getdata(fileMesh.variables["zCell"][:])
+
+    fileMesh.close()
+
+    verticesOnCell[:] -= 1
+
+    # average cell size
+    averageCellSize = np.mean(areaCell)
+
+    # particle positions
+    nParticlesCell = np.zeros(nCells,dtype="i")
+
+    posnMP = []
+    latCellMP = []
+    lonCellMP = []
+    cellIDCreationMP = []
+    creationIndexMP = []
+    iceAreaCellMP = []
+    iceVolumeCellMP = []
+
+    for iCell in range(0, nCells):
+
+        xInCell, \
+            yInCell, \
+            zInCell = place_particles_in_cell(particleInitType,
+                                              particleInitNumber,
+                                              areaCell[iCell],
+                                              averageCellSize,
+                                              particlePositionInitType,
+                                              on_a_sphere,
+                                              earthRadius,
+                                              nEdgesOnCell[iCell],
+                                              verticesOnCell[iCell,:],
+                                              latVertex,
+                                              lonVertex,
+                                              xVertex,
+                                              yVertex,
+                                              zVertex,
+                                              xCell[iCell],
+                                              yCell[iCell],
+                                              zCell[iCell])
+
+        posnMP, \
+            latCellMP, \
+            lonCellMP, \
+            cellIDCreationMP, \
+            creationIndexMP, \
+            iceAreaCellMP, \
+            iceVolumeCellMP, \
+            nParticlesCell[iCell] = check_cell_particles_in_geom(xInCell,
+                                                                 yInCell,
+                                                                 zInCell,
+                                                                 on_a_sphere,
+                                                                 earthRadius,
+                                                                 geomType,
+                                                                 iCell,
+                                                                 posnMP,
+                                                                 latCellMP,
+                                                                 lonCellMP,
+                                                                 cellIDCreationMP,
+                                                                 creationIndexMP,
+                                                                 iceAreaCellMP,
+                                                                 iceVolumeCellMP,
+                                                                 nParticlesCell[iCell])
+
+    nParticles = len(posnMP)
+    posnMP = np.array(posnMP)
+    latCellMP = np.array(latCellMP)
+    lonCellMP = np.array(lonCellMP)
+    cellIDCreationMP = np.array(cellIDCreationMP)
+    creationIndexMP = np.array(creationIndexMP)
+    nParticlesCell = np.array(nParticlesCell)
+    iceAreaCellMP = np.array(iceAreaCellMP)
+    iceVolumeCellMP = np.array(iceVolumeCellMP)
+    iceAreaCategoryMP = iceAreaCellMP
+    iceVolumeCategoryMP = iceVolumeCellMP
+
+    # output
+    create_particles_file(filenameOut,
+                          nParticles,
+                          nCells,
+                          1,
+                          posnMP,
+                          latCellMP,
+                          lonCellMP,
+                          cellIDCreationMP,
+                          creationIndexMP,
+                          nParticlesCell,
+                          iceAreaCellMP,
+                          iceVolumeCellMP,
+                          iceAreaCategoryMP,
+                          iceVolumeCategoryMP)
 
     # plot
-    fig = plt.figure(figsize=(10,10))
-    axis = fig.add_subplot(projection='3d')
-    axis.scatter(posnMP[:,0],posnMP[:,1],posnMP[:,2])
-    axis.set_xlim(np.min([-earthRadius,np.amin(xCell)])*1.1,np.max([np.amax(xCell),earthRadius])*1.1)
-    axis.set_ylim(np.min([-earthRadius,np.amin(yCell)])*1.1,np.max([np.amax(yCell),earthRadius])*1.1)
-    axis.set_zlim(np.min([-earthRadius,np.amin(zCell)])*1.1,np.max([np.amax(zCell),earthRadius])*1.1)
-    axis.set_xlabel("x")
-    axis.set_ylabel("y")
-    axis.set_zlabel("z")
-    plt.tight_layout()
-    plt.savefig("particles.png")
+    plot_particles(on_a_sphere,
+                   posnMP,
+                   xCell,
+                   yCell,
+                   zCell,
+                   earthRadius,
+                   "particles.png")
 
 #-------------------------------------------------------------------------------
 
@@ -614,7 +728,7 @@ if (__name__ == "__main__"):
     parser.add_argument('-t', dest="particleInitType", required=True, choices=["number","area"])
     parser.add_argument('-n', dest="particleInitNumber", required=True, type=int)
     parser.add_argument('-p', dest="particlePositionInitType", required=True, choices=["even","onePerEdge","poisson","random"])
-    parser.add_argument('-i', dest="icType", required=True, choices=["cosine_bell","slotted_cylinder","uniform"])
+    parser.add_argument('-i', dest="geomType", required=True, choices=["cosine_bell","slotted_cylinder","uniform"])
     parser.add_argument('-r', dest="earthRadius", type=float, default=6371229.0)
     parser.add_argument('--concIndex', dest="iceConcTimeIndex", default=-1)
 
@@ -625,5 +739,5 @@ if (__name__ == "__main__"):
                                args.particleInitType,
                                args.particleInitNumber,
                                args.particlePositionInitType,
-                               args.icType,
+                               args.geomType,
                                args.earthRadius)
