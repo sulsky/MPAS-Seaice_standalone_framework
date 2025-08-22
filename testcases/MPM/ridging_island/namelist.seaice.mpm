@@ -62,12 +62,12 @@
     config_use_prescribed_ice_forcing = false
 /
 &forcing
-    config_atmospheric_forcing_type = 'hourly_velocities'
+    config_atmospheric_forcing_type = 'none'
     config_forcing_start_time = '2000-01-01_00:00:00'
     config_forcing_cycle_start = '2000-01-01_00:00:00'
     config_forcing_cycle_duration = '2-00-00_00:00:00'
     config_forcing_precipitation_units = 'mm_per_sec'
-    config_forcing_sst_type = 'hourly_velocities'
+    config_forcing_sst_type = 'none'
     config_forcing_bgc_type = 'none'
     config_update_ocean_fluxes = false
     config_frazil_coupling_type = 'external'

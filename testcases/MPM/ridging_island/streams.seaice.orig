@@ -53,8 +53,8 @@
 	<var name="iceAreaCategory"/>
 	<var name="iceVolumeCategory"/>
 	<var name="fVertex"/>
-        <var name="uAirVelocity"/>
-        <var name="vAirVelocity"/>
+	<var name="uAirVelocity"/>
+	<var name="vAirVelocity"/>
 </stream>
 
 <immutable_stream name="airHourlyVelocitiesForcing"

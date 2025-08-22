@@ -6,6 +6,9 @@ import argparse
 
 def create_ics(gridFilename):
 
+    uAirVelocity = 10.0
+    vAirVelocity =  0.0
+
     # grid data
     fileGrid = Dataset(gridFilename,"r")
 
@@ -64,6 +67,12 @@ def create_ics(gridFilename):
     fVertex = 0.0
     var = fileOut.createVariable("fVertex", "d", dimensions=["nVertices"])
     var[:] = fVertex
+
+    var = fileOut.createVariable("uAirVelocity", "d", dimensions=["nCells"])
+    var[:] = uAirVelocity
+
+    var = fileOut.createVariable("vAirVelocity", "d", dimensions=["nCells"])
+    var[:] = vAirVelocity
 
     fileOut.close()
 

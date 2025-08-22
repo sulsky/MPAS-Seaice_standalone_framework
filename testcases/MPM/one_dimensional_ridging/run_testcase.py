@@ -6,7 +6,6 @@ from create_square_quad_mesh import create_square_quad_mesh
 sys.path.append("../../../utils/MPM/particle_initialization/")
 from create_particles_from_cell_file import create_particles_from_cell_file
 
-from create_forcing import create_forcing
 from create_ics import create_ics
 from plot_heatmap import plot_heatmap
 
@@ -33,9 +32,6 @@ def run_testcase():
     gridFilename = create_square_quad_mesh(nx, ny,
                                            lx, ly,
                                            x0, y0)
-
-    print("Create forcing...")
-    create_forcing(gridFilename)
 
     print("Create ICs...")
     create_ics(gridFilename)

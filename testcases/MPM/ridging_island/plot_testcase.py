@@ -10,7 +10,7 @@ import argparse
 #-------------------------------------------------------------------------------
 
 def plot_testcase(filenameIn,
-                  iTime):
+                  iTime=-1):
 
     # read in file
     filein = Dataset(filenameIn,"r")
