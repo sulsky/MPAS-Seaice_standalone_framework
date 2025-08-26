@@ -7,6 +7,7 @@ sys.path.append("../../../utils/MPM/particle_initialization/")
 from create_particles_from_cell_file import create_particles_from_cell_file
 
 from create_ics import create_ics
+from run_model import run_model
 from plot_heatmap import plot_heatmap
 
 import os
@@ -14,6 +15,8 @@ import os
 #-------------------------------------------------------------------------------
 
 def run_testcase():
+
+    runtype = "orig"
 
     nx = 100
     ny = 100
@@ -50,15 +53,11 @@ def run_testcase():
     os.symlink(gridFilename,"grid.nc")
 
     print("Run model...")
-    MPAS_SEAICE_EXECUTABLE = os.environ.get('MPAS_SEAICE_EXECUTABLE')
-    if (MPAS_SEAICE_EXECUTABLE is None):
-        MPAS_SEAICE_EXECUTABLE = "../../../../MPAS-Seaice-MPM/components/mpas-seaice/seaice_model"
-        print("Using executable in standard location: %s" %(MPAS_SEAICE_EXECUTABLE))
-    os.system(MPAS_SEAICE_EXECUTABLE)
+    run_model(runtype)
 
     print("Plot heatmap...")
     plot_heatmap("grid.nc",
-                 "output/output.2000.nc")
+                 "output_%s/output.2000.nc" %(runtype))
 
 #-------------------------------------------------------------------------------
 

@@ -47,8 +47,8 @@ def plot_axis(axis,
 
 def plot_heatmap(gridFilename,
                  filenameIn,
-                 filenameOut,
-                 nSkip):
+                 filenameOut="ridging.pdf",
+                 nSkip=10):
 
     maxThickness = 4.0
 
