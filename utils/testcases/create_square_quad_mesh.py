@@ -8,10 +8,9 @@ import argparse
 
 def create_square_quad_mesh(nx, ny,
                             lx, ly,
-                            x0, y0,
-                            cull=None):
+                            x0, y0):
 
-    filenameOut = "grid.%ix%i.nc" %(nx,ny)
+    filenameOut = "grid.quad.%ix%i.nc" %(nx,ny)
 
     dx = lx / float(nx)
     dy = ly / float(ny)
@@ -105,39 +104,12 @@ def create_square_quad_mesh(nx, ny,
     # create full mesh with the mesh converter
     MPAS_TOOLS_DIR = os.environ.get('MPAS_TOOLS_DIR')
     if (MPAS_TOOLS_DIR is None):
-        raise Exception("MPAS_TOOLS_DIR environment variable nust be set")
+        raise Exception("MPAS_TOOLS_DIR environment variable must be set")
     MpasMeshConverter = MPAS_TOOLS_DIR+"/mesh_tools/mesh_conversion_tools/MpasMeshConverter.x"
     if (not os.path.isfile(MpasMeshConverter)):
         raise Exception("MpasMeshConverter executable must be built")
 
-    if (cull is None):
-        filenameTmp2Out = filenameOut
-    else:
-        filenameTmp2Out = "grid.tmp2.nc"
-    subprocess.run([MpasMeshConverter,filenameTmp1Out,filenameTmp2Out])
-
-    # optionally cull cells
-    if (cull is not None):
-
-        filein = Dataset(filenameTmp2Out,"a")
-
-        nCells = len(filein.dimensions["nCells"])
-
-        cullCell = filein.createVariable("cullCell","i",dimensions=["nCells"])
-
-        iCell = 0
-        for ix in range(0, nx):
-            for iy in range(0, ny):
-                cullCell[iCell] = cull[ix,iy]
-                iCell += 1
-
-        filein.close()
-
-        MpasCellCuller = MPAS_TOOLS_DIR+"/mesh_tools/mesh_conversion_tools/MpasCellCuller.x"
-        if (not os.path.isfile(MpasCellCuller)):
-            raise Exception("MpasCellCuller executable must be built")
-
-        subprocess.run([MpasCellCuller,filenameTmp2Out,filenameOut])
+    subprocess.run([MpasMeshConverter,filenameTmp1Out,filenameOut])
 
     # add attributes
     filein = Dataset(filenameOut,"a")
