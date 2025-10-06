@@ -83,7 +83,7 @@
     config_rotate_cartesian_grid = false
     config_include_metric_terms = false
     config_elastic_subcycle_number = 120
-    config_strain_scheme = 'variational'
+    config_strain_scheme = 'mpm'
     config_constitutive_relation_type = 'evp'
     config_stress_divergence_scheme = 'variational'
     config_variational_basis = 'wachspress'
@@ -109,6 +109,7 @@
     config_recover_tracer_means_check = false
 /
 &mpm
+    config_use_mpm_tracers = false
     config_use_mpm_velocity_solver = true
     config_use_mpm_freeze_melt = false
     config_use_mpm_polympo = false
