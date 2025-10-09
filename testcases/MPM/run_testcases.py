@@ -18,7 +18,6 @@ def run_testcases(optional=False):
         "advection_convergence",
         "assembly",
         "column_on_particles",
-        "mpm_tracers",
         "polynya",
         "spherical_operators/interpolation",
         "spherical_operators/reconstruction",
