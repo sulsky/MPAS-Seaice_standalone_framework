@@ -50,7 +50,7 @@
    <var name="latCellMP"/>
    <var name="lonCellMP"/>
    <var name="uvVelMP"/>
-   <var name="strainMP"/>
+   <var name="strainRateMP"/>
    <var name="stressMP"/>
 </stream>
 

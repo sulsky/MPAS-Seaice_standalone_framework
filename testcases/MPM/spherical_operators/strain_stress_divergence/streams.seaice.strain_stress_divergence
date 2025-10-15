@@ -74,7 +74,7 @@
         <var name="procIDParticle"/>
         <var name="posnMP"/>
         <var name="iceAreaCellMP"/>
-        <var name="strainMP"/>
+        <var name="strainRateMP"/>
 </stream>
 
 
