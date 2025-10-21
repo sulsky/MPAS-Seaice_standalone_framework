@@ -148,11 +148,11 @@ def get_norm_particle(filenameIC, filename, latitudeLimit):
 
     latParticle = fileMPAS.variables["latCellMP"][:]
 
-    strainMP = fileMPAS.variables["strainMP"][:]
+    strainRateMP = fileMPAS.variables["strainRateMP"][:]
 
-    normE11 = L2_norm_particle(strainMP[0,:,0], strainAnalyticalMP[:,0], nParticles, latParticle[0,:], latitudeLimit)
-    normE22 = L2_norm_particle(strainMP[0,:,1], strainAnalyticalMP[:,1], nParticles, latParticle[0,:], latitudeLimit)
-    normE12 = L2_norm_particle(strainMP[0,:,2], strainAnalyticalMP[:,2], nParticles, latParticle[0,:], latitudeLimit)
+    normE11 = L2_norm_particle(strainRateMP[0,:,0], strainAnalyticalMP[:,0], nParticles, latParticle[0,:], latitudeLimit)
+    normE22 = L2_norm_particle(strainRateMP[0,:,1], strainAnalyticalMP[:,1], nParticles, latParticle[0,:], latitudeLimit)
+    normE12 = L2_norm_particle(strainRateMP[0,:,2], strainAnalyticalMP[:,2], nParticles, latParticle[0,:], latitudeLimit)
 
     fileMPAS.close()
 
@@ -267,7 +267,7 @@ def strain_scaling():
                 elif (strain == "strain12"):
                     y.append(normE12)
 
-            axes[iStrain].loglog(x,y, marker='o', color=lineColours[iPlot], ls="solid", markersize=5.0, label="strainMP_%s" %(method))
+            axes[iStrain].loglog(x,y, marker='o', color=lineColours[iPlot], ls="solid", markersize=5.0, label="strainRateMP_%s" %(method))
 
             iPlot = iPlot + 1
 
