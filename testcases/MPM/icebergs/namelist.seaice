@@ -47,7 +47,7 @@
     config_initial_snow_volume = 0.0
     config_initial_latitude_north = 90.0
     config_initial_latitude_south = -90.0
-    config_initial_velocity_type = 'uniform'
+    config_initial_velocity_type = 'none'
     config_initial_uvelocity = 0.0
     config_initial_vvelocity = 0.0
     config_calculate_coriolis = true
@@ -55,7 +55,7 @@
 &use_sections
     config_use_dynamics = false
     config_use_velocity_solver = false
-    config_use_mpm = true
+    config_use_mpm = false
     config_use_advection = false
     config_use_forcing = true
     config_use_column_physics = true
@@ -135,12 +135,12 @@
 /
 &column_package
     config_column_physics_type = 'icepack'
-    config_column_element_type = 'particles'
-    config_use_column_shortwave = true
-    config_use_column_vertical_thermodynamics = true
+    config_column_element_type = 'cells'
+    config_use_column_shortwave = false
+    config_use_column_vertical_thermodynamics = false
     config_use_column_biogeochemistry = false
-    config_use_column_itd_thermodynamics = true
-    config_use_column_ridging = true
+    config_use_column_itd_thermodynamics = false
+    config_use_column_ridging = false
     config_use_column_snow_tracers = false
 /
 &column_tracers
