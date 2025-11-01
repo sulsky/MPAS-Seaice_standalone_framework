@@ -8,6 +8,8 @@ import sys
 from math import radians
 from matplotlib.patches import Polygon
 from matplotlib.collections import PatchCollection
+from matplotlib.collections import LineCollection
+from mpl_toolkits.axes_grid1 import make_axes_locatable
 
 #-------------------------------------------------------------------------------
 
@@ -17,25 +19,30 @@ def iceberg_trajectories():
 
     positions = {}
 
+    vmin =  sys.float_info.max
+    vmax = -sys.float_info.max
+
     for filename in filenames:
 
-        print(filename)
         filein = Dataset(filename,"r")
 
         nIcebergs = len(filein.dimensions["nIcebergs"])
 
         icebergID = filein.variables["icebergID"][0,:]
         posnIB = filein.variables["posnIB"][0,:,:]
+        icebergVolume = filein.variables["icebergVolume"][0,:]
+
+        vmin = min(vmin,np.amin(icebergVolume))
+        vmax = max(vmax,np.amax(icebergVolume))
 
         filein.close()
 
         for iIceberg in range(0,nIcebergs):
-
             if (icebergID[iIceberg] not in positions):
-                positions[icebergID[iIceberg]] = {"x": [], "y": []}
+                positions[icebergID[iIceberg]] = {"x": [], "y": [], "v": []}
             positions[icebergID[iIceberg]]["x"].append(posnIB[iIceberg,0])
             positions[icebergID[iIceberg]]["y"].append(posnIB[iIceberg,1])
-
+            positions[icebergID[iIceberg]]["v"].append(icebergVolume[iIceberg])
 
 
     # start plot
@@ -82,12 +89,17 @@ def iceberg_trajectories():
 
     # plot trajectories
     for icebergID, trajectory in positions.items():
-        axis.plot(trajectory["y"], trajectory["x"], color="teal", linewidth=0.5)
+
+        sc = axis.scatter(trajectory["y"], trajectory["x"], c=trajectory["v"],
+                          s=0.5, vmin=vmin, vmax=vmax, cmap="jet")
+
+    axis.autoscale_view()
 
     axis.set_aspect("equal")
     axis.set_xlabel("x (m)")
     axis.set_ylabel("y (m)")
     axis.set_title("Iceberg Trajectories")
+    fig.colorbar(sc,label="Volume (m^3)")
 
     plt.tight_layout()
     plt.savefig("trajectories.png",dpi=600)

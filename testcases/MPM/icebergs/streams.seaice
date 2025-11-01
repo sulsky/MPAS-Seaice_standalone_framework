@@ -61,6 +61,9 @@
         <var name="icebergID"/>
         <var name="procIDIceberg"/>
         <var name="posnIB"/>
+        <var name="icebergHeight"/>
+        <var name="icebergLength"/>
+        <var name="icebergVolume"/>
 </stream>
 
 <stream name="icebergsIn"
