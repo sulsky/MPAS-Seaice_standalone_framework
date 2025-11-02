@@ -29,6 +29,7 @@ def iceberg_trajectories():
         nIcebergs = len(filein.dimensions["nIcebergs"])
 
         icebergID = filein.variables["icebergID"][0,:]
+        statusIB = filein.variables["statusIB"][0,:]
         posnIB = filein.variables["posnIB"][0,:,:]
         icebergVolume = filein.variables["icebergVolume"][0,:]
 
@@ -38,11 +39,12 @@ def iceberg_trajectories():
         filein.close()
 
         for iIceberg in range(0,nIcebergs):
-            if (icebergID[iIceberg] not in positions):
-                positions[icebergID[iIceberg]] = {"x": [], "y": [], "v": []}
-            positions[icebergID[iIceberg]]["x"].append(posnIB[iIceberg,0])
-            positions[icebergID[iIceberg]]["y"].append(posnIB[iIceberg,1])
-            positions[icebergID[iIceberg]]["v"].append(icebergVolume[iIceberg])
+            if (statusIB[iIceberg] == 1):
+                if (icebergID[iIceberg] not in positions):
+                    positions[icebergID[iIceberg]] = {"x": [], "y": [], "v": []}
+                positions[icebergID[iIceberg]]["x"].append(posnIB[iIceberg,0])
+                positions[icebergID[iIceberg]]["y"].append(posnIB[iIceberg,1])
+                positions[icebergID[iIceberg]]["v"].append(icebergVolume[iIceberg])
 
 
     # start plot
