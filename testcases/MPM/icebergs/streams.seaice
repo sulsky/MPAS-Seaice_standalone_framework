@@ -60,6 +60,8 @@
         <var name="creationIndexIB"/>
         <var name="icebergID"/>
         <var name="procIDIceberg"/>
+        <var name="randomGeneratorState"/>
+        <var name="posnIBInit"/>
         <var name="posnIB"/>
         <var name="icebergHeight"/>
         <var name="icebergLength"/>
