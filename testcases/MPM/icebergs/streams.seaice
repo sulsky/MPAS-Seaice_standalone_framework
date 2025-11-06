@@ -29,6 +29,7 @@
 	<var name="snowVolumeCell"/>
 	<var name="uVelocity"/>
 	<var name="vVelocity"/>
+        <var name="icebergMeltRateCell"/>
 </stream>
 
 <stream name="particlesOut"
@@ -66,6 +67,7 @@
         <var name="icebergHeight"/>
         <var name="icebergLength"/>
         <var name="icebergVolume"/>
+        <var name="icebergMeltRate"/>
 </stream>
 
 <stream name="icebergsIn"
