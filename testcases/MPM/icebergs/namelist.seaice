@@ -3,7 +3,7 @@
     config_calendar_type = 'noleap'
     config_start_time = '2000-01-01_00:00:00'
     config_stop_time = 'none'
-    config_run_duration = '02-00-00_00:00:00'
+    config_run_duration = '20-00-00_00:00:00'
     config_num_halos = 2
 /
 &io
@@ -84,7 +84,7 @@
 /
 &velocity_solver
     config_dynamics_subcycle_number = 1
-    config_rotate_cartesian_grid = true
+    config_rotate_cartesian_grid = false
     config_include_metric_terms = true
     config_elastic_subcycle_number = 120
     config_strain_scheme = 'mpm'
@@ -128,7 +128,10 @@
     config_mpm_use_icebergs = true
     config_mpm_iceberg_block_size = 16
     config_minimum_iceberg_area = 1e6
-    config_maximum_iceberg_area = 1e7
+    config_maximum_iceberg_area = 1e8
+    config_iceberg_area_pdf_exponent_physical = -1.5
+    config_iceberg_area_pdf_exponent_sampling = 0.0
+    config_iceberg_velocity_update_type = "momentum"
     config_iceberg_density = 850.0
     config_iceberg_air_form_drag_coefficient = 0.4
     config_iceberg_air_skin_drag_coefficient = 2.5e-3

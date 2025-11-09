@@ -64,10 +64,14 @@
         <var name="randomGeneratorState"/>
         <var name="posnIBInit"/>
         <var name="posnIB"/>
+        <var name="latIceberg"/>
+        <var name="lonIceberg"/>
         <var name="icebergHeight"/>
         <var name="icebergLength"/>
         <var name="icebergVolume"/>
         <var name="icebergMeltRate"/>
+        <var name="uVelocityIceberg"/>
+        <var name="vVelocityIceberg"/>
 </stream>
 
 <stream name="icebergsIn"
@@ -112,6 +116,12 @@
     <var name="bergFreshwaterFluxData"/>
     <var name="xtime" />
 </stream>
+
+<immutable_stream name="IcebergOceanVelocityForcing"
+                  type="input"
+                  filename_template="forcing/forcing_iceberg_monthly.$Y.nc"
+	          filename_interval="none"
+	          input_interval="none"/>
 
 <stream name="abort_block"
         type="output"

@@ -93,7 +93,7 @@ def iceberg_trajectories():
     for icebergID, trajectory in positions.items():
 
         sc = axis.scatter(trajectory["y"], trajectory["x"], c=trajectory["v"],
-                          s=0.5, vmin=vmin, vmax=vmax, cmap="jet")
+                          s=0.05, vmin=vmin, vmax=vmax, cmap="jet", edgecolor="None")
 
     axis.autoscale_view()
 
@@ -104,7 +104,7 @@ def iceberg_trajectories():
     fig.colorbar(sc,label="Volume (m^3)")
 
     plt.tight_layout()
-    plt.savefig("trajectories.png",dpi=600)
+    plt.savefig("trajectories.png",dpi=1200)
 
 #-------------------------------------------------------------------------------
 
