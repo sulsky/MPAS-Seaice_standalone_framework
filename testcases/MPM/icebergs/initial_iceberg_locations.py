@@ -28,22 +28,24 @@ def initial_iceberg_locations():
 
         nIcebergs = len(filein.dimensions["nIcebergs"])
 
-        icebergID = filein.variables["icebergID"][0,:]
-        statusIB = filein.variables["statusIB"][0,:]
-        posnIBInit = filein.variables["posnIBInit"][0,:,:]
-        icebergVolume = filein.variables["icebergVolume"][0,:]
+        if (nIcebergs > 0):
 
-        vmin = min(vmin,np.amin(icebergVolume))
-        vmax = max(vmax,np.amax(icebergVolume))
+            icebergID = filein.variables["icebergID"][0,:]
+            statusIB = filein.variables["statusIB"][0,:]
+            posnIBInit = filein.variables["posnIBInit"][0,:,:]
+            icebergVolume = filein.variables["icebergVolume"][0,:]
 
-        filein.close()
+            vmin = min(vmin,np.amin(icebergVolume))
+            vmax = max(vmax,np.amax(icebergVolume))
 
-        for iIceberg in range(0,nIcebergs):
-            if (statusIB[iIceberg] == 1):
-                if (icebergID[iIceberg] not in initialPositions):
-                    initialPositions[icebergID[iIceberg]] = {"x":posnIBInit[iIceberg,0],
-                                                             "y":posnIBInit[iIceberg,1]}
+            for iIceberg in range(0,nIcebergs):
+                if (statusIB[iIceberg] == 1):
+                    if (icebergID[iIceberg] not in initialPositions):
+                        initialPositions[icebergID[iIceberg]] = {"x":posnIBInit[iIceberg,0],
+                                                                 "y":posnIBInit[iIceberg,1]}
 
+
+    filein.close()
 
     # start plot
     fig, axis = plt.subplots()
