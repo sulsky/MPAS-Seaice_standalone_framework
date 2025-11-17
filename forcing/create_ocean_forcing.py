@@ -194,7 +194,7 @@ def create_forcing(\
     fileOut.createDimension("Time",None)
 
     # time
-    xtimes = create_output_times(12, 0)
+    xtimes = create_output_times("monthly", 0)
     varXtime = fileOut.createVariable("xtime","c",dimensions=["Time","StrLen"])
     for iTime in range(0,12):
         varXtime[iTime,0:19] = netCDF4.stringtochar(np.array(xtimes[iTime], 'S19'))

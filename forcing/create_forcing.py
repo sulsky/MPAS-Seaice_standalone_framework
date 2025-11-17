@@ -17,7 +17,7 @@ def create_scrip_grid_file(filenameScrip,
                            gridCornerLon,
                            title):
 
-    fileScrip = Dataset(filenameScrip,"w",format="NETCDF3_CLASSIC")
+    fileScrip = Dataset(filenameScrip,"w",format="NETCDF4_CLASSIC")
 
     # dimensions
     fileScrip.createDimension("grid_size", nGridSize)
@@ -181,6 +181,26 @@ def create_output_times(timeType,
                     timeStr = "%4.4i-%2.2i-%2.2i_%2.2i:%2.2i:%2.2i" %(year,month,day,hour,minute,second)
                     xtimes.append(timeStr)
 
+    elif (timeType == "daily_proleptic_gregorian"):
+
+        hour = 12
+        minute = 0
+        second = 0
+
+        if (calendar.isleap(year)):
+            daysInMonthUse = daysInMonthLeap
+        else:
+            daysInMonthUse = daysInMonth
+
+        for iMonth in range(0,12):
+            for iDay in range(0,daysInMonthUse[iMonth]):
+
+                month = iMonth + 1
+                day = iDay + 1
+
+                timeStr = "%4.4i-%2.2i-%2.2i_%2.2i:%2.2i:%2.2i" %(year,month,day,hour,minute,second)
+                xtimes.append(timeStr)
+
     elif (timeType == "monthly"):
 
         day = 15
@@ -194,6 +214,9 @@ def create_output_times(timeType,
 
             timeStr = "%4.4i-%2.2i-%2.2i_%2.2i:%2.2i:%2.2i" %(year,month,day,hour,minute,second)
             xtimes.append(timeStr)
+
+    else:
+        raise Exception("Unknown output time type")
 
     return xtimes
 

@@ -14,7 +14,7 @@
                   filename_template="restarts/restart.$Y-$M-$D_$h.$m.$s.nc"
                   filename_interval="00_00:00:01"
                   input_interval="initial_only"
-                  output_interval="00-03-00_00:00:00" />
+                  output_interval="none" />
 
 <stream name="output"
         type="output"
@@ -119,7 +119,7 @@
 
 <immutable_stream name="IcebergOceanVelocityForcing"
                   type="input"
-                  filename_template="forcing/forcing_iceberg_monthly.$Y.nc"
+                  filename_template="forcing/forcing_iceberg_ocean_velocity_daily.$Y.nc"
 	          filename_interval="none"
 	          input_interval="none"/>
 

@@ -3,7 +3,7 @@
     config_calendar_type = 'noleap'
     config_start_time = '2000-01-01_00:00:00'
     config_stop_time = 'none'
-    config_run_duration = '20-00-00_00:00:00'
+    config_run_duration = '10-00-00_00:00:00'
     config_num_halos = 2
 /
 &io
@@ -66,7 +66,7 @@
     config_atmospheric_forcing_type = 'CORE'
     config_forcing_start_time = '2000-01-01_00:00:00'
     config_forcing_cycle_start = '2000-01-01_00:00:00'
-    config_forcing_cycle_duration = '1-00-00_00:00:00'
+    config_forcing_cycle_duration = '10-00-00_00:00:00'
     config_forcing_precipitation_units = 'mm_per_sec'
     config_forcing_sst_type = 'ncar'
     config_forcing_bgc_type = 'none'
@@ -126,18 +126,20 @@
 /
 &mpm_icebergs
     config_use_mpm_icebergs = true
+    config_iceberg_initial_distribution_type = "none"
+    config_iceberg_initial_height = 250.0
     config_mpm_iceberg_block_size = 16
     config_minimum_iceberg_area = 1e6
     config_maximum_iceberg_area = 1.0001e6
     config_iceberg_area_pdf_exponent_physical = -1.5
     config_iceberg_area_pdf_exponent_sampling = -1.5
-    config_iceberg_velocity_update_type = "momentum"
+    config_create_icebergs_during_simulation = true
+    config_iceberg_velocity_update_type = "analytical"
     config_iceberg_density = 850.0
     config_iceberg_air_form_drag_coefficient = 0.4
     config_iceberg_air_skin_drag_coefficient = 2.5e-3
     config_iceberg_ocean_form_drag_coefficient = 0.85
     config_iceberg_ocean_skin_drag_coefficient = 5e-3
-    config_iceberg_initial_distribution = false
 /
 &column_package
     config_column_physics_type = 'icepack'
@@ -521,7 +523,7 @@
     config_AM_timeSeriesStatsDaily_backward_output_offset = '00-00-01_00:00:00'
 /
 &AM_timeSeriesStatsMonthly
-    config_AM_timeSeriesStatsMonthly_enable = true
+    config_AM_timeSeriesStatsMonthly_enable = false
     config_AM_timeSeriesStatsMonthly_compute_on_startup = false
     config_AM_timeSeriesStatsMonthly_write_on_startup = false
     config_AM_timeSeriesStatsMonthly_compute_interval = 'dt'
