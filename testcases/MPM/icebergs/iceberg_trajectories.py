@@ -10,10 +10,11 @@ from matplotlib.patches import Polygon
 from matplotlib.collections import PatchCollection
 from matplotlib.collections import LineCollection
 from mpl_toolkits.axes_grid1 import make_axes_locatable
+import argparse
 
 #-------------------------------------------------------------------------------
 
-def iceberg_trajectories():
+def iceberg_trajectories(nskip):
 
     filenames = sorted(glob.glob("./output/icebergs_output.*"))
 
@@ -22,7 +23,7 @@ def iceberg_trajectories():
     vmin =  sys.float_info.max
     vmax = -sys.float_info.max
 
-    for filename in filenames:
+    for filename in filenames[::nskip]:
 
         filein = Dataset(filename,"r")
 
@@ -112,4 +113,10 @@ def iceberg_trajectories():
 
 if __name__ == "__main__":
 
-    iceberg_trajectories()
+    parser = argparse.ArgumentParser(description='')
+
+    parser.add_argument('-n', dest='nskip', type=int, default=1, help='')
+
+    args = parser.parse_args()
+
+    iceberg_trajectories(args.nskip)

@@ -130,7 +130,7 @@
     config_iceberg_initial_height = 250.0
     config_mpm_iceberg_block_size = 16
     config_minimum_iceberg_area = 1e6
-    config_maximum_iceberg_area = 1.0001e6
+    config_maximum_iceberg_area = 1e6
     config_iceberg_area_pdf_exponent_physical = -1.5
     config_iceberg_area_pdf_exponent_sampling = -1.5
     config_create_icebergs_during_simulation = true
