@@ -134,9 +134,9 @@
     config_iceberg_area_pdf_exponent_physical = -1.5
     config_iceberg_area_pdf_exponent_sampling = -1.5
     config_create_icebergs_during_simulation = true
-    config_iceberg_use_surface_wave_ablation = true
-    config_iceberg_use_bouyant_convection_ablation = true
-    config_iceberg_use_basal_melt_ablation = true
+    config_iceberg_use_surface_wave_ablation = false
+    config_iceberg_use_bouyant_convection_ablation = false
+    config_iceberg_use_basal_melt_ablation = false
     config_iceberg_velocity_update_type = "analytical"
     config_iceberg_density = 850.0
     config_iceberg_air_form_drag_coefficient = 0.4

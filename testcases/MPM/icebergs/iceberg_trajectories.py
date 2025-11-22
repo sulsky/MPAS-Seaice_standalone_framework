@@ -53,7 +53,7 @@ def iceberg_trajectories(nskip):
     # start plot
     fig, axis = plt.subplots()
 
-    axis.set_facecolor('lightgrey')
+    axis.set_facecolor('grey')
 
 
     # load mesh data
