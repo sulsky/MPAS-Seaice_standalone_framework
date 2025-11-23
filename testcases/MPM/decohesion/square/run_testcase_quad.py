@@ -27,12 +27,12 @@ def run_testcase(logFilename=None):
 
     print("Create grid")
     print("=================")
-    lx = 120000.0
-    ly = 120000.0
+    lx = 240000.0
+    ly = 240000.0
     x0 = 0.0
     y0 = 0.0
-    nx = 120
-    ny = 120
+    nx = 24
+    ny = 24
 
     gridFilename = create_square_quad_mesh(nx, ny,
                                            lx, ly,
@@ -61,13 +61,6 @@ def run_testcase(logFilename=None):
                                 particlePositionInitType,
                                 particleGeometry,
                                 sphereRadius)
-
-    #create_particles_from_cell_file(gridFilename,
-    #                                "ic.nc",
-    #                                particleInitType,
-    #                                particleInitNumber,
-    #                                particlePositionInitType,
-    #                                "particles.nc")
 
     print("Run model")
     print("=================")

@@ -220,7 +220,13 @@ def in_geom(x,
             iceVolume = 1.0
 
     elif (geomType == 'square'):
-        if (x < 100000 and x > 20000 and y < 100000 and y > 20000):
+        if (x < 160000 and x > 80000 and y < 160000 and y > 80000):
+            in_geom = True
+            iceArea = 1.0
+            iceVolume = 1.0
+
+    elif (geomType == 'disks'):
+        if ((x-0.25)*(x-0.25)+(y-0.25)*(y-0.25) < 0.04 or (x-0.75)*(x-0.75)+(y-0.75)*(y-0.75) < 0.04):
             in_geom = True
             iceArea = 1.0
             iceVolume = 1.0

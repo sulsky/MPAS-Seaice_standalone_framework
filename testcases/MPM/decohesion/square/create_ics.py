@@ -10,7 +10,7 @@ import argparse
 
 def create_ics(gridFilename):
 
-    uAir = 10.0
+    uAir = 20.0
     vAir =  0.0
 
     # grid data
@@ -60,10 +60,10 @@ def create_ics(gridFilename):
         uAirVelocity[iCell] = uAir
         vAirVelocity[iCell] = vAir
 
-        if (x < 60000):
+        if (x < 120000):
            uAirVelocity[iCell] = -uAir
 
-        if (x < 100000 and x > 20000 and y < 100000 and y > 20000):
+        if (x < 160000 and x > 80000 and y < 160000 and y > 80000):
             for iCategory in range(0,nCategories):
                 iceAreaCategory[iCell,iCategory] = 1.0
             iceAreaCell[iCell] = np.sum(iceAreaCategory[iCell,:])
