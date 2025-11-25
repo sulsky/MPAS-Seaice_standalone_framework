@@ -72,6 +72,8 @@
         <var name="icebergMeltRate"/>
         <var name="uVelocityIceberg"/>
         <var name="vVelocityIceberg"/>
+        <var name="nIcebergRollover"/>
+        <var name="rolloverStabilityRatio"/>
 </stream>
 
 <stream name="icebergsCalving"

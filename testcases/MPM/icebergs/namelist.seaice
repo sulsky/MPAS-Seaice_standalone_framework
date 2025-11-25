@@ -133,11 +133,13 @@
     config_maximum_iceberg_area = 1e6
     config_iceberg_area_pdf_exponent_physical = -1.5
     config_iceberg_area_pdf_exponent_sampling = -1.5
+    config_iceberg_initial_length_to_width_ratio = 1.5
     config_create_icebergs_during_simulation = true
     config_iceberg_use_surface_wave_ablation = true
     config_iceberg_use_bouyant_convection_ablation = true
     config_iceberg_use_basal_melt_ablation = true
     config_iceberg_velocity_update_type = "analytical"
+    config_iceberg_use_rollover = true
     config_iceberg_density = 850.0
     config_iceberg_air_form_drag_coefficient = 0.4
     config_iceberg_air_skin_drag_coefficient = 2.5e-3
