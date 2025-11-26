@@ -85,6 +85,18 @@
         <var name="calvingRate"/>
 </stream>
 
+<stream name="icebergCategories"
+        type="input"
+        filename_template="iceberg_categories.nc"
+        filename_interval="none"
+        input_interval="initial_only">
+
+        <var name="icebergCategoryLength"/>
+        <var name="icebergCategoryHeight"/>
+        <var name="icebergCategoryFluxScaling"/>
+        <var name="icebergCategoryCalvingFraction"/>
+</stream>
+
 <stream name="icebergsEmpty"
         type="input"
         filename_template="icebergs_empty.nc"

@@ -128,13 +128,14 @@
     config_use_mpm_icebergs = true
     config_iceberg_initial_distribution_type = "none"
     config_iceberg_initial_height = 250.0
-    config_mpm_iceberg_block_size = 16
+    config_mpm_iceberg_block_size = 128
     config_minimum_iceberg_area = 1e6
     config_maximum_iceberg_area = 1e6
     config_iceberg_area_pdf_exponent_physical = -1.5
     config_iceberg_area_pdf_exponent_sampling = -1.5
     config_iceberg_initial_length_to_width_ratio = 1.5
     config_create_icebergs_during_simulation = true
+    config_iceberg_generation_type = "category"
     config_iceberg_use_surface_wave_ablation = true
     config_iceberg_use_bouyant_convection_ablation = true
     config_iceberg_use_basal_melt_ablation = true
@@ -146,7 +147,7 @@
     config_iceberg_air_skin_drag_coefficient = 2.5e-3
     config_iceberg_ocean_form_drag_coefficient = 0.85
     config_iceberg_ocean_skin_drag_coefficient = 5e-3
-    config_iceberg_use_conservation_check = false
+    config_iceberg_use_conservation_check = true
 /
 &column_package
     config_column_physics_type = 'icepack'
