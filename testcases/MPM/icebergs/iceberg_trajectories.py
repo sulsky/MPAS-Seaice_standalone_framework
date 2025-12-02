@@ -11,19 +11,83 @@ from matplotlib.collections import PatchCollection
 from matplotlib.collections import LineCollection
 from mpl_toolkits.axes_grid1 import make_axes_locatable
 import argparse
+from tqdm import tqdm
+from matplotlib import colors
 
 #-------------------------------------------------------------------------------
 
-def iceberg_trajectories(nskip):
+def colored_line(x, y, c, ax, **lc_kwargs):
+    """
+    Plot a line with a color specified along the line by a third value.
 
-    filenames = sorted(glob.glob("./output/icebergs_output.*"))
+    It does this by creating a collection of line segments. Each line segment is
+    made up of two straight lines each connecting the current (x, y) point to the
+    midpoints of the lines connecting the current point with its two neighbors.
+    This creates a smooth line with no gaps between the line segments.
+
+    Parameters
+    ----------
+    x, y : array-like
+        The horizontal and vertical coordinates of the data points.
+    c : array-like
+        The color values, which should be the same size as x and y.
+    ax : Axes
+        Axis object on which to plot the colored line.
+    **lc_kwargs
+        Any additional arguments to pass to matplotlib.collections.LineCollection
+        constructor. This should not include the array keyword argument because
+        that is set to the color argument. If provided, it will be overridden.
+
+    Returns
+    -------
+    matplotlib.collections.LineCollection
+        The generated line collection representing the colored line.
+    """
+    if "array" in lc_kwargs:
+        warnings.warn('The provided "array" keyword argument will be overridden')
+
+    # Default the capstyle to butt so that the line segments smoothly line up
+    default_kwargs = {"capstyle": "butt"}
+    default_kwargs.update(lc_kwargs)
+
+    # Compute the midpoints of the line segments. Include the first and last points
+    # twice so we don't need any special syntax later to handle them.
+    x = np.asarray(x)
+    y = np.asarray(y)
+    x_midpts = np.hstack((x[0], 0.5 * (x[1:] + x[:-1]), x[-1]))
+    y_midpts = np.hstack((y[0], 0.5 * (y[1:] + y[:-1]), y[-1]))
+
+    # Determine the start, middle, and end coordinate pair of each line segment.
+    # Use the reshape to add an extra dimension so each pair of points is in its
+    # own list. Then concatenate them to create:
+    # [
+    #   [(x1_start, y1_start), (x1_mid, y1_mid), (x1_end, y1_end)],
+    #   [(x2_start, y2_start), (x2_mid, y2_mid), (x2_end, y2_end)],
+    #   ...
+    # ]
+    coord_start = np.column_stack((x_midpts[:-1], y_midpts[:-1]))[:, np.newaxis, :]
+    coord_mid = np.column_stack((x, y))[:, np.newaxis, :]
+    coord_end = np.column_stack((x_midpts[1:], y_midpts[1:]))[:, np.newaxis, :]
+    segments = np.concatenate((coord_start, coord_mid, coord_end), axis=1)
+
+    lc = LineCollection(segments, **default_kwargs)
+    lc.set_array(c)  # set the colors of each segment
+
+    return ax.add_collection(lc)
+
+#-------------------------------------------------------------------------------
+
+def iceberg_trajectories(filenameTemplate,
+                         nskip):
+
+    filenames = sorted(glob.glob(filenameTemplate))
 
     positions = {}
 
     vmin =  sys.float_info.max
     vmax = -sys.float_info.max
 
-    for filename in filenames[::nskip]:
+    for filename in tqdm(filenames):
 
         filein = Dataset(filename,"r")
 
@@ -92,22 +156,31 @@ def iceberg_trajectories(nskip):
 
     axis.add_collection(pc)
 
-    # plot trajectories
-    for icebergID, trajectory in positions.items():
+    # plot positions
+    print("nIcebergs: ", len(positions))
+    iIceberg = 0
+    for icebergID, trajectory in tqdm(positions.items()):
 
-        sc = axis.scatter(trajectory["y"], trajectory["x"], c=trajectory["v"],
-                          s=0.05, vmin=vmin, vmax=vmax, cmap="jet", edgecolor="None")
+        if (iIceberg % nskip == 0):
+            lc = colored_line(trajectory["y"],
+                              trajectory["x"],
+                              trajectory["v"],
+                              axis,
+                              linewidth=0.2,
+                              cmap="jet",
+                              norm=colors.LogNorm(vmin=vmax*0.001, vmax=vmax))
+        iIceberg += 1
 
     axis.autoscale_view()
 
     axis.set_aspect("equal")
     axis.set_xlabel("x (m)")
     axis.set_ylabel("y (m)")
-    axis.set_title("Iceberg Trajectories")
-    fig.colorbar(sc,label="Volume (m^3)")
+    axis.set_title("Iceberg trajectories")
+    fig.colorbar(lc,label="Volume (m^3)")
 
     plt.tight_layout()
-    plt.savefig("trajectories.png",dpi=1200)
+    plt.savefig("iceberg_trajectories.png",dpi=1200)
 
 #-------------------------------------------------------------------------------
 
@@ -115,8 +188,10 @@ if __name__ == "__main__":
 
     parser = argparse.ArgumentParser(description='')
 
+    parser.add_argument('-f', dest='filenameTemplate', required=True, help='')
     parser.add_argument('-n', dest='nskip', type=int, default=1, help='')
 
     args = parser.parse_args()
 
-    iceberg_trajectories(args.nskip)
+    iceberg_trajectories(args.filenameTemplate,
+                         args.nskip)

@@ -21,7 +21,12 @@ def number_of_icebergs(filenameTemplate):
         except:
             nIcebergsStatus = 0
 
-        print(filename, nIcebergsStatus, nIcebergs)
+        nIcebergsCell = filein.variables["nIcebergsCell"][:]
+        nIcebergsCell = np.sum(nIcebergsCell)
+
+        print(filename, nIcebergsStatus, nIcebergs, nIcebergsCell)
+
+        filein.close()
 
 #-------------------------------------------------------------------------------
 

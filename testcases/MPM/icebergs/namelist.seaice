@@ -147,7 +147,7 @@
     config_iceberg_air_skin_drag_coefficient = 2.5e-3
     config_iceberg_ocean_form_drag_coefficient = 0.85
     config_iceberg_ocean_skin_drag_coefficient = 5e-3
-    config_iceberg_use_conservation_check = true
+    config_iceberg_use_conservation_check = false
 /
 &column_package
     config_column_physics_type = 'icepack'

@@ -10,15 +10,19 @@ from matplotlib.patches import Polygon
 from matplotlib.collections import PatchCollection
 from matplotlib.collections import LineCollection
 from mpl_toolkits.axes_grid1 import make_axes_locatable
+import matplotlib
+from matplotlib import colors
+import argparse
+from tqdm import tqdm
 
 #-------------------------------------------------------------------------------
 
-def iceberg_meltrates():
+def iceberg_meltrates(filenameTemplate):
 
     # start plot
     fig, axis = plt.subplots()
 
-    axis.set_facecolor('lightgrey')
+    axis.set_facecolor('grey')
 
 
     # load mesh data
@@ -34,34 +38,50 @@ def iceberg_meltrates():
 
     fileMesh.close()
 
-    fileIn = Dataset("output/output.2000.nc")
+    filenames = sorted(glob.glob(filenameTemplate))
 
-    icebergMeltRateCell = fileIn.variables["icebergMeltRateCell"][-1,:]
+    icebergMeltRateCell = np.zeros(nCells)
+    for filename in tqdm(filenames):
+        fileIn = Dataset(filename,"r")
 
-    fileIn.close()
+        icebergMeltRateCellIn = fileIn.variables["icebergMeltRateCell"][:,:]
+        icebergMeltRateCell[:] += np.sum(icebergMeltRateCellIn, axis=0)
+
+        fileIn.close()
 
 
     # plot mesh
     patches = []
-    colors = []
-    xMin =  sys.float_info.max
-    xMax = -sys.float_info.max
-    yMin =  sys.float_info.max
-    yMax = -sys.float_info.max
     for iCell in range(0,nCells):
         if (latCell[iCell] < radians(-40.0)):
             vertices = []
             for iVertexOnCell in range(0,nEdgesOnCell[iCell]):
                 iVertex = verticesOnCell[iCell,iVertexOnCell]
                 vertices.append([yVertex[iVertex],xVertex[iVertex]])
-                xMin = min(xMin,xVertex[iVertex])
-                xMax = max(xMax,xVertex[iVertex])
-                yMin = min(yMin,yVertex[iVertex])
-                yMax = max(yMax,yVertex[iVertex])
+            patches.append(Polygon(vertices, closed=True, edgecolor="grey", facecolor="white", linewidth=0.1))
+
+    pc = PatchCollection(patches, match_original=True)
+
+    axis.add_collection(pc)
+
+    # plot melt rates
+    patches = []
+    colors = []
+    for iCell in range(0,nCells):
+        if (latCell[iCell] < radians(-40.0) and
+            icebergMeltRateCell[iCell] > 0.0):
+            vertices = []
+            for iVertexOnCell in range(0,nEdgesOnCell[iCell]):
+                iVertex = verticesOnCell[iCell,iVertexOnCell]
+                vertices.append([yVertex[iVertex],xVertex[iVertex]])
             patches.append(Polygon(vertices, closed=True, edgecolor="grey", facecolor="white", linewidth=0.1))
             colors.append(icebergMeltRateCell[iCell])
 
-    pc = PatchCollection(patches, match_original=True, cmap="gist_stern")
+    colors = np.array(colors)
+    vmax = np.amax(colors)
+
+    cmap = matplotlib.colormaps.get_cmap("jet")
+    pc = PatchCollection(patches, match_original=True, cmap=cmap, norm=matplotlib.colors.LogNorm(vmin=vmax*0.001, vmax=vmax))
     pc.set_array(colors)
 
     axis.add_collection(pc)
@@ -75,10 +95,16 @@ def iceberg_meltrates():
     fig.colorbar(pc,label="Melt")
 
     plt.tight_layout()
-    plt.savefig("melting.png",dpi=600)
+    plt.savefig("iceberg_melting.png",dpi=600)
 
 #-------------------------------------------------------------------------------
 
 if __name__ == "__main__":
 
-    iceberg_meltrates()
+    parser = argparse.ArgumentParser(description='')
+
+    parser.add_argument('-f', dest='filenameTemplate', required=True, help='')
+
+    args = parser.parse_args()
+
+    iceberg_meltrates(args.filenameTemplate)
