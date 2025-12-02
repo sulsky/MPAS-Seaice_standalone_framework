@@ -22,6 +22,8 @@
    <var name="fVertex"/>
    <var name="uAirVelocity"/>
    <var name="vAirVelocity"/>
+   <var name="airStressVertexU"/>
+   <var name="airStressVertexV"/>
 </stream>
 
 

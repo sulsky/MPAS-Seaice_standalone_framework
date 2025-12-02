@@ -3,7 +3,7 @@
     config_calendar_type = 'noleap'
     config_start_time = '2000-01-01_00:00:00'
     config_stop_time = 'none'
-    config_run_duration = '00-00-01_00:00:00'
+    config_run_duration = '00-00-00_04:00:00'
     config_num_halos = 2
 /
 &io
@@ -90,7 +90,7 @@
     config_elastic_subcycle_number = 120
     config_strain_scheme = 'mpm'
     config_constitutive_relation_type = 'decohesion'
-    config_stress_divergence_scheme = 'mpm'
+    config_stress_divergence_scheme = 'variational'
     config_variational_basis = 'wachspress'
     config_variational_denominator_type = 'original'
     config_wachspress_integration_type = 'dunavant'
@@ -127,7 +127,7 @@
 /
 &decohesion
     config_youngs_modulus = 1.e6
-    config_poissons_ratio = 0.0
+    config_poissons_ratio = 0.36
     config_tensile_strength = 25.e3
     config_compressive_strength = 125.e3
     config_shear_strength = 75.e3
