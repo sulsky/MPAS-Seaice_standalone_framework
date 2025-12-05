@@ -144,7 +144,7 @@ def restartability(mpasDevelopmentDir,
     logfile.write("file1: %s\n" %(file1))
     logfile.write("file2: %s\n" %(file2))
 
-    ignoreVarname = ["cellsOnCell","verticesOnCell","edgesOnEdge","edgesOnCell"]
+    ignoreVarname = ["cellsOnCell","verticesOnCell","edgesOnEdge","edgesOnCell","localCellIDCreationMP"]
     if (check):
         ignoreVarname.append("testArrayParallelism")
         ignoreVarname.append("testArrayReproducibility")
