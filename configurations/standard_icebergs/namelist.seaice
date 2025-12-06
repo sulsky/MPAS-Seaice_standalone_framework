@@ -84,7 +84,7 @@
 /
 &velocity_solver
     config_dynamics_subcycle_number = 1
-    config_rotate_cartesian_grid = false
+    config_rotate_cartesian_grid = true
     config_include_metric_terms = true
     config_elastic_subcycle_number = 120
     config_strain_scheme = 'mpm'
@@ -126,7 +126,7 @@
 /
 &mpm_icebergs
     config_use_mpm_icebergs = true
-    config_iceberg_initial_distribution_type = "none"
+    config_iceberg_read_in_from_file_at_start = false
     config_iceberg_initial_height = 250.0
     config_mpm_iceberg_block_size = 128
     config_minimum_iceberg_area = 1e6
@@ -147,7 +147,7 @@
     config_iceberg_air_skin_drag_coefficient = 2.5e-3
     config_iceberg_ocean_form_drag_coefficient = 0.85
     config_iceberg_ocean_skin_drag_coefficient = 5e-3
-    config_iceberg_use_conservation_check = true
+    config_iceberg_use_conservation_check = false
 /
 &column_package
     config_column_physics_type = 'icepack'

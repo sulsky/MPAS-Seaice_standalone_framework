@@ -32,28 +32,12 @@
         <var name="icebergMeltRateCell"/>
 </stream>
 
-<stream name="particlesOut"
-        type="output"
-        filename_template="output/particles_output.$Y-$M-$D_$h.$m.$s.nc"
-        filename_interval="00-00-00_00:00:01"
-        clobber_mode="replace_files"
-        output_interval="00-00-01_00:00:00" >
-
-        <var name="statusMP"/>
-        <var name="iCellMP"/>
-        <var name="cellIDCreationMP"/>
-        <var name="creationIndexMP"/>
-        <var name="indexToCellIDMP"/>
-        <var name="procIDParticle"/>
-        <var name="posnMP"/>
-</stream>
-
 <stream name="icebergsOut"
         type="output"
         filename_template="output/icebergs_output.$Y-$M-$D_$h.$m.$s.nc"
         filename_interval="00-00-00_00:00:01"
         clobber_mode="replace_files"
-        output_interval="00-00-01_00:00:00" >
+        output_interval="00-00-05_00:00:00" >
 
         <var name="statusIB"/>
         <var name="iCellIB"/>
@@ -62,18 +46,21 @@
         <var name="icebergID"/>
         <var name="procIDIceberg"/>
         <var name="randomGeneratorState"/>
+        <var name="nIcebergsCell"/>
+        <var name="globalCellIndexIB"/>
         <var name="posnIBInit"/>
-        <var name="posnIB"/>
+        <var name="posnIBGeo"/>
         <var name="latIceberg"/>
         <var name="lonIceberg"/>
         <var name="icebergHeight"/>
         <var name="icebergLength"/>
         <var name="icebergVolume"/>
         <var name="icebergMeltRate"/>
-        <var name="uVelocityIceberg"/>
-        <var name="vVelocityIceberg"/>
+        <var name="uVelocityIcebergGeo"/>
+        <var name="vVelocityIcebergGeo"/>
         <var name="nIcebergRollover"/>
         <var name="rolloverStabilityRatio"/>
+        <var name="icebergVolumeCell"/>
 </stream>
 
 <stream name="icebergsCalving"

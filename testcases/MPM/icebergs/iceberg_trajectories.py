@@ -97,7 +97,7 @@ def iceberg_trajectories(filenameTemplate,
 
             icebergID = filein.variables["icebergID"][0,:]
             statusIB = filein.variables["statusIB"][0,:]
-            posnIB = filein.variables["posnIB"][0,:,:]
+            posnIB = filein.variables["posnIBGeo"][0,:,:]
             icebergVolume = filein.variables["icebergVolume"][0,:]
 
             vmin = min(vmin,np.amin(icebergVolume))
