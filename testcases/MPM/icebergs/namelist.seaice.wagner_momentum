@@ -139,14 +139,15 @@
     config_iceberg_use_surface_wave_ablation = true
     config_iceberg_use_bouyant_convection_ablation = true
     config_iceberg_use_basal_melt_ablation = true
-    config_iceberg_velocity_update_type = "analytical"
+    config_iceberg_velocity_update_type = "momentum"
     config_iceberg_use_rollover = true
     config_iceberg_max_number_of_rollovers = 5
     config_iceberg_density = 850.0
-    config_iceberg_air_form_drag_coefficient = 0.4
-    config_iceberg_air_skin_drag_coefficient = 2.5e-3
-    config_iceberg_ocean_form_drag_coefficient = 0.85
-    config_iceberg_ocean_skin_drag_coefficient = 5e-3
+    config_iceberg_air_form_drag_coefficient = 0.9
+    config_iceberg_air_skin_drag_coefficient = 0.0
+    config_iceberg_ocean_form_drag_coefficient = 1.3
+    config_iceberg_ocean_skin_drag_coefficient = 0.0
+    config_iceberg_size_type = "angle_integral"
     config_iceberg_use_conservation_check = false
 /
 &column_package

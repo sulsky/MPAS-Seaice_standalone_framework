@@ -56,11 +56,21 @@
         <var name="icebergLength"/>
         <var name="icebergVolume"/>
         <var name="icebergMeltRate"/>
-        <var name="uVelocityIcebergGeo"/>
-        <var name="vVelocityIcebergGeo"/>
         <var name="nIcebergRollover"/>
         <var name="rolloverStabilityRatio"/>
         <var name="icebergVolumeCell"/>
+        <var name="uVelocityIcebergGeo"/>
+        <var name="vVelocityIcebergGeo"/>
+        <var name="uAirForceIceberg"/>
+        <var name="vAirForceIceberg"/>
+        <var name="uOceanForceIceberg"/>
+        <var name="vOceanForceIceberg"/>
+        <var name="uSurfaceTiltForceIceberg"/>
+        <var name="vSurfaceTiltForceIceberg"/>
+        <var name="uCoriolisForceIceberg"/>
+        <var name="vCoriolisForceIceberg"/>
+        <var name="uInertialForceIceberg"/>
+        <var name="vInertialForceIceberg"/>
 </stream>
 
 <stream name="icebergsCalving"
