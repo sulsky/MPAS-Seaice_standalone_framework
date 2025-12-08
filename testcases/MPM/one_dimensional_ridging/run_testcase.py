@@ -2,6 +2,8 @@ import sys
 
 sys.path.append("../../../utils/testcases/")
 from create_square_quad_mesh import create_square_quad_mesh
+from create_square_hex_mesh import create_square_hex_mesh
+from plot_mesh import plot_mesh
 
 sys.path.append("../../../utils/MPM/particle_initialization/")
 from create_particles_from_cell_file import create_particles_from_cell_file
@@ -11,35 +13,49 @@ from run_model import run_model
 from plot_heatmap import plot_heatmap
 
 import os
+import argparse
 
 #-------------------------------------------------------------------------------
 
-def run_testcase():
+def run_testcase(runtype,
+                 meshtype):
 
-    runtype = "orig"
-
-    nx = 100
-    ny = 100
-
+    print("Create grid...")
     lx = 1000000.0
     ly = 1000000.0
 
     x0 = 0.0
     y0 = 0.0
 
-    particleInitType = "number"
-    particleInitNumber = "9"
-    particlePositionInitType = "even"
+    if (meshtype == "quad"):
 
-    print("Create grid...")
-    gridFilename = create_square_quad_mesh(nx, ny,
-                                           lx, ly,
-                                           x0, y0)
+        nx = 100
+        ny = 100
+
+        gridFilename = create_square_quad_mesh(nx, ny,
+                                               lx, ly,
+                                               x0, y0)
+
+    elif (meshtype == "hex"):
+
+        dc = 10000.0
+
+        gridFilename = create_square_hex_mesh(dc,
+                                              lx, ly,
+                                              x0, y0)
+
+    else:
+        raise Exception("Unknown mesh type: "+meshtype)
+
+    plot_mesh(gridFilename)
 
     print("Create ICs...")
     create_ics(gridFilename)
 
     print("Create particles...")
+    particleInitType = "number"
+    particleInitNumber = "9"
+    particlePositionInitType = "even"
     create_particles_from_cell_file(gridFilename,
                                     "ic.nc",
                                     particleInitType,
@@ -63,4 +79,12 @@ def run_testcase():
 
 if __name__ == "__main__":
 
-    run_testcase()
+    parser = argparse.ArgumentParser()
+
+    parser.add_argument('-r', dest="runtype",  choices=["orig","mpm"], default="orig")
+    parser.add_argument('-m', dest="meshtype", choices=["quad","hex"], default="quad")
+
+    args = parser.parse_args()
+
+    run_testcase(args.runtype,
+                 args.meshtype)
