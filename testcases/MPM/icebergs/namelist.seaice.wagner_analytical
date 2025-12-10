@@ -140,6 +140,7 @@
     config_iceberg_use_bouyant_convection_ablation = true
     config_iceberg_use_basal_melt_ablation = true
     config_iceberg_velocity_update_type = "analytical"
+    config_iceberg_coastal_movement_type = "slip"
     config_iceberg_use_rollover = true
     config_iceberg_max_number_of_rollovers = 5
     config_iceberg_density = 850.0
