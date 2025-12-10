@@ -533,7 +533,7 @@
     config_AM_timeSeriesStatsDaily_backward_output_offset = '00-00-01_00:00:00'
 /
 &AM_timeSeriesStatsMonthly
-    config_AM_timeSeriesStatsMonthly_enable = false
+    config_AM_timeSeriesStatsMonthly_enable = true
     config_AM_timeSeriesStatsMonthly_compute_on_startup = false
     config_AM_timeSeriesStatsMonthly_write_on_startup = false
     config_AM_timeSeriesStatsMonthly_compute_interval = 'dt'
