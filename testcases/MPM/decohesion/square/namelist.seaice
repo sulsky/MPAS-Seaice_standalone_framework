@@ -125,7 +125,7 @@
     config_mpm_assembly_test = false
     config_mpm_polympo_init_test = false
 /
-&decohesion
+&elastic_decohesion_model
     config_youngs_modulus = 1.e6
     config_poissons_ratio = 0.36
     config_tensile_strength = 25.e3
