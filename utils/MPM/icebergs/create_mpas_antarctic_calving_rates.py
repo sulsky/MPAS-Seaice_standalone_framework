@@ -250,14 +250,29 @@ def create_mpas_calving_file(calvingCells,
     fileMesh.close()
 
     calvingRateCells = np.zeros(nCells)
+    nCalvingRegionsPerCell = np.zeros(nCells,dtype="i")
 
     for iCalve in range(0,len(calvingCells)):
         nCellsCalve = len(calvingCells[iCalve])
         for iCell in list(calvingCells[iCalve]):
             calvingRateCells[coastalCellIndices[iCell]] += calvingRate[iCalve] / float(nCellsCalve)
+            nCalvingRegionsPerCell[coastalCellIndices[iCell]] += 1
+
+    maxCalvingRegionsPerCell = np.amax(nCalvingRegionsPerCell)
+
+    calvingRegionsPerCell = np.zeros((nCells,maxCalvingRegionsPerCell),dtype="i")
+
+    nCalvingRegionsPerCell2 = np.zeros(nCells,dtype="i")
+
+    for iCalve in range(0,len(calvingCells)):
+        nCellsCalve = len(calvingCells[iCalve])
+        for iCell in list(calvingCells[iCalve]):
+            calvingRegionsPerCell[coastalCellIndices[iCell],nCalvingRegionsPerCell2[coastalCellIndices[iCell]]] = iCalve
+            nCalvingRegionsPerCell2[coastalCellIndices[iCell]] += 1
 
     fileMPASCalving = Dataset(calvingFilename,"w",format="NETCDF3_CLASSIC")
 
+    fileMPASCalving.totalCalvingRate = np.sum(calvingRateCells)
     fileMPASCalving.src = \
         "Greene, C.A., Gardner, A.S., Schlegel, NJ. et al. Antarctic calving loss " + \
         "rivals ice-shelf thinning. Nature 609, 948–953 (2022). " + \
@@ -268,10 +283,22 @@ def create_mpas_calving_file(calvingCells,
         "and Ice Data Center Distributed Active Archive Center. https://doi.org/10.5067/AXE4121732AD. [28th Oct 2025]"
 
     fileMPASCalving.createDimension("nCells", nCells)
+    fileMPASCalving.createDimension("nCalvingRegions", len(calvingCells))
+    fileMPASCalving.createDimension("maxCalvingRegionsPerCell", maxCalvingRegionsPerCell)
 
     var = fileMPASCalving.createVariable("calvingRate", "d", dimensions=["nCells"])
     var.units = "Gt/y"
     var[:] = calvingRateCells[:]
+
+    var = fileMPASCalving.createVariable("nCalvingRegionsPerCell", "i", dimensions=["nCells"])
+    var[:] = nCalvingRegionsPerCell[:]
+
+    var = fileMPASCalving.createVariable("calvingRateRegions", "d", dimensions=["nCalvingRegions"])
+    var.units = "Gt/y"
+    var[:] = calvingRate[:]
+
+    var = fileMPASCalving.createVariable("calvingRegionsPerCell", "i", dimensions=["nCells","maxCalvingRegionsPerCell"])
+    var[:] = calvingRegionsPerCell[:]
 
     fileMPASCalving.close()
 

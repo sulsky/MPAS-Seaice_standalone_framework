@@ -71,6 +71,8 @@
         <var name="vCoriolisForceIceberg"/>
         <var name="uInertialForceIceberg"/>
         <var name="vInertialForceIceberg"/>
+        <var name="icebergCategoryFluxScaling"/>
+        <var name="icebergCategory"/>
 </stream>
 
 <stream name="icebergsCalving"

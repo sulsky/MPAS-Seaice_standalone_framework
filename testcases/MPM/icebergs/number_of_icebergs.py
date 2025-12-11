@@ -9,6 +9,8 @@ def number_of_icebergs(filenameTemplate):
 
     filenames = sorted(glob.glob(filenameTemplate))
 
+    print("nIcebergsStatus, nIcebergs, nIcebergsCell, nIcebergsPhysical")
+
     for filename in filenames:
 
         filein = Dataset(filename,"r")
@@ -24,7 +26,19 @@ def number_of_icebergs(filenameTemplate):
         nIcebergsCell = filein.variables["nIcebergsCell"][:]
         nIcebergsCell = np.sum(nIcebergsCell)
 
-        print(filename, nIcebergsStatus, nIcebergs, nIcebergsCell)
+        try:
+            nIcebergCategories = len(filein.dimensions["nIcebergCategories"])
+            icebergCategoryFluxScaling = filein.variables["icebergCategoryFluxScaling"][:]
+            icebergCategory = filein.variables["icebergCategory"][0,:]
+            nIcebergsPhysical = 0
+            for iIceberg in range(0,nIcebergs):
+                if (statusIB[iIceberg] == 1):
+                    nIcebergsPhysical += icebergCategoryFluxScaling[icebergCategory[iIceberg]-1]
+            nIcebergsPhysical = int(nIcebergsPhysical)
+        except:
+            nIcebergsPhysical = -1
+
+        print(filename, nIcebergsStatus, nIcebergs, nIcebergsCell, nIcebergsPhysical)
 
         filein.close()
 
