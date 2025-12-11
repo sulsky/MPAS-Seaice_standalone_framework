@@ -61,6 +61,7 @@
     config_use_column_physics = false
     config_use_prescribed_ice = false
     config_use_prescribed_ice_forcing = false
+    config_use_mpm_icebergs = false
 /
 &forcing
     config_atmospheric_forcing_type = 'CORE'
