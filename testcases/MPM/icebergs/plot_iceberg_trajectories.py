@@ -80,6 +80,8 @@ def colored_line(x, y, c, ax, **lc_kwargs):
 def iceberg_trajectories(filenameTemplate,
                          nskip):
 
+    plt.rcParams["font.family"] = "Times New Roman"
+
     filenames = sorted(glob.glob(filenameTemplate))
 
     positions = {}
@@ -124,14 +126,33 @@ def iceberg_trajectories(filenameTemplate,
     fileMesh = Dataset("grid.nc", "r")
 
     nCells = len(fileMesh.dimensions["nCells"])
+    nEdges = len(fileMesh.dimensions["nEdges"])
 
     latCell = fileMesh.variables["latCell"][:]
     nEdgesOnCell = fileMesh.variables["nEdgesOnCell"][:]
     verticesOnCell = fileMesh.variables["verticesOnCell"][:]-1
+    cellsOnEdge = fileMesh.variables["cellsOnEdge"][:]-1
+    verticesOnEdge = fileMesh.variables["verticesOnEdge"][:]-1
     xVertex = fileMesh.variables["xVertex"][:]
     yVertex = fileMesh.variables["yVertex"][:]
 
     fileMesh.close()
+
+    boundaryEdge = np.zeros(nEdges,dtype="i")
+    for iEdge in range(0,nEdges):
+        if (cellsOnEdge[iEdge,0] == -1 or
+            cellsOnEdge[iEdge,1] == -1):
+            boundaryEdge[iEdge] = 1
+
+    lineSegments = []
+    for iEdge in range(0,nEdges):
+        if (boundaryEdge[iEdge] == 1):
+            iVertex1 = verticesOnEdge[iEdge,0]
+            iVertex2 = verticesOnEdge[iEdge,1]
+            lineSegments.append([[yVertex[iVertex1],xVertex[iVertex1]],
+                                 [yVertex[iVertex2],xVertex[iVertex2]]])
+
+    lc = LineCollection(lineSegments, color="black", linestyle='solid', linewidth=0.2)
 
 
     # plot mesh
@@ -155,6 +176,7 @@ def iceberg_trajectories(filenameTemplate,
     pc = PatchCollection(patches, match_original=True)
 
     axis.add_collection(pc)
+    axis.add_collection(lc)
 
     # plot positions
     print("nIcebergs: ", len(positions))
@@ -171,7 +193,9 @@ def iceberg_trajectories(filenameTemplate,
                               norm=colors.LogNorm(vmin=vmax*0.001, vmax=vmax))
         iIceberg += 1
 
-    axis.autoscale_view()
+    #axis.autoscale_view()
+    axis.set_xlim(-3.5e6,3.5e6)
+    axis.set_ylim(-3.5e6,3.5e6)
 
     axis.set_aspect("equal")
     axis.set_xlabel("x (m)")

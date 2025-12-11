@@ -11,6 +11,7 @@ import glob
 import calendar
 import argparse
 import os
+import sys
 
 #-------------------------------------------------------------------------------
 
@@ -20,11 +21,6 @@ def meltrate_comparison(month):
         dateStr = "All year"
     else:
         dateStr = calendar.month_abbr[month]
-
-    plt.rcParams["font.family"] = "Times New Roman"
-
-    fig, axes = plt.subplots(2,1)
-    # MPAS plot
 
     # load mesh data
     fileMesh = Dataset("grid.nc", "r")
@@ -117,6 +113,9 @@ def meltrate_comparison(month):
     icebergMeltRateCellAvg[:] /= areaCell[:]
     icebergMeltRateCellAvg[:] *= icebergDensity
 
+    vminMPAS =  sys.float_info.max
+    vmaxMPAS = -sys.float_info.max
+
     patchesMPAS = []
     colorsMPAS = []
     for iCell in range(0,nCells):
@@ -134,26 +133,10 @@ def meltrate_comparison(month):
                 vertices.append([lonVertexUse,latVertex[iVertex]])
             patchesMPAS.append(Polygon(vertices, closed=True, edgecolor="grey", facecolor="white", linewidth=0.1))
             colorsMPAS.append(icebergMeltRateCellAvg[iCell])
+            vminMPAS = min(vminMPAS,icebergMeltRateCellAvg[iCell])
+            vmaxMPAS = min(vmaxMPAS,icebergMeltRateCellAvg[iCell])
 
-    pcMPAS = PatchCollection(patchesMPAS, match_original=True, cmap="jet", norm=mcolors.LogNorm())
-    pcMPAS.set_array(colorsMPAS)
-    axes[0].add_collection(pcMPAS)
-    divider = make_axes_locatable(axes[0])
-    cax = divider.append_axes('right', size='2%', pad=0.02)
-    cb = fig.colorbar(pcMPAS, cax=cax)
-    cb.set_label("kg/m2/s")
-
-    lcMPAS = LineCollection(lineSegments, color="black", linestyle='solid', linewidth=0.2)
-    axes[0].add_collection(lcMPAS)
-
-    axes[0].autoscale_view()
-
-    axes[0].set_xlim(-180.0,180.0)
-    axes[0].set_ylim(-80.0,-40.0)
-
-    axes[0].set_title("MPAS-Seaice - %s" %(dateStr))
-
-    # Merino plot
+    # Merino data
     MPAS_SEAICE_STANDALONE_DATA = os.environ.get('MPAS_SEAICE_STANDALONE_DATA')
     if (MPAS_SEAICE_STANDALONE_DATA is None):
         raise Exception("MPAS_SEAICE_STANDALONE_DATA must be set")
@@ -178,7 +161,38 @@ def meltrate_comparison(month):
     else:
         icebergMeltfluxMerino = icebergMeltfluxMerino[month-1,:,:]
 
-    sc = axes[1].pcolormesh(longitudeMerino, latitudeMerino, icebergMeltfluxMerino, shading='nearest', cmap='jet', norm=mcolors.LogNorm())
+    vminMerino = np.min(icebergMeltfluxMerino[np.nonzero(icebergMeltfluxMerino)])
+    vmaxMerino = np.max(icebergMeltfluxMerino[np.nonzero(icebergMeltfluxMerino)])
+
+    vmin = min(vminMPAS,vminMerino)
+    vmax = max(vmaxMPAS,vmaxMerino)
+
+    # plot
+    plt.rcParams["font.family"] = "Times New Roman"
+
+    fig, axes = plt.subplots(2,1)
+
+    # MPAS plot
+    pcMPAS = PatchCollection(patchesMPAS, match_original=True, cmap="jet", norm=mcolors.LogNorm(vmin=vmin, vmax=vmax))
+    pcMPAS.set_array(colorsMPAS)
+    axes[0].add_collection(pcMPAS)
+    divider = make_axes_locatable(axes[0])
+    cax = divider.append_axes('right', size='2%', pad=0.02)
+    cb = fig.colorbar(pcMPAS, cax=cax)
+    cb.set_label("kg/m2/s")
+
+    lcMPAS = LineCollection(lineSegments, color="black", linestyle='solid', linewidth=0.2)
+    axes[0].add_collection(lcMPAS)
+
+    axes[0].autoscale_view()
+
+    axes[0].set_xlim(-180.0,180.0)
+    axes[0].set_ylim(-80.0,-40.0)
+
+    axes[0].set_title("MPAS-Seaice - %s" %(dateStr))
+    
+    # Merino plot
+    sc = axes[1].pcolormesh(longitudeMerino, latitudeMerino, icebergMeltfluxMerino, shading='nearest', cmap='jet', norm=mcolors.LogNorm(vmin=vmin, vmax=vmax))
     divider = make_axes_locatable(axes[1])
     cax = divider.append_axes('right', size='2%', pad=0.02)
     cb = fig.colorbar(sc, cax=cax)
