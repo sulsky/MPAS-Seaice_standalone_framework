@@ -194,8 +194,8 @@ def iceberg_trajectories(filenameTemplate,
         iIceberg += 1
 
     #axis.autoscale_view()
-    axis.set_xlim(-3.5e6,3.5e6)
-    axis.set_ylim(-3.5e6,3.5e6)
+    axis.set_xlim(-4e6,4e6)
+    axis.set_ylim(-4e6,4e6)
 
     axis.set_aspect("equal")
     axis.set_xlabel("x (m)")
@@ -204,7 +204,7 @@ def iceberg_trajectories(filenameTemplate,
     fig.colorbar(lc,label="Volume (m^3)")
 
     plt.tight_layout()
-    plt.savefig("iceberg_trajectories.png",dpi=1200)
+    plt.savefig("iceberg_trajectories.png",dpi=600)
 
 #-------------------------------------------------------------------------------
 

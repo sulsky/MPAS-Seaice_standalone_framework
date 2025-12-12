@@ -19,6 +19,7 @@ def per_cell_plots(filenameIn):
     globalCellIndexIB = fileCell.variables["globalCellIndexIB"][0,:]
     statusIB = fileCell.variables["statusIB"][0,:]
     icebergVolumeCell = fileCell.variables["icebergVolumeCell"][0,:]
+    icebergAreaCell = fileCell.variables["icebergAreaCell"][0,:]
 
     fileCell.close()
 
@@ -36,6 +37,7 @@ def per_cell_plots(filenameIn):
     xVertex = fileMesh.variables["xVertex"][:]
     yVertex = fileMesh.variables["yVertex"][:]
     indexToCellID = fileMesh.variables["indexToCellID"][:]
+    areaCell = fileMesh.variables["areaCell"][:]
 
     fileMesh.close()
 
@@ -46,10 +48,9 @@ def per_cell_plots(filenameIn):
     nIcebergsCell = np.zeros(nCells)
     for iIceberg in range(0,nIcebergs):
         if (statusIB[iIceberg] == 1):
-            print(iIceberg,globalCellIndexIB[iIceberg],statusIB[iIceberg])
             iCell = globalCellIndexMap[globalCellIndexIB[iIceberg]]
             nIcebergsCell[iCell] += 1
-    
+
 
     # plot mesh
     patchesCell = []
@@ -108,6 +109,28 @@ def per_cell_plots(filenameIn):
 
     plt.tight_layout()
     plt.savefig("iceberg_volume_per_cell.png",dpi=1200)
+
+    # area ratio plot
+    icebergAreaCellRatio = icebergAreaCell[:] / areaCell[:]
+
+    fig, axis = plt.subplots()
+
+    axis.set_facecolor('grey')
+
+    pcCell = PatchCollection(patchesCell, match_original=True, cmap=plt.get_cmap('jet'))
+    pcCell.set_array(icebergAreaCellRatio)
+    axis.add_collection(pcCell)
+
+    axis.autoscale_view()
+
+    axis.set_aspect("equal")
+    axis.set_xlabel("x (m)")
+    axis.set_ylabel("y (m)")
+    axis.set_title("Iceberg area fraction")
+    fig.colorbar(pcCell,label="-")
+
+    plt.tight_layout()
+    plt.savefig("iceberg_area_fraction.png",dpi=1200)
 
 #-------------------------------------------------------------------------------
 

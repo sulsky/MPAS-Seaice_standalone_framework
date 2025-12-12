@@ -59,6 +59,7 @@
         <var name="nIcebergRollover"/>
         <var name="rolloverStabilityRatio"/>
         <var name="icebergVolumeCell"/>
+        <var name="icebergAreaCell"/>
         <var name="uVelocityIcebergGeo"/>
         <var name="vVelocityIcebergGeo"/>
         <var name="uAirForceIceberg"/>
@@ -304,6 +305,7 @@
         <var name="icebergSurfaceWaveErosionMeltRateCell"/>
         <var name="icebergBouyantConvectionMeltRateCell"/>
         <var name="icebergVolumeCell"/>
+        <var name="icebergAreaCell"/>
 </stream>
 
 <stream name="timeSeriesStatsClimatologyOutput"
