@@ -108,7 +108,7 @@ def parallelism(mpasDevelopmentDir,
     file1 = "./development1/restarts/%s" %(restart_file)
     file2 = "./development2/restarts/%s" %(restart_file)
 
-    ignoreVarname = ["cellsOnCell","verticesOnCell","edgesOnEdge","edgesOnCell"]
+    ignoreVarname = ["cellsOnCell","verticesOnCell","edgesOnEdge","edgesOnCell","localCellIDCreationMP"]
     if (check):
         ignoreVarname.append("testArrayReproducibility")
         ignoreVarname.append("testArrayRestartability")
