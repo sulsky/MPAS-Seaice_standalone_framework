@@ -1,4 +1,3 @@
-from __future__ import print_function
 import argparse
 from netCDF4 import Dataset
 import numpy as np
@@ -8,11 +7,34 @@ import os, sys, os.path, math
 
 def set_globalID(creationIndexMP,cellIDCreationMP):
 
-    return (creationIndexMP << 32) + cellIDCreationMP
+    numBitsCellIDCreationMP = 17
+    numBitsCreationIndexMP  = 14
+
+    # Create masks to extract the lower n and m bits
+    mask_a = (1 << numBitsCreationIndexMP) - 1      # Mask to get the lowest n bits from a
+    mask_b = (1 << numBitsCellIDCreationMP) - 1     # Mask to get the lowest m bits from b
+
+    # Extract the n least significant bits from a and m least significant bits from b
+    part_a = creationIndexMP & mask_a
+    part_b = cellIDCreationMP & mask_b
+
+    # Shift part_a to the left by m bits to make room for part_b
+    part_a = part_a << numBitsCellIDCreationMP
+
+    # Combine the two parts into a single integer
+    indexToCellIDMP = part_a | part_b
+
+    return indexToCellIDMP
 
 #------------------------------------------------------------------
 
-def add_variable_to_diag_file(file1,variableArray1,variableArray2,variableName,nParticles=None):
+def add_variable_to_diag_file(file1,
+                              variableArray1,
+                              variableArray2,
+                              variableName,
+                              variableDimensionName=None,
+                              nParticles=None,
+                              particlesID=None):
 
     filenameDiag = "vars_differ.nc"
 
@@ -24,13 +46,21 @@ def add_variable_to_diag_file(file1,variableArray1,variableArray2,variableName,n
     varIn = file1[variableName]
     for dimension in varIn.dimensions:
         if (dimension not in fileDiag.dimensions):
-            if (dimension == "nParticles"):
+            if (dimension == variableDimensionName):
                 fileDiag.createDimension(dimension,nParticles)
             else:
                 fileDiag.createDimension(dimension,len(file1.dimensions[dimension]))
 
     varOut = fileDiag.createVariable(varIn.name, varIn.dtype, varIn.dimensions)
     varOut[:] = variableArray2[:] - variableArray1[:]
+
+    if (variableDimensionName is not None and
+        particlesID is not None):
+        try:
+            varOut = fileDiag.createVariable("particlesID", "i", dimensions=[variableDimensionName])
+            varOut[:] = particlesID[:]
+        except:
+            pass
 
     fileDiag.close()
 
@@ -43,7 +73,12 @@ def compare_variable(variableArray1,variableArray2):
 
 #------------------------------------------------------------------
 
-def compare_particle_variable(variableArray1,variableArray2,statusMP1,statusMP2,particlesOrder1,particlesOrder2):
+def compare_particle_variable(variableArray1,
+                              variableArray2,
+                              statusMP1,
+                              statusMP2,
+                              particlesOrder1,
+                              particlesOrder2):
     # return true if same
 
     if (variableArray1.ndim == 2):
@@ -66,6 +101,28 @@ def compare_particle_variable(variableArray1,variableArray2,statusMP1,statusMP2,
 #------------------------------------------------------------------
 
 def compare_files(filename1, filename2, logfile, variableNamesIgnore=[]):
+
+    # variable dimensions
+    variableDimensionNames = ["nParticles",
+                              "nIcebergs"]
+
+    hasVariableDimension = {}
+
+    statusName = {"nParticles":"statusMP",
+                  "nIcebergs" :"statusIB"}
+
+    creationIndexName = {"nParticles":"creationIndexMP",
+                         "nIcebergs" :"creationIndexIB"}
+
+    cellIDCreationName = {"nParticles":"cellIDCreationMP",
+                          "nIcebergs" :"cellIDCreationIB"}
+
+    nParticlesStatus1 = {}
+    nParticlesStatus2 = {}
+    statusMP1 = {}
+    statusMP2 = {}
+    particlesOrder1 = {}
+    particlesOrder2 = {}
 
     # init error numbers
     nErrorsNonArray = 0
@@ -104,7 +161,7 @@ def compare_files(filename1, filename2, logfile, variableNamesIgnore=[]):
 
     for dimensionName in dimensionsNameIntersection:
 
-        if (dimensionName != "nParticles"):
+        if (dimensionName not in variableDimensionNames):
 
             len1 = len(file1.dimensions[dimensionName])
             len2 = len(file2.dimensions[dimensionName])
@@ -114,45 +171,53 @@ def compare_files(filename1, filename2, logfile, variableNamesIgnore=[]):
                 logfile.write("Dimension sizes differ: %i v %i for %s\n" %(len1, len2, dimensionName))
                 nErrorsNonArray = nErrorsNonArray + 1
 
-    # particles
-    hasParticles = False
-    if ("nParticles" in dimensionNames1 and
-        "nParticles" in dimensionNames2):
+    # variable dimensions
+    for variableDimensionName in variableDimensionNames:
 
-        nParticles1 = len(file1.dimensions["nParticles"])
-        nParticles2 = len(file2.dimensions["nParticles"])
+        hasVariableDimension[variableDimensionName] = False
+        if (variableDimensionName in dimensionNames1 and
+            variableDimensionName in dimensionNames2):
 
-        statusMP1 = file1.variables["statusMP"][0,:]
-        statusMP2 = file2.variables["statusMP"][0,:]
-        nParticlesStatus1 = np.count_nonzero(statusMP1)
-        nParticlesStatus2 = np.count_nonzero(statusMP2)
+            nParticles1 = len(file1.dimensions[variableDimensionName])
+            nParticles2 = len(file2.dimensions[variableDimensionName])
 
-        if (nParticlesStatus1 == nParticlesStatus2):
-            hasParticles = True
+            statusMP1[variableDimensionName] = file1.variables[statusName[variableDimensionName]][0,:]
+            statusMP2[variableDimensionName] = file2.variables[statusName[variableDimensionName]][0,:]
+            nParticlesStatus1[variableDimensionName] = np.count_nonzero(statusMP1[variableDimensionName])
+            nParticlesStatus2[variableDimensionName] = np.count_nonzero(statusMP2[variableDimensionName])
 
-            creationIndexMP1  = file1.variables["creationIndexMP"][0,:]
-            cellIDCreationMP1 = file1.variables["cellIDCreationMP"][0,:]
+            creationIndexMP1  = file1.variables[creationIndexName [variableDimensionName]][0,:]
+            cellIDCreationMP1 = file1.variables[cellIDCreationName[variableDimensionName]][0,:]
 
-            creationIndexMP2  = file2.variables["creationIndexMP"][0,:]
-            cellIDCreationMP2 = file2.variables["cellIDCreationMP"][0,:]
+            creationIndexMP2  = file2.variables[creationIndexName [variableDimensionName]][0,:]
+            cellIDCreationMP2 = file2.variables[cellIDCreationName[variableDimensionName]][0,:]
 
             globalID1 = []
             globalID2 = []
             for iParticle in range(0,nParticles1):
-                if (statusMP1[iParticle] == 1):
+                if (statusMP1[variableDimensionName][iParticle] == 1):
                     globalID = set_globalID(creationIndexMP1[iParticle],cellIDCreationMP1[iParticle])
                     globalID1.append(globalID)
             for iParticle in range(0,nParticles2):
-                if (statusMP2[iParticle] == 1):
+                if (statusMP2[variableDimensionName][iParticle] == 1):
                     globalID = set_globalID(creationIndexMP2[iParticle],cellIDCreationMP2[iParticle])
                     globalID2.append(globalID)
             globalID1 = np.array(globalID1)
             globalID2 = np.array(globalID2)
-            particlesOrder1 = np.argsort(globalID1)
-            particlesOrder2 = np.argsort(globalID2)
-        else:
-            logfile.write("nParticlesStatus differ: %i %i\n" %(nParticlesStatus1,nParticlesStatus2))
-            nErrorsNonArray = nErrorsNonArray + 1
+            particlesOrder1[variableDimensionName] = np.argsort(globalID1)
+            particlesOrder2[variableDimensionName] = np.argsort(globalID2)
+
+            if (nParticlesStatus1[variableDimensionName] == nParticlesStatus2[variableDimensionName]):
+                hasVariableDimension[variableDimensionName] = True
+            else:
+                logfile.write("nParticlesStatus differ: %i %i\n" %(nParticlesStatus1[variableDimensionName],nParticlesStatus2[variableDimensionName]))
+                globalID1not2s = np.setdiff1d(globalID1,globalID2)
+                globalID2not1s = np.setdiff1d(globalID2,globalID1)
+                for globalID1not2 in globalID1not2s:
+                    logfile.write("  globalID in 1 not 2: %i\n" %(globalID1not2))
+                for globalID2not1 in globalID2not1s:
+                    logfile.write("  globalID in 2 not 1: %i\n" %(globalID2not1))
+                nErrorsNonArray = nErrorsNonArray + 1
 
     # variables comparison
     variableNames1 = set(file1.variables.keys())
@@ -161,7 +226,7 @@ def compare_files(filename1, filename2, logfile, variableNamesIgnore=[]):
     # allow comparison if names have changed
     # e.g. renamed = {"oldName":"newName"}
     # renamed = {}
-    renamed = {"iceAreaMP":"iceAreaCellMP",
+    renamed = {"iceAreaMP"  :"iceAreaCellMP",
                "iceVolumeMP":"iceVolumeCellMP"}
 
     renamedOldToNew = {}
@@ -202,12 +267,12 @@ def compare_files(filename1, filename2, logfile, variableNamesIgnore=[]):
         dimensionsIn2Not1 = dimensions2.difference(dimensions1)
 
         for dimensionName in dimensionsIn1Not2:
-            if (dimensionName != "nParticles"):
+            if (dimensionName not in variableDimensionNames):
                 logfile.write("Variable dimension found in file 1 and not file 2: %s %s\n" %(variableName,dimensionName))
                 nErrorsNonArray = nErrorsNonArray + 1
 
         for dimensionName in dimensionsIn2Not1:
-            if (dimensionName != "nParticles"):
+            if (dimensionName not in variableDimensionNames):
                 logfile.write("Variable dimension found in file 2 and not file 1: %s %s\n" %(variableName,dimensionName))
                 nErrorsNonArray = nErrorsNonArray + 1
 
@@ -237,7 +302,7 @@ def compare_files(filename1, filename2, logfile, variableNamesIgnore=[]):
             arrayOK = True
 
             # check array sizes
-            if ("nParticles" not in variable1.dimensions):
+            if (not any(x in variableDimensionNames for x in variable1.dimensions)):
                 for iDim in range(0,rank1):
 
                     if (shape1[iDim] != shape2[iDim]):
@@ -250,20 +315,38 @@ def compare_files(filename1, filename2, logfile, variableNamesIgnore=[]):
 
                 # compare array values
                 if (variableName not in variableNamesIgnore):
-                    if ("nParticles" in variable1.dimensions and hasParticles):
-                        arraysEqual, arr1, arr2 = compare_particle_variable(variableArray1,variableArray2,statusMP1,statusMP2,particlesOrder1,particlesOrder2)
-                        if (not arraysEqual):
-                            diff = arr2[:] - arr1[:]
-                            minVal = np.amin(diff)
-                            maxVal = np.amax(diff)
-                            L2Norm = np.linalg.norm(diff)
-                            L2ErrorNorm = math.sqrt(np.sum(np.power(diff,2))/np.sum(np.power(arr1,2)))
 
-                            logfile.write("Arrays %s differ! min: %g, max: %g, L2: %g L2 rel: %g\n" %(variableName,minVal,maxVal,L2Norm,L2ErrorNorm))
-                            add_variable_to_diag_file(file1,arr1,arr2,variableName,nParticlesStatus1)
-                            nErrorsArray = nErrorsArray + 1
+                    for variableDimensionName in variableDimensionNames:
+                        if (variableDimensionName in variable1.dimensions and
+                            hasVariableDimension[variableDimensionName]):
+                            arraysEqual, arr1, arr2 = compare_particle_variable(variableArray1,
+                                                                                variableArray2,
+                                                                                statusMP1[variableDimensionName],
+                                                                                statusMP2[variableDimensionName],
+                                                                                particlesOrder1[variableDimensionName],
+                                                                                particlesOrder2[variableDimensionName])
+                            if (not arraysEqual):
+                                diff = arr2[:] - arr1[:]
+                                minVal = np.amin(diff)
+                                maxVal = np.amax(diff)
+                                L2Norm = np.linalg.norm(diff)
+                                tmp = np.sum(np.power(diff,2))/np.sum(np.power(arr1,2))
+                                if (tmp < 0.0):
+                                    L2ErrorNorm = -999.9
+                                else:
+                                    L2ErrorNorm = math.sqrt(tmp)
 
-                    if ("nParticles" not in variable1.dimensions and
+                                logfile.write("Arrays %s differ! min: %g, max: %g, L2: %g L2 rel: %g\n" %(variableName,minVal,maxVal,L2Norm,L2ErrorNorm))
+                                add_variable_to_diag_file(file1,
+                                                          arr1,
+                                                          arr2,
+                                                          variableName,
+                                                          variableDimensionName,
+                                                          nParticlesStatus1[variableDimensionName],
+                                                          globalID1[particlesOrder1[variableDimensionName]])
+                                nErrorsArray = nErrorsArray + 1
+
+                    if (not any(x in variableDimensionNames for x in variable1.dimensions) and
                         not compare_variable(variableArray1,variableArray2)):
 
                         if (variableArray1.ndim != 0):
@@ -274,7 +357,10 @@ def compare_files(filename1, filename2, logfile, variableNamesIgnore=[]):
                             L2ErrorNorm = math.sqrt(np.sum(np.power(diff,2))/np.sum(np.power(variableArray1,2)))
 
                             logfile.write("Arrays %s differ! min: %g, max: %g, L2: %g L2 rel: %g\n" %(variableName,minVal,maxVal,L2Norm,L2ErrorNorm))
-                            add_variable_to_diag_file(file1,variableArray1,variableArray2,variableName)
+                            add_variable_to_diag_file(file1,
+                                                      variableArray1,
+                                                      variableArray2,
+                                                      variableName)
                             nErrorsArray = nErrorsArray + 1
 
                         else:

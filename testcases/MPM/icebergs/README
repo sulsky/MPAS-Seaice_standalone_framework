@@ -1,0 +1,6 @@
+MPM icebergs testcase
+=====================
+
+To run this test case domain data is required. This is obtained by running:
+python ${MPAS_SEAICE_DOMAINS_DIR}/domain_QU30km_icebergs/get_domain.py
+with an up-to-date MPAS_SEAICE_DOMAINS_DIR contents

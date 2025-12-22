@@ -1,4 +1,3 @@
-from __future__ import print_function
 from testing_utils import colour_init, print_colour, final_summary
 import argparse
 import sys

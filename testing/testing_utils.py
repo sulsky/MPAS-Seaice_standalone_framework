@@ -1,5 +1,22 @@
-from __future__ import print_function
-import os, shutil, sys
+import os, shutil, sys, datetime
+
+#-------------------------------------------------------------------------
+
+def run_duration(runDurationInterval, factor=1):
+
+    intervalType = runDurationInterval.split(":")[0]
+    intervalValue = int(runDurationInterval.split(":")[1])*factor
+
+    if (intervalType == "HOURS"):
+        runDuration = datetime.timedelta(hours=intervalValue)
+        runDurationStr = "%2.2i:00:00" %(intervalValue)
+    elif (intervalType == "DAYS"):
+        runDuration = datetime.timedelta(days=intervalValue)
+        runDurationStr = "%i_00:00:00" %(intervalValue)
+    else:
+        raise Exception("Unsupported time interval type: ", intervalType, " with value: %i" %(intervalValue))
+
+    return runDuration, runDurationStr
 
 #-------------------------------------------------------------------------
 
@@ -145,7 +162,7 @@ def final_summary(nTests, nFails):
             print("%i tests (%i passed, %i failed)" %(nTests, nPasses, nFails))
 
 #-------------------------------------------------------------------------
-# namelist manupulation
+# namelist manipulation
 #-------------------------------------------------------------------------
 
 def create_new_namelist(filenameIn, filenameOut, nmlPatch):
@@ -168,7 +185,7 @@ def add_pio_namelist_changes(nmlChanges, nProcs):
     return nmlChanges
 
 #-------------------------------------------------------------------------
-# streams manupulation
+# streams manipulation
 #-------------------------------------------------------------------------
 
 def create_new_streams(filenameIn, filenameOut, changes):
