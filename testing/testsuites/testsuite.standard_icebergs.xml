@@ -2,6 +2,9 @@
 <testsuite name="standard_icebergs">
     <configuration name="standard_icebergs">
 	<domain name="domain_QU30km_icebergs">
+	    <test name="regression">
+                <option name="runDuration" value="DAYS:120"/>
+            </test>
 	    <test name="parallelism">
                 <option name="runDuration" value="DAYS:120"/>
             </test>
