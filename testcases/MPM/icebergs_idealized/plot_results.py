@@ -136,7 +136,7 @@ def plot_coriolis():
         antialiased=True
     )
 
-    lats = np.deg2rad(np.arange(-60, 61, 30))  # degrees → radians
+    lats = np.deg2rad(np.arange(-60, 61, 30))
     phi = np.linspace(0, 2*np.pi, 200)
 
     for lat in lats:

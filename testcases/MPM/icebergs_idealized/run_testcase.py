@@ -183,7 +183,7 @@ def run_testcase():
                        np.array([0.0]),
                        np.array([1000.0]),
                        np.array([1000.0]),
-                       "icebergs.nc")
+                       "icebergs_equator.nc")
 
     write_iceberg_file(1,
                        np.array([pi/4.0]),
