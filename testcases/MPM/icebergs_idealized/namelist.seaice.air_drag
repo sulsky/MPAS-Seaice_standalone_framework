@@ -3,13 +3,13 @@
     config_calendar_type = 'noleap'
     config_start_time = '2000-01-01_00:00:00'
     config_stop_time = 'none'
-    config_run_duration = '10-00-00_00:00:00'
+    config_run_duration = '00-06-00_00:00:00'
     config_num_halos = 2
 /
 &io
     config_pio_num_iotasks = 0
     config_pio_stride = 1
-    config_write_output_on_startup = false
+    config_write_output_on_startup = true
     config_test_case_diag = false
     config_test_case_diag_type = 'none'
     config_full_abort_write = true
@@ -57,7 +57,7 @@
     config_use_velocity_solver = false
     config_use_mpm = false
     config_use_advection = false
-    config_use_forcing = true
+    config_use_forcing = false
     config_use_column_physics = false
     config_use_prescribed_ice = false
     config_use_prescribed_ice_forcing = false
@@ -85,7 +85,7 @@
 /
 &velocity_solver
     config_dynamics_subcycle_number = 1
-    config_rotate_cartesian_grid = true
+    config_rotate_cartesian_grid = false
     config_include_metric_terms = true
     config_elastic_subcycle_number = 120
     config_strain_scheme = 'mpm'
@@ -126,7 +126,7 @@
     config_mpm_polympo_init_test = false
 /
 &mpm_icebergs
-    config_iceberg_read_in_from_file_at_start = false
+    config_iceberg_read_in_from_file_at_start = true
     config_iceberg_initial_height = 250.0
     config_mpm_iceberg_block_size = 128
     config_minimum_iceberg_area = 1e6
@@ -134,20 +134,36 @@
     config_iceberg_area_pdf_exponent_physical = -1.5
     config_iceberg_area_pdf_exponent_sampling = -1.5
     config_iceberg_initial_length_to_width_ratio = 1.5
-    config_create_icebergs_during_simulation = true
+    config_create_icebergs_during_simulation = false
     config_iceberg_generation_type = "category"
-    config_iceberg_use_surface_wave_ablation = true
-    config_iceberg_use_bouyant_convection_ablation = true
-    config_iceberg_use_basal_melt_ablation = true
+    config_iceberg_use_surface_wave_ablation = false
+    config_iceberg_use_bouyant_convection_ablation = false
+    config_iceberg_use_basal_melt_ablation = false
     config_iceberg_velocity_update_type = "momentum"
     config_iceberg_coastal_movement_type = "fixed"
-    config_iceberg_use_rollover = true
+    config_iceberg_use_rollover = false
     config_iceberg_max_number_of_rollovers = 5
     config_iceberg_density = 850.0
+    config_iceberg_use_coriolis_force = false
+    config_iceberg_use_air_drag_force = true
     config_iceberg_air_form_drag_coefficient = 0.9
     config_iceberg_air_skin_drag_coefficient = 0.0
+    config_iceberg_use_ocean_drag_force = false
     config_iceberg_ocean_form_drag_coefficient = 1.3
     config_iceberg_ocean_skin_drag_coefficient = 0.0
+    config_iceberg_use_surface_tilt_force = false
+    config_iceberg_use_wave_radiation_force = false
+    config_iceberg_size_wave_damping_coefficient = 0.06
+    config_iceberg_wavelength_coefficient = 0.32
+    config_iceberg_wave_amplitude_coefficient = 0.010125
+    config_iceberg_wavelength_cutoff_coefficient = 0.125
+    config_iceberg_wavelength_upper_limit_coefficient = 0.25
+    config_iceberg_use_seaice_force = false
+    config_iceberg_seaice_concentration_lower_limit = 0.15
+    config_iceberg_seaice_concentration_capture_limit = 0.9
+    config_iceberg_seaice_pressure_limit_force = 1e4
+    config_iceberg_seaice_drag_coefficient = 1.0
+    config_iceberg_use_captured_force_on_sea_ice = false
     config_iceberg_size_type = "angle_integral"
     config_iceberg_use_conservation_check = false
 /
