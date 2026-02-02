@@ -1,5 +1,6 @@
 from run_model import run_model
 from create_particles import create_particles
+from plot_disks import plot_disks
 
 import sys, os
 
@@ -61,6 +62,11 @@ def run_testcase(meshtype, logFilename=None):
     print("Run model")
     print("=================")
     run_model()
+
+    print("=================")
+    print("Plotting...")
+    print("=================")
+    plot_disks()
 
     if (logFile is not None):
         logFile.close()
