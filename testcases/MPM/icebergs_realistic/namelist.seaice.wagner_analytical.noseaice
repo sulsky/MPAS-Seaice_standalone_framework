@@ -158,7 +158,7 @@
     config_iceberg_wave_amplitude_coefficient = 0.010125
     config_iceberg_wavelength_cutoff_coefficient = 0.125
     config_iceberg_wavelength_upper_limit_coefficient = 0.25
-    config_iceberg_use_seaice_force = true
+    config_iceberg_use_seaice_force = false
     config_iceberg_seaice_concentration_lower_limit = 0.15
     config_iceberg_seaice_concentration_capture_limit = 0.9
     config_iceberg_seaice_pressure_limit_force = 1e4
@@ -549,7 +549,7 @@
     config_AM_timeSeriesStatsDaily_backward_output_offset = '00-00-01_00:00:00'
 /
 &AM_timeSeriesStatsMonthly
-    config_AM_timeSeriesStatsMonthly_enable = false
+    config_AM_timeSeriesStatsMonthly_enable = true
     config_AM_timeSeriesStatsMonthly_compute_on_startup = false
     config_AM_timeSeriesStatsMonthly_write_on_startup = false
     config_AM_timeSeriesStatsMonthly_compute_interval = 'dt'
