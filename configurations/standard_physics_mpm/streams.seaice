@@ -47,7 +47,6 @@
         <var name="posnMP"/>
 </stream>
 
-
 <immutable_stream name="LYqSixHourlyForcing"
                   type="input"
                   filename_template="forcing/atmosphere_forcing_six_hourly.$Y.nc"

@@ -61,6 +61,9 @@
         <var name="indexToCellIDMP"/>
         <var name="procIDParticle"/>
         <var name="posnMP"/>
+        <var name="decohesionOpeningMP"/>
+        <var name="decohesionCrackEndPoints"/>
+        <var name="decohesionCrackEdgeIndex"/>
         <var name="iceAreaCellMP"/>
         <var name="iceVolumeCellMP"/>
         <var name="snowVolumeCellMP"/>

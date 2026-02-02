@@ -122,6 +122,15 @@
     config_mpm_assembly_test = false
     config_mpm_polympo_init_test = false
 /
+&elastic_decohesion_model
+    config_youngs_modulus = 1.e6
+    config_poissons_ratio = 0.3
+    config_tensile_strength = 25.e3
+    config_compressive_strength = 125.e3
+    config_shear_strength = 75.e3
+    config_shear_magnification_factor = 4.0
+    config_jump_scale_factor = 4000.0
+/
 &column_package
     config_column_physics_type = 'icepack'
     config_column_element_type = 'particles'

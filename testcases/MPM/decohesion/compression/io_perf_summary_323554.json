@@ -1,0 +1,366 @@
+{
+  "ScorpioIOSummaryStatistics":{
+    "OverallIOStatistics":{
+      "name" : "Scorpio",
+      "spio_stats_version" : "1.0.0",
+      "avg_wtput(MB/s)" : 24.225664,
+      "avg_rtput(MB/s)" : 2.356225,
+      "tot_wb(bytes)" : 41422215,
+      "tot_rb(bytes)" : 5866401,
+      "tot_wtime(s)" : 1.630639,
+      "tot_rtime(s)" : 2.374406,
+      "tot_time(s)" : 4.088295
+      }
+    ,
+    "ModelComponentIOStatistics":[
+      {
+        "name" : "UNKNOWN:SPIO_COMP_002048id01tasks01io00_tmp_name",
+        "avg_wtput(MB/s)" : 24.225664,
+        "avg_rtput(MB/s)" : 2.356225,
+        "tot_wb(bytes)" : 41422215,
+        "tot_rb(bytes)" : 5866401,
+        "tot_wtime(s)" : 1.630639,
+        "tot_rtime(s)" : 2.374406,
+        "tot_time(s)" : 4.088295
+        }
+      ]
+    ,
+    "FileIOStatistics":[
+      {
+        "name" : "grid.nc",
+        "model_component_name" : "UNKNOWN:SPIO_COMP_002048id01tasks01io00_tmp_name",
+        "avg_wtput(MB/s)" : 0.000000,
+        "avg_rtput(MB/s)" : 2.406193,
+        "tot_wb(bytes)" : 0,
+        "tot_rb(bytes)" : 5063585,
+        "tot_wtime(s)" : 0.000000,
+        "tot_rtime(s)" : 2.006910,
+        "tot_time(s)" : 2.008071
+        }
+      ,
+      {
+        "name" : "ic.nc",
+        "model_component_name" : "UNKNOWN:SPIO_COMP_002048id01tasks01io00_tmp_name",
+        "avg_wtput(MB/s)" : 0.000000,
+        "avg_rtput(MB/s)" : 2.075861,
+        "tot_wb(bytes)" : 0,
+        "tot_rb(bytes)" : 147456,
+        "tot_wtime(s)" : 0.000000,
+        "tot_rtime(s)" : 0.067743,
+        "tot_time(s)" : 0.067913
+        }
+      ,
+      {
+        "name" : "output/output.2000.nc",
+        "model_component_name" : "UNKNOWN:SPIO_COMP_002048id01tasks01io00_tmp_name",
+        "avg_wtput(MB/s)" : 20.036070,
+        "avg_rtput(MB/s)" : 0.000000,
+        "tot_wb(bytes)" : 16153335,
+        "tot_rb(bytes)" : 0,
+        "tot_wtime(s)" : 0.768864,
+        "tot_rtime(s)" : 0.000000,
+        "tot_time(s)" : 0.769971
+        }
+      ,
+      {
+        "name" : "output/particles_output.2000-01-01_01.00.00.nc",
+        "model_component_name" : "UNKNOWN:SPIO_COMP_002048id01tasks01io00_tmp_name",
+        "avg_wtput(MB/s)" : 22.015181,
+        "avg_rtput(MB/s)" : 0.000000,
+        "tot_wb(bytes)" : 1052870,
+        "tot_rb(bytes)" : 0,
+        "tot_wtime(s)" : 0.045609,
+        "tot_rtime(s)" : 0.000000,
+        "tot_time(s)" : 0.046328
+        }
+      ,
+      {
+        "name" : "output/particles_output.2000-01-01_02.00.00.nc",
+        "model_component_name" : "UNKNOWN:SPIO_COMP_002048id01tasks01io00_tmp_name",
+        "avg_wtput(MB/s)" : 24.025667,
+        "avg_rtput(MB/s)" : 0.000000,
+        "tot_wb(bytes)" : 1052870,
+        "tot_rb(bytes)" : 0,
+        "tot_wtime(s)" : 0.041793,
+        "tot_rtime(s)" : 0.000000,
+        "tot_time(s)" : 0.042457
+        }
+      ,
+      {
+        "name" : "output/particles_output.2000-01-01_03.00.00.nc",
+        "model_component_name" : "UNKNOWN:SPIO_COMP_002048id01tasks01io00_tmp_name",
+        "avg_wtput(MB/s)" : 31.476215,
+        "avg_rtput(MB/s)" : 0.000000,
+        "tot_wb(bytes)" : 1052870,
+        "tot_rb(bytes)" : 0,
+        "tot_wtime(s)" : 0.031900,
+        "tot_rtime(s)" : 0.000000,
+        "tot_time(s)" : 0.032519
+        }
+      ,
+      {
+        "name" : "output/particles_output.2000-01-01_04.00.00.nc",
+        "model_component_name" : "UNKNOWN:SPIO_COMP_002048id01tasks01io00_tmp_name",
+        "avg_wtput(MB/s)" : 22.562233,
+        "avg_rtput(MB/s)" : 0.000000,
+        "tot_wb(bytes)" : 1052870,
+        "tot_rb(bytes)" : 0,
+        "tot_wtime(s)" : 0.044503,
+        "tot_rtime(s)" : 0.000000,
+        "tot_time(s)" : 0.045249
+        }
+      ,
+      {
+        "name" : "output/particles_output.2000-01-01_05.00.00.nc",
+        "model_component_name" : "UNKNOWN:SPIO_COMP_002048id01tasks01io00_tmp_name",
+        "avg_wtput(MB/s)" : 22.511670,
+        "avg_rtput(MB/s)" : 0.000000,
+        "tot_wb(bytes)" : 1052870,
+        "tot_rb(bytes)" : 0,
+        "tot_wtime(s)" : 0.044603,
+        "tot_rtime(s)" : 0.000000,
+        "tot_time(s)" : 0.045348
+        }
+      ,
+      {
+        "name" : "output/particles_output.2000-01-01_06.00.00.nc",
+        "model_component_name" : "UNKNOWN:SPIO_COMP_002048id01tasks01io00_tmp_name",
+        "avg_wtput(MB/s)" : 23.229286,
+        "avg_rtput(MB/s)" : 0.000000,
+        "tot_wb(bytes)" : 1052870,
+        "tot_rb(bytes)" : 0,
+        "tot_wtime(s)" : 0.043225,
+        "tot_rtime(s)" : 0.000000,
+        "tot_time(s)" : 0.043964
+        }
+      ,
+      {
+        "name" : "output/particles_output.2000-01-01_07.00.00.nc",
+        "model_component_name" : "UNKNOWN:SPIO_COMP_002048id01tasks01io00_tmp_name",
+        "avg_wtput(MB/s)" : 32.130238,
+        "avg_rtput(MB/s)" : 0.000000,
+        "tot_wb(bytes)" : 1052870,
+        "tot_rb(bytes)" : 0,
+        "tot_wtime(s)" : 0.031251,
+        "tot_rtime(s)" : 0.000000,
+        "tot_time(s)" : 0.031892
+        }
+      ,
+      {
+        "name" : "output/particles_output.2000-01-01_08.00.00.nc",
+        "model_component_name" : "UNKNOWN:SPIO_COMP_002048id01tasks01io00_tmp_name",
+        "avg_wtput(MB/s)" : 31.031574,
+        "avg_rtput(MB/s)" : 0.000000,
+        "tot_wb(bytes)" : 1052870,
+        "tot_rb(bytes)" : 0,
+        "tot_wtime(s)" : 0.032357,
+        "tot_rtime(s)" : 0.000000,
+        "tot_time(s)" : 0.033041
+        }
+      ,
+      {
+        "name" : "output/particles_output.2000-01-01_09.00.00.nc",
+        "model_component_name" : "UNKNOWN:SPIO_COMP_002048id01tasks01io00_tmp_name",
+        "avg_wtput(MB/s)" : 31.641067,
+        "avg_rtput(MB/s)" : 0.000000,
+        "tot_wb(bytes)" : 1052870,
+        "tot_rb(bytes)" : 0,
+        "tot_wtime(s)" : 0.031734,
+        "tot_rtime(s)" : 0.000000,
+        "tot_time(s)" : 0.032382
+        }
+      ,
+      {
+        "name" : "output/particles_output.2000-01-01_10.00.00.nc",
+        "model_component_name" : "UNKNOWN:SPIO_COMP_002048id01tasks01io00_tmp_name",
+        "avg_wtput(MB/s)" : 23.227069,
+        "avg_rtput(MB/s)" : 0.000000,
+        "tot_wb(bytes)" : 1052870,
+        "tot_rb(bytes)" : 0,
+        "tot_wtime(s)" : 0.043230,
+        "tot_rtime(s)" : 0.000000,
+        "tot_time(s)" : 0.044088
+        }
+      ,
+      {
+        "name" : "output/particles_output.2000-01-01_11.00.00.nc",
+        "model_component_name" : "UNKNOWN:SPIO_COMP_002048id01tasks01io00_tmp_name",
+        "avg_wtput(MB/s)" : 31.147213,
+        "avg_rtput(MB/s)" : 0.000000,
+        "tot_wb(bytes)" : 1052870,
+        "tot_rb(bytes)" : 0,
+        "tot_wtime(s)" : 0.032237,
+        "tot_rtime(s)" : 0.000000,
+        "tot_time(s)" : 0.032922
+        }
+      ,
+      {
+        "name" : "output/particles_output.2000-01-01_12.00.00.nc",
+        "model_component_name" : "UNKNOWN:SPIO_COMP_002048id01tasks01io00_tmp_name",
+        "avg_wtput(MB/s)" : 22.669756,
+        "avg_rtput(MB/s)" : 0.000000,
+        "tot_wb(bytes)" : 1052870,
+        "tot_rb(bytes)" : 0,
+        "tot_wtime(s)" : 0.044292,
+        "tot_rtime(s)" : 0.000000,
+        "tot_time(s)" : 0.045081
+        }
+      ,
+      {
+        "name" : "output/particles_output.2000-01-01_13.00.00.nc",
+        "model_component_name" : "UNKNOWN:SPIO_COMP_002048id01tasks01io00_tmp_name",
+        "avg_wtput(MB/s)" : 31.975211,
+        "avg_rtput(MB/s)" : 0.000000,
+        "tot_wb(bytes)" : 1052870,
+        "tot_rb(bytes)" : 0,
+        "tot_wtime(s)" : 0.031402,
+        "tot_rtime(s)" : 0.000000,
+        "tot_time(s)" : 0.032050
+        }
+      ,
+      {
+        "name" : "output/particles_output.2000-01-01_14.00.00.nc",
+        "model_component_name" : "UNKNOWN:SPIO_COMP_002048id01tasks01io00_tmp_name",
+        "avg_wtput(MB/s)" : 32.069117,
+        "avg_rtput(MB/s)" : 0.000000,
+        "tot_wb(bytes)" : 1052870,
+        "tot_rb(bytes)" : 0,
+        "tot_wtime(s)" : 0.031310,
+        "tot_rtime(s)" : 0.000000,
+        "tot_time(s)" : 0.031998
+        }
+      ,
+      {
+        "name" : "output/particles_output.2000-01-01_15.00.00.nc",
+        "model_component_name" : "UNKNOWN:SPIO_COMP_002048id01tasks01io00_tmp_name",
+        "avg_wtput(MB/s)" : 31.342189,
+        "avg_rtput(MB/s)" : 0.000000,
+        "tot_wb(bytes)" : 1052870,
+        "tot_rb(bytes)" : 0,
+        "tot_wtime(s)" : 0.032037,
+        "tot_rtime(s)" : 0.000000,
+        "tot_time(s)" : 0.032757
+        }
+      ,
+      {
+        "name" : "output/particles_output.2000-01-01_16.00.00.nc",
+        "model_component_name" : "UNKNOWN:SPIO_COMP_002048id01tasks01io00_tmp_name",
+        "avg_wtput(MB/s)" : 30.063195,
+        "avg_rtput(MB/s)" : 0.000000,
+        "tot_wb(bytes)" : 1052870,
+        "tot_rb(bytes)" : 0,
+        "tot_wtime(s)" : 0.033399,
+        "tot_rtime(s)" : 0.000000,
+        "tot_time(s)" : 0.034089
+        }
+      ,
+      {
+        "name" : "output/particles_output.2000-01-01_17.00.00.nc",
+        "model_component_name" : "UNKNOWN:SPIO_COMP_002048id01tasks01io00_tmp_name",
+        "avg_wtput(MB/s)" : 31.259507,
+        "avg_rtput(MB/s)" : 0.000000,
+        "tot_wb(bytes)" : 1052870,
+        "tot_rb(bytes)" : 0,
+        "tot_wtime(s)" : 0.032121,
+        "tot_rtime(s)" : 0.000000,
+        "tot_time(s)" : 0.032841
+        }
+      ,
+      {
+        "name" : "output/particles_output.2000-01-01_18.00.00.nc",
+        "model_component_name" : "UNKNOWN:SPIO_COMP_002048id01tasks01io00_tmp_name",
+        "avg_wtput(MB/s)" : 30.801936,
+        "avg_rtput(MB/s)" : 0.000000,
+        "tot_wb(bytes)" : 1052870,
+        "tot_rb(bytes)" : 0,
+        "tot_wtime(s)" : 0.032598,
+        "tot_rtime(s)" : 0.000000,
+        "tot_time(s)" : 0.033327
+        }
+      ,
+      {
+        "name" : "output/particles_output.2000-01-01_19.00.00.nc",
+        "model_component_name" : "UNKNOWN:SPIO_COMP_002048id01tasks01io00_tmp_name",
+        "avg_wtput(MB/s)" : 30.705926,
+        "avg_rtput(MB/s)" : 0.000000,
+        "tot_wb(bytes)" : 1052870,
+        "tot_rb(bytes)" : 0,
+        "tot_wtime(s)" : 0.032700,
+        "tot_rtime(s)" : 0.000000,
+        "tot_time(s)" : 0.033423
+        }
+      ,
+      {
+        "name" : "output/particles_output.2000-01-01_20.00.00.nc",
+        "model_component_name" : "UNKNOWN:SPIO_COMP_002048id01tasks01io00_tmp_name",
+        "avg_wtput(MB/s)" : 30.627768,
+        "avg_rtput(MB/s)" : 0.000000,
+        "tot_wb(bytes)" : 1052870,
+        "tot_rb(bytes)" : 0,
+        "tot_wtime(s)" : 0.032784,
+        "tot_rtime(s)" : 0.000000,
+        "tot_time(s)" : 0.033492
+        }
+      ,
+      {
+        "name" : "output/particles_output.2000-01-01_21.00.00.nc",
+        "model_component_name" : "UNKNOWN:SPIO_COMP_002048id01tasks01io00_tmp_name",
+        "avg_wtput(MB/s)" : 22.564272,
+        "avg_rtput(MB/s)" : 0.000000,
+        "tot_wb(bytes)" : 1052870,
+        "tot_rb(bytes)" : 0,
+        "tot_wtime(s)" : 0.044499,
+        "tot_rtime(s)" : 0.000000,
+        "tot_time(s)" : 0.045340
+        }
+      ,
+      {
+        "name" : "output/particles_output.2000-01-01_22.00.00.nc",
+        "model_component_name" : "UNKNOWN:SPIO_COMP_002048id01tasks01io00_tmp_name",
+        "avg_wtput(MB/s)" : 31.526944,
+        "avg_rtput(MB/s)" : 0.000000,
+        "tot_wb(bytes)" : 1052870,
+        "tot_rb(bytes)" : 0,
+        "tot_wtime(s)" : 0.031849,
+        "tot_rtime(s)" : 0.000000,
+        "tot_time(s)" : 0.032646
+        }
+      ,
+      {
+        "name" : "output/particles_output.2000-01-01_23.00.00.nc",
+        "model_component_name" : "UNKNOWN:SPIO_COMP_002048id01tasks01io00_tmp_name",
+        "avg_wtput(MB/s)" : 31.012943,
+        "avg_rtput(MB/s)" : 0.000000,
+        "tot_wb(bytes)" : 1052870,
+        "tot_rb(bytes)" : 0,
+        "tot_wtime(s)" : 0.032377,
+        "tot_rtime(s)" : 0.000000,
+        "tot_time(s)" : 0.033153
+        }
+      ,
+      {
+        "name" : "output/particles_output.2000-01-02_00.00.00.nc",
+        "model_component_name" : "UNKNOWN:SPIO_COMP_002048id01tasks01io00_tmp_name",
+        "avg_wtput(MB/s)" : 30.858270,
+        "avg_rtput(MB/s)" : 0.000000,
+        "tot_wb(bytes)" : 1052870,
+        "tot_rb(bytes)" : 0,
+        "tot_wtime(s)" : 0.032539,
+        "tot_rtime(s)" : 0.000000,
+        "tot_time(s)" : 0.033302
+        }
+      ,
+      {
+        "name" : "particles.nc",
+        "model_component_name" : "UNKNOWN:SPIO_COMP_002048id01tasks01io00_tmp_name",
+        "avg_wtput(MB/s)" : 0.000000,
+        "avg_rtput(MB/s)" : 2.092721,
+        "tot_wb(bytes)" : 0,
+        "tot_rb(bytes)" : 655360,
+        "tot_wtime(s)" : 0.000000,
+        "tot_rtime(s)" : 0.298654,
+        "tot_time(s)" : 0.298882
+        }
+      ]
+    }
+}

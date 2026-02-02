@@ -41,8 +41,8 @@ def run_testcase(meshtype, logFilename=None):
         ly = 240000.0
         x0 = 0.0
         y0 = 0.0
-        nx = 24
-        ny = 24
+        nx = 96
+        ny = 96
         gridFilename = create_square_quad_mesh(nx, ny,
                                            lx, ly,
                                            x0, y0)
