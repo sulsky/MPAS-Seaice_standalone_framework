@@ -244,6 +244,88 @@ def plot_seaice_forces(testcase):
 
 #-------------------------------------------------------------------------------
 
+def plot_grounding(uColor, vColor):
+
+    filenames = sorted(glob.glob("./output_grounding/icebergs_output.*"))
+
+    filein = Dataset(filenames[0],"r")
+    time1 = filein.variables["daysSinceStartOfSim"][0]
+    filein.close()
+
+    filein = Dataset(filenames[1],"r")
+    time2 = filein.variables["daysSinceStartOfSim"][0]
+    filein.close()
+
+    dt = time2-time1
+    times = np.arange(0,len(filenames)) * dt
+
+    latIcebergs = []
+    lonIcebergs = []
+
+    uVelocityIcebergs = []
+    vVelocityIcebergs = []
+
+    icebergHeights = []
+    icebergBathymetrys = []
+
+    for filename in filenames:
+
+        filein = Dataset(filename,"r")
+
+        latIceberg = filein.variables["latIceberg"][0,0]
+        lonIceberg = filein.variables["lonIceberg"][0,0]
+
+        uVelocityIceberg = filein.variables["uVelocityIceberg"][0,0]
+        vVelocityIceberg = filein.variables["vVelocityIceberg"][0,0]
+
+        icebergHeight = filein.variables["icebergHeight"][0,0]
+        icebergBathymetry = filein.variables["icebergBathymetry"][0,0]
+        icebergBathymetry *= -1
+
+
+        filein.close()
+
+        latIcebergs.append(latIceberg)
+        lonIcebergs.append(lonIceberg)
+
+        uVelocityIcebergs.append(uVelocityIceberg)
+        vVelocityIcebergs.append(vVelocityIceberg)
+
+        icebergHeights.append(icebergHeight)
+        icebergBathymetrys.append(icebergBathymetry)
+
+    fig, axis = plt.subplots()
+    axis2 = axis.twinx()
+    axis3 = axis.twinx()
+    axis3.spines['right'].set_position(('outward', 60))  # offset in points
+
+    axis.plot(times, lonIcebergs, color=uColor, linestyle="dashed", label="lonIceberg")
+    axis.plot(times, latIcebergs, color=vColor, linestyle="dashed", label="latIceberg")
+
+    axis2.plot(times, uVelocityIcebergs, color=uColor, linestyle="solid", label="uVelocityIceberg")
+    axis2.plot(times, vVelocityIcebergs, color=vColor, linestyle="solid", label="vVelocityIceberg")
+
+    axis3.plot(times, icebergHeights,     color="blue", linestyle="solid", label="icebergHeight")
+    axis3.plot(times, icebergBathymetrys, color="teal", linestyle="solid", label="icebergBathymetry")
+
+    axis.legend(loc="upper left")
+    axis2.legend(loc="lower right")
+    axis3.legend(loc="lower left")
+
+    axis.set_title("Position/velocity grounding")
+
+    axis.set_xlabel("Time (days)")
+
+    axis.set_ylabel("Position (rads)")
+    axis2.set_ylabel("Velocity (m/s)")
+    axis3.set_ylabel("Height (m)")
+
+    plt.tight_layout()
+
+    plt.savefig("results_grounding.png",dpi=300)
+
+#-------------------------------------------------------------------------------
+
 def plot_testcase(testcase):
 
     if (testcase == "air_drag"):
@@ -265,6 +347,8 @@ def plot_testcase(testcase):
     elif (testcase == "seaice_force_high_conc"):
         plot_figure("seaice_force_high_conc","green","red")
         plot_seaice_forces("seaice_force_high_conc")
+    elif (testcase == "grounding"):
+        plot_grounding("green","red")
 
 #-------------------------------------------------------------------------------
 
