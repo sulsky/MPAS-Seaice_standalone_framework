@@ -100,7 +100,7 @@ if __name__ == "__main__":
 
     parser = argparse.ArgumentParser()
 
-    parser.add_argument('-m', dest="meshtype", choices=["quad","hex"], default="quad")
+    parser.add_argument('-m', dest="meshtype", choices=["quad","hex"], default="hex")
     parser.add_argument('-l', dest='logFilename')
 
     args = parser.parse_args()

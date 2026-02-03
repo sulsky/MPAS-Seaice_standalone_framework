@@ -4,6 +4,7 @@ import matplotlib.pyplot as plt
 from matplotlib.patches import Polygon
 from matplotlib.collections import PatchCollection
 from matplotlib.collections import LineCollection
+import argparse
 import glob
 import os
 
@@ -99,3 +100,10 @@ def plot_decohesion(gridFilename):
         plt.close()
 
 #-------------------------------------------------------------------------------
+
+if __name__ == "__main__":
+
+    parser = argparse.ArgumentParser()
+    parser.add_argument('-g', dest='gridFilename')
+    args = parser.parse_args()
+    plot_decohesion(args.gridFilename)
