@@ -164,6 +164,7 @@
     config_iceberg_seaice_pressure_limit_force = 1e4
     config_iceberg_seaice_drag_coefficient = 1.0
     config_iceberg_use_captured_force_on_sea_ice = false
+    config_iceberg_use_grounding = true
     config_iceberg_size_type = "angle_integral"
     config_iceberg_use_conservation_check = false
 /

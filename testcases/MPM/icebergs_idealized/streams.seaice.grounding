@@ -16,6 +16,26 @@
                   input_interval="initial_only"
                   output_interval="none" />
 
+<immutable_stream name="icebergInput"
+                  type="input"
+	          filename_template="icebergs_equator.nc"
+	          filename_interval="none"
+                  input_interval="initial_only"
+                  output_interval="none" />
+
+<stream name="initialConditions"
+        type="input"
+        filename_template="ic_grounding.nc"
+        filename_interval="none"
+        input_interval="initial_only">
+
+        <var name="uAirVelocity"/>
+        <var name="vAirVelocity"/>
+        <var name="uOceanVelocityIcebergCell"/>
+        <var name="vOceanVelocityIcebergCell"/>
+        <var name="bathymetry"/>
+</stream>
+
 <stream name="output"
         type="output"
         filename_template="output/output.$Y.nc"
@@ -37,16 +57,16 @@
         filename_template="output/icebergs_output.$Y-$M-$D_$h.$m.$s.nc"
         filename_interval="00-00-00_00:00:01"
         clobber_mode="replace_files"
-        output_interval="00-00-05_00:00:00" >
+        output_interval="00-00-01_00:00:00" >
 
+        <var name="xtime"/>
+        <var name="daysSinceStartOfSim"/>
         <var name="statusIB"/>
         <var name="iCellIB"/>
         <var name="cellIDCreationIB"/>
         <var name="creationIndexIB"/>
         <var name="icebergID"/>
         <var name="procIDIceberg"/>
-        <var name="randomGeneratorState"/>
-        <var name="nIcebergsCell"/>
         <var name="globalCellIndexIB"/>
         <var name="posnIBInit"/>
         <var name="posnIBGeo"/>
@@ -58,10 +78,14 @@
         <var name="icebergMeltRate"/>
         <var name="nIcebergRollover"/>
         <var name="rolloverStabilityRatio"/>
-        <var name="icebergVolumeCell"/>
-        <var name="icebergAreaCell"/>
         <var name="uVelocityIcebergGeo"/>
         <var name="vVelocityIcebergGeo"/>
+        <var name="uVelocityIceberg"/>
+        <var name="vVelocityIceberg"/>
+        <var name="uAirVelocityIceberg"/>
+        <var name="vAirVelocityIceberg"/>
+        <var name="uOceanVelocityIceberg"/>
+        <var name="vOceanVelocityIceberg"/>
         <var name="uAirForceIceberg"/>
         <var name="vAirForceIceberg"/>
         <var name="uOceanForceIceberg"/>
@@ -74,6 +98,8 @@
         <var name="vInertialForceIceberg"/>
         <var name="icebergCategoryFluxScaling"/>
         <var name="icebergCategory"/>
+        <var name="icebergBathymetry"/>
+        <var name="icebergBasalMeltRate"/>
 </stream>
 
 <stream name="icebergsCalving"
@@ -95,22 +121,6 @@
         <var name="icebergCategoryHeight"/>
         <var name="icebergCategoryFluxScaling"/>
         <var name="icebergCategoryCalvingFraction"/>
-</stream>
-
-<stream name="icebergsEmpty"
-        type="input"
-        filename_template="icebergs_empty.nc"
-        filename_interval="none"
-        input_interval="initial_only">
-        <var name="statusIB"/>
-</stream>
-
-<stream name="icebergBathymetry"
-        type="input"
-        filename_template="bathymetry.nc"
-        filename_interval="none"
-        input_interval="initial_only">
-        <var name="bathymetry"/>
 </stream>
 
 <immutable_stream name="LYqSixHourlyForcing"

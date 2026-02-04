@@ -92,6 +92,14 @@
         <var name="statusIB"/>
 </stream>
 
+<stream name="icebergBathymetry"
+        type="input"
+        filename_template="bathymetry.nc"
+        filename_interval="none"
+        input_interval="initial_only">
+        <var name="bathymetry"/>
+</stream>
+
 <immutable_stream name="LYqSixHourlyForcing"
                   type="input"
                   filename_template="forcing/atmosphere_forcing_six_hourly.$Y.nc"

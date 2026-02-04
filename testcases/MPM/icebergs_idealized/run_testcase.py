@@ -155,6 +155,34 @@ def write_ic_file_seaice_force(nCells,
 
 #-------------------------------------------------------------------------------
 
+def write_ic_file_grounding(nCells, lon):
+
+    fileout = Dataset("ic_grounding.nc","w",format="NETCDF3_CLASSIC")
+
+    fileout.createDimension("nCells",nCells)
+
+    var = fileout.createVariable("uAirVelocity","d",dimensions=["nCells"])
+    var[:] = 1.0
+
+    var = fileout.createVariable("vAirVelocity","d",dimensions=["nCells"])
+    var[:] = 0.0
+
+    var = fileout.createVariable("uOceanVelocityIcebergCell","d",dimensions=["nCells"])
+    var[:] = 3.0
+
+    var = fileout.createVariable("vOceanVelocityIcebergCell","d",dimensions=["nCells"])
+    var[:] = 0.0
+
+    var = fileout.createVariable("bathymetry","d",dimensions=["nCells"])
+    lon1 = pi/8.0
+    lon2 = pi/2.0
+    bathymetry = np.where((lon > lon1) & (lon < lon2), -900.0, -1100.0)
+    var[:] = bathymetry
+
+    fileout.close()
+
+#-------------------------------------------------------------------------------
+
 def run_testcase():
 
     nCells = 2562
@@ -174,6 +202,7 @@ def run_testcase():
     filenameGrid = "grid.nc"
     fileGrid = Dataset(filenameGrid,"r")
     nVertices = len(fileGrid.dimensions["nVertices"])
+    lonCell = fileGrid.variables["lonCell"][:]
     fileGrid.close()
 
     print("Iceberg particle input")
@@ -202,6 +231,7 @@ def run_testcase():
     write_ic_file_seaice_force(nCells, nVertices, "mid_conc",  0.5,  0.0)
     write_ic_file_seaice_force(nCells, nVertices, "high_conc", 0.99, 1.0e5)
     write_ic_file_coriolis()
+    write_ic_file_grounding(nCells, lonCell)
 
     testcases = ["air_drag",
                  "ocean_drag",
@@ -210,7 +240,8 @@ def run_testcase():
                  "wave_radiation",
                  "seaice_force_low_conc",
                  "seaice_force_mid_conc",
-                 "seaice_force_high_conc"]
+                 "seaice_force_high_conc",
+                 "grounding"]
 
     print("Individual test cases")
     print("=====================")
