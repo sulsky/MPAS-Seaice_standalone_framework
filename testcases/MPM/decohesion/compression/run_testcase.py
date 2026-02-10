@@ -34,7 +34,7 @@ def run_testcase(meshtype, logFilename=None):
         ly = 140000.0
         x0 = 0.0
         y0 = 0.0
-        dc = 7200.0
+        dc = 2800.0
         gridFilename = create_square_hex_mesh(dc,
                                           lx, ly,
                                           x0, y0)
@@ -43,8 +43,8 @@ def run_testcase(meshtype, logFilename=None):
         ly = 140000.0
         x0 = 0.0
         y0 = 0.0
-        nx = 28
-        ny = 28
+        nx = 56
+        ny = 56
         gridFilename = create_square_quad_mesh(nx, ny,
                                            lx, ly,
                                            x0, y0)
