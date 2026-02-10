@@ -80,13 +80,14 @@
     config_limit_air_temperatures = true
 /
 &velocity_solver
+    config_two_pass_mpm_strain = false
     config_dynamics_subcycle_number = 1
     config_rotate_cartesian_grid = false
     config_include_metric_terms = false
     config_elastic_subcycle_number = 1200
     config_strain_scheme = 'mpm'
     config_constitutive_relation_type = 'evp'
-    config_stress_divergence_scheme = 'variational'
+    config_stress_divergence_scheme = 'mpm'
     config_variational_basis = 'wachspress'
     config_variational_denominator_type = 'alternate'
     config_wachspress_integration_type = 'dunavant'

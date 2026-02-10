@@ -1,5 +1,7 @@
 from run_model import run_model
 from create_ics import create_ics
+from add_initial_area_volume_categories import add_initial_area_volume_categories
+from plot_results import plot_results
 
 import sys, os
 
@@ -28,21 +30,21 @@ def run_testcase(meshtype, logFilename=None):
     print("Create grid")
     print("=================")
     if (meshtype == 'hex'):
-        lx = 240000.0
-        ly = 240000.0
+        lx = 140000.0
+        ly = 140000.0
         x0 = 0.0
         y0 = 0.0
-        dc = 10000.0
+        dc = 7200.0
         gridFilename = create_square_hex_mesh(dc,
                                           lx, ly,
                                           x0, y0)
     elif (meshtype == 'quad'):
-        lx = 240000.0
-        ly = 240000.0
+        lx = 140000.0
+        ly = 140000.0
         x0 = 0.0
         y0 = 0.0
-        nx = 96
-        ny = 96
+        nx = 28
+        ny = 28
         gridFilename = create_square_quad_mesh(nx, ny,
                                            lx, ly,
                                            x0, y0)
@@ -87,9 +89,17 @@ def run_testcase(meshtype, logFilename=None):
                                 particleGeometry,
                                 sphereRadius)
 
-    print("Run model")
+    print("Adding ice categories...")
+    print("=================")
+    add_initial_area_volume_categories()
+
+    print("Run model...")
     print("=================")
     run_model()
+
+    print("Plot results...")
+    print("=================")
+    plot_results(gridFilename)
 
     if (logFile is not None):
         logFile.close()

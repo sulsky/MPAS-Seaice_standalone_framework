@@ -61,6 +61,8 @@
         <var name="indexToCellIDMP"/>
         <var name="procIDParticle"/>
         <var name="posnMP"/>
+        <var name="uvVelMP"/>
+        <var name="stressMP"/>
         <var name="decohesionOpeningMP"/>
         <var name="decohesionCrackEndPoints"/>
         <var name="decohesionCrackEdgeIndex"/>

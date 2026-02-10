@@ -65,7 +65,7 @@ def run_testcase(meshtype, testType, logFilename=None):
        particleInitType = "number"
        particleInitNumber = "9"
        particlePositionInitType = "onePerEdge"
-       particleGeometry = "square"
+       particleGeometry = "bar"
        sphereRadius = 1.0
        initial_particle_positions(gridFilename,
                                 "particles.nc",
@@ -78,7 +78,7 @@ def run_testcase(meshtype, testType, logFilename=None):
        particleInitType = "number"
        particleInitNumber = "4"
        particlePositionInitType = "even"
-       particleGeometry = "square"
+       particleGeometry = "bar"
        sphereRadius = 1.0
        initial_particle_positions(gridFilename,
                                 "particles.nc",
@@ -88,11 +88,11 @@ def run_testcase(meshtype, testType, logFilename=None):
                                 particleGeometry,
                                 sphereRadius)
 
-    print("Run model")
+    print("Run model...")
     print("=================")
     run_model()
 
-    print("Plot decohesion")
+    print("Plot decohesion...")
     print("=================")
     plot_decohesion(gridFilename)
 

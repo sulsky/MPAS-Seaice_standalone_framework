@@ -29,9 +29,6 @@ def create_ics(gridFilename):
         uAirVelocity[iCell] = uAir
         #vAirVelocity[iCell] = vAir
 
-        if (x > 120000):
-           uAirVelocity[iCell] = uAir
-
     fileOut = Dataset("ic.nc", "w", format="NETCDF3_CLASSIC")
 
     fileOut.createDimension("nCells", nCells)

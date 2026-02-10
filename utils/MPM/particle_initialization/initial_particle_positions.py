@@ -219,8 +219,14 @@ def in_geom(x,
             iceArea = 1.0
             iceVolume = 1.0
 
-    elif (geomType == 'square'):
+    elif (geomType == 'bar'):
         if (x < 160000 and x > 0 and y < 160000 and y > 80000):
+            in_geom = True
+            iceArea = 1.0
+            iceVolume = 1.0
+
+    elif (geomType == 'square'):
+        if (x < 100000 and x > 0 and y < 120000 and y > 20000):
             in_geom = True
             iceArea = 1.0
             iceVolume = 1.0

@@ -12,6 +12,11 @@ def run_model():
         MPAS_SEAICE_EXECUTABLE = "../../../../../MPAS-Seaice-MPM/components/mpas-seaice/seaice_model"
         print("Using executable in standard location: %s" %(MPAS_SEAICE_EXECUTABLE))
 
+    if (os.path.isdir("output")):
+        cmd = "rm -rf output"
+        os.system(cmd)
+    os.mkdir("output")
+
     nProcs = 1
     logFile = None
     execute_model(MPAS_SEAICE_EXECUTABLE,

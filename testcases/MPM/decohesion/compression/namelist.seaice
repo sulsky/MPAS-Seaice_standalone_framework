@@ -34,7 +34,7 @@
     config_do_restart_snow_grain_radius = false
 /
 &dimensions
-    config_nCategories = 1
+    config_nCategories = 5
     config_nFloeCategories = 1
     config_nIceLayers = 7
     config_nSnowLayers = 1
@@ -50,7 +50,7 @@
     config_initial_velocity_type = 'none'
     config_initial_uvelocity = 0.0
     config_initial_vvelocity = 0.0
-    config_calculate_coriolis = true
+    config_calculate_coriolis = false
 /
 &use_sections
     config_use_dynamics = true
@@ -58,7 +58,8 @@
     config_use_mpm = true
     config_use_advection = true
     config_use_forcing = false
-    config_use_column_physics = false
+    config_use_column_physics = true
+    config_use_mpm_icebergs = false
     config_use_prescribed_ice = false
     config_use_prescribed_ice_forcing = false
 /
@@ -68,7 +69,7 @@
     config_forcing_cycle_start = '2000-01-01_00:00:00'
     config_forcing_cycle_duration = '2-00-00_00:00:00'
     config_forcing_precipitation_units = 'mm_per_sec'
-    config_forcing_sst_type = 'ncar'
+    config_forcing_sst_type = 'none'
     config_forcing_bgc_type = 'none'
     config_update_ocean_fluxes = false
     config_frazil_coupling_type = 'external'
@@ -83,7 +84,7 @@
     config_limit_air_temperatures = true
 /
 &velocity_solver
-    config_two_pass_mpm_strain = true
+    config_two_pass_mpm_strain = false
     config_dynamics_subcycle_number = 1
     config_rotate_cartesian_grid = false
     config_include_metric_terms = false
@@ -99,9 +100,9 @@
     config_calc_velocity_masks = true
     config_average_variational_strain = false
     config_use_air_stress = true
-    config_use_ocean_stress = false
-    config_use_surface_tilt = false
-    config_geostrophic_surface_tilt = false
+    config_use_ocean_stress = true
+    config_use_surface_tilt = true
+    config_geostrophic_surface_tilt = true
     config_ocean_stress_type = 'quadratic'
     config_use_special_boundaries_velocity = false
     config_use_special_boundaries_velocity_masks = false
@@ -128,19 +129,19 @@
 &elastic_decohesion_model
     config_youngs_modulus = 1.e6
     config_poissons_ratio = 0.36
-    config_tensile_strength = 25.e3
-    config_compressive_strength = 125.e3
-    config_shear_strength = 75.e3
+    config_tensile_strength = 1200.
+    config_compressive_strength = 6000.
+    config_shear_strength = 720.
     config_shear_magnification_factor = 4.0
     config_jump_scale_factor = 100.0
 /
 &column_package
     config_column_physics_type = 'icepack'
     config_column_element_type = 'particles'
-    config_use_column_shortwave = true
-    config_use_column_vertical_thermodynamics = true
+    config_use_column_shortwave = false
+    config_use_column_vertical_thermodynamics = false
     config_use_column_biogeochemistry = false
-    config_use_column_itd_thermodynamics = true
+    config_use_column_itd_thermodynamics = false
     config_use_column_ridging = true
     config_use_column_snow_tracers = false
 /
