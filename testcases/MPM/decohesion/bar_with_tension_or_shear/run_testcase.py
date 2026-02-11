@@ -1,5 +1,6 @@
 from run_model import run_model
 from create_ics import create_ics
+from plot_decohesion import plot_decohesion
 
 import sys, os
 
@@ -15,7 +16,7 @@ import argparse
 
 #-------------------------------------------------------------------------------
 
-def run_testcase(meshtype, logFilename=None):
+def run_testcase(meshtype, testType, logFilename=None):
 
     if (logFilename is not None):
         logFile = open(logFilename,"a")
@@ -56,7 +57,7 @@ def run_testcase(meshtype, logFilename=None):
 
     print("Create ICs...")
     print("=================")
-    create_ics(gridFilename)
+    create_ics(gridFilename, testType)
 
     print("Create particles...")
     print("=================")
@@ -64,7 +65,7 @@ def run_testcase(meshtype, logFilename=None):
        particleInitType = "number"
        particleInitNumber = "9"
        particlePositionInitType = "onePerEdge"
-       particleGeometry = "square"
+       particleGeometry = "bar"
        sphereRadius = 1.0
        initial_particle_positions(gridFilename,
                                 "particles.nc",
@@ -77,7 +78,7 @@ def run_testcase(meshtype, logFilename=None):
        particleInitType = "number"
        particleInitNumber = "4"
        particlePositionInitType = "even"
-       particleGeometry = "square"
+       particleGeometry = "bar"
        sphereRadius = 1.0
        initial_particle_positions(gridFilename,
                                 "particles.nc",
@@ -87,9 +88,13 @@ def run_testcase(meshtype, logFilename=None):
                                 particleGeometry,
                                 sphereRadius)
 
-    print("Run model")
+    print("Run model...")
     print("=================")
     run_model()
+
+    print("Plot decohesion...")
+    print("=================")
+    plot_decohesion(gridFilename)
 
     if (logFile is not None):
         logFile.close()
@@ -101,8 +106,9 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
 
     parser.add_argument('-m', dest="meshtype", choices=["quad","hex"], default="quad")
+    parser.add_argument('-t', dest="testType", choices=["tension","shear"], default="tension")
     parser.add_argument('-l', dest='logFilename')
 
     args = parser.parse_args()
 
-    run_testcase(args.meshtype, args.logFilename)
+    run_testcase(args.meshtype, args.testType, args.logFilename)

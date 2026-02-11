@@ -6,7 +6,7 @@ import argparse
 
 def create_ics(gridFilename):
 
-    uAir = 20.0
+    uAir = -5.0
     vAir =  0.0
 
     # grid data
@@ -27,10 +27,7 @@ def create_ics(gridFilename):
         x = xCell[iCell]
         y = yCell[iCell]
         uAirVelocity[iCell] = uAir
-        vAirVelocity[iCell] = vAir
-
-        if (x < 120000):
-           uAirVelocity[iCell] = -uAir
+        #vAirVelocity[iCell] = vAir
 
     fileOut = Dataset("ic.nc", "w", format="NETCDF3_CLASSIC")
 

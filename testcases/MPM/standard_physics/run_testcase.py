@@ -80,8 +80,8 @@ def run_testcase(logFilename=None):
     run_model(logFile)
 
     # check output
-    operatorMethods = ["mpmvar", "mpmweak"]
-    #operatorMethods = ["mpmvar"]
+    operatorMethods = ["mpmvar", "mpmweak", "mpm"]
+    #operatorMethods = ["mpm"]
     for operatorMethod in operatorMethods:
         print("   operatorMethod: ", operatorMethod)
         check_run(1,  16, operatorMethod, logFile)

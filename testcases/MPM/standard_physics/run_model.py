@@ -29,8 +29,10 @@ def run_model(logFile):
     nProcs = [1, 16, 32]
     #nProcs = [1]
 
-    operatorMethods = ["mpmvar", "mpmweak"]
-    #operatorMethods = ["mpmvar"]
+    operatorMethods = ["mpmvar", "mpmweak", "mpm"]
+    #operatorMethods = ["mpm"]
+
+    os.system("cp ../../../configurations/standard_physics_mpm/namelist.seaice namelist.seaice.default")
 
     for operatorMethod in operatorMethods:
         print("   operatorMethod: ", operatorMethod)
@@ -42,6 +44,10 @@ def run_model(logFile):
         elif (operatorMethod == "mpmweak"):
             nmlPatch = {"velocity_solver": {"config_strain_scheme":"mpm",
                                             "config_stress_divergence_scheme":"weak"},
+                        "use_sections": {"config_use_mpm": True}}
+        elif (operatorMethod == "mpm"):
+            nmlPatch = {"velocity_solver": {"config_strain_scheme":"mpm",
+                                            "config_stress_divergence_scheme":"mpm"},
                         "use_sections": {"config_use_mpm": True}}
 
         f90nml.patch("namelist.seaice.default", nmlPatch, "namelist.seaice.%s" %(operatorMethod))

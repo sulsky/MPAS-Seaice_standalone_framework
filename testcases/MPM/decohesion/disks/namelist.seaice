@@ -1,15 +1,15 @@
 &seaice_model
-    config_dt = 3600.0
+    config_dt = .25
     config_calendar_type = 'noleap'
     config_start_time = '2000-01-01_00:00:00'
     config_stop_time = 'none'
-    config_run_duration = '00-00-00_04:00:00'
+    config_run_duration = '00-00-00_00:00:08'
     config_num_halos = 2
 /
 &io
     config_pio_num_iotasks = 0
     config_pio_stride = 1
-    config_write_output_on_startup = false
+    config_write_output_on_startup = true
     config_test_case_diag = false
     config_test_case_diag_type = 'none'
     config_full_abort_write = true
@@ -83,22 +83,23 @@
     config_limit_air_temperatures = true
 /
 &velocity_solver
-    config_two_pass_mpm_strain = true
+    config_velocity_bc_type = 'free_slip'
+    config_two_pass_mpm_strain = false
     config_dynamics_subcycle_number = 1
     config_rotate_cartesian_grid = false
     config_include_metric_terms = false
     config_elastic_subcycle_number = 120
     config_strain_scheme = 'mpm'
     config_constitutive_relation_type = 'decohesion'
-    config_stress_divergence_scheme = 'variational'
+    config_stress_divergence_scheme = 'mpm'
     config_variational_basis = 'wachspress'
-    config_variational_denominator_type = 'original'
+    config_variational_denominator_type = 'alternate'
     config_wachspress_integration_type = 'dunavant'
     config_wachspress_integration_order = 8
     config_average_variational_strain = false
     config_calc_velocity_masks = true
     config_average_variational_strain = false
-    config_use_air_stress = true
+    config_use_air_stress = false
     config_use_ocean_stress = false
     config_use_surface_tilt = false
     config_geostrophic_surface_tilt = false
@@ -126,11 +127,11 @@
     config_mpm_polympo_init_test = false
 /
 &elastic_decohesion_model
-    config_youngs_modulus = 1.e6
-    config_poissons_ratio = 0.36
-    config_tensile_strength = 25.e3
-    config_compressive_strength = 125.e3
-    config_shear_strength = 75.e3
+    config_youngs_modulus = 1000.
+    config_poissons_ratio = 0.3
+    config_tensile_strength = 25.e9
+    config_compressive_strength = 125.e9
+    config_shear_strength = 75.e9
     config_shear_magnification_factor = 4.0
     config_jump_scale_factor = 4000.0
 /

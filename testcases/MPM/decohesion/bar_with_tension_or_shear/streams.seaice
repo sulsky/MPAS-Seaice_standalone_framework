@@ -9,6 +9,24 @@
                   filename_interval="none"
                   input_interval="initial_only" />
 
+<stream name="initialConditions"
+        type="input"
+        filename_template="ic.nc"
+        filename_interval="none"
+        input_interval="initial_only">
+
+   <var name="iceAreaCell"/>
+   <var name="iceVolumeCell"/>
+   <var name="iceAreaCategory"/>
+   <var name="iceVolumeCategory"/>
+   <var name="fVertex"/>
+   <var name="uAirVelocity"/>
+   <var name="vAirVelocity"/>
+   <var name="airStressVertexU"/>
+   <var name="airStressVertexV"/>
+</stream>
+
+
 <immutable_stream name="particleInput"
                   type="input"
                   filename_template="particles.nc"
@@ -33,18 +51,10 @@
 	<var name="iceAreaCell"/>
 	<var name="iceVolumeCell"/>
 	<var name="snowVolumeCell"/>
-	<var name="iceAreaCategory"/>
-	<var name="iceVolumeCategory"/>
-	<var name="snowVolumeCategory"/>
 	<var name="uVelocity"/>
 	<var name="vVelocity"/>
-	<var name="uAirVelocity"/>
-	<var name="vAirVelocity"/>
-	<var name="uOceanVelocity"/>
-	<var name="vOceanVelocity"/>
-        <var name="categoryThicknessLimits"/>
-        <var name="divergence"/>
-        <var name="shear"/>
+   <var name="deluDyn"/>
+   <var name="delvDyn"/>
 </stream>
 
 <stream name="particlesOut"
@@ -53,7 +63,6 @@
         filename_interval="00-00-00_00:00:01"
         clobber_mode="replace_files"
         output_interval="00-00-00_01:00:00" >
-
         <var name="statusMP"/>
         <var name="iCellMP"/>
         <var name="cellIDCreationMP"/>
@@ -61,44 +70,46 @@
         <var name="indexToCellIDMP"/>
         <var name="procIDParticle"/>
         <var name="posnMP"/>
-        <var name="uvVelMP"/>
-        <var name="stressMP"/>
         <var name="decohesionOpeningMP"/>
         <var name="decohesionCrackEndPoints"/>
         <var name="decohesionCrackEdgeIndex"/>
-        <var name="iceAreaCellMP"/>
-        <var name="iceVolumeCellMP"/>
-        <var name="snowVolumeCellMP"/>
+        <var name="stressMP"/>
+        <var name="uvVelMP"/>
 </stream>
 
-<stream name="initialConditions"
-        type="input"
-        filename_template="ic.nc"
-        filename_interval="none"
-        input_interval="initial_only">
+<immutable_stream name="LYqSixHourlyForcing"
+                  type="input"
+                  filename_template="forcing/atmosphere_forcing_six_hourly.$Y.nc"
+                  filename_interval="0001-00-00_00:00:00"
+		  reference_time="2000-01-01_03:00:00"
+                  input_interval="none" />
 
-	<var name="iceAreaCell"/>
-	<var name="iceVolumeCell"/>
-	<var name="iceAreaCategory"/>
-	<var name="iceVolumeCategory"/>
-	<var name="fVertex"/>
-	<var name="uAirVelocity"/>
-	<var name="vAirVelocity"/>
+<immutable_stream name="LYqMonthlyForcing"
+                  type="input"
+                  filename_template="forcing/atmosphere_forcing_monthly.nc"
+                  filename_interval="none"
+                  input_interval="none" />
+
+<immutable_stream name="NCARMonthlySSTForcing"
+                  type="input"
+                  filename_template="forcing/ocean_forcing_monthly.nc"
+                  filename_interval="none"
+                  input_interval="none" />
+
+<immutable_stream name="NCARMonthlyForcing"
+                  type="input"
+                  filename_template="forcing/ocean_forcing_monthly.nc"
+                  filename_interval="none"
+                  input_interval="none" />
+
+<stream name="dataIcebergForcing"
+                  type="input"
+                  filename_template="forcing/data_icebergs.nc"
+                  filename_interval="none"
+                  input_interval="none" >
+    <var name="bergFreshwaterFluxData"/>
+    <var name="xtime" />
 </stream>
-
-<immutable_stream name="airHourlyVelocitiesForcing"
-                  type="input"
-                  filename_template="atmosphere_forcing_hourly.$Y.nc"
-                  filename_interval="0001-00-00_00:00:00"
-		  reference_time="2000-01-01_01:00:00"
-                  input_interval="none" />
-
-<immutable_stream name="oceanHourlyVelocitiesForcing"
-                  type="input"
-                  filename_template="ocean_forcing_hourly.$Y.nc"
-                  filename_interval="0001-00-00_00:00:00"
-		  reference_time="2000-01-01_01:00:00"
-                  input_interval="none" />
 
 <stream name="abort_block"
         type="output"
@@ -179,7 +190,6 @@
 	<var name="absoluteSaltError"/>
 	<var name="relativeSaltError"/>
 </stream>
-
 
 <stream name="loadBalanceOutput"
         type="output"

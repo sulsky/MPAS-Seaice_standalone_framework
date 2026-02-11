@@ -9,6 +9,12 @@
                   filename_interval="none"
                   input_interval="initial_only" />
 
+<immutable_stream name="particleInput"
+                  type="input"
+                  filename_template="particles.nc"
+                  filename_interval="none"
+                  input_interval="initial_only" />
+
 <immutable_stream name="restart"
                   type="input;output"
                   filename_template="restarts/restart.$Y-$M-$D_$h.$m.$s.nc"
@@ -21,7 +27,7 @@
         filename_template="output/output.$Y.nc"
         filename_interval="01-00-00_00:00:00"
         clobber_mode="replace_files"
-        output_interval="00-00-01_00:00:00" >
+        output_interval="00-00-00_00:00:01" >
 	<var name="xtime"/>
 	<var name="daysSinceStartOfSim"/>
 	<var name="iceAreaCell"/>
@@ -38,8 +44,7 @@
         filename_template="output/particles_output.$Y-$M-$D_$h.$m.$s.nc"
         filename_interval="00-00-00_00:00:01"
         clobber_mode="replace_files"
-        output_interval="00-00-01_00:00:00" >
-
+        output_interval="00-00-00_00:00:01" >
    <var name="statusMP"/>
    <var name="iCellMP"/>
         <var name="cellIDCreationMP"/>
@@ -47,8 +52,10 @@
         <var name="indexToCellIDMP"/>
         <var name="procIDParticle"/>
         <var name="posnMP"/>
+        <var name="decohesionOpeningMP"/>
+        <var name="stressMP"/>
+        <var name="uvVelMP"/>
 </stream>
-
 
 <immutable_stream name="LYqSixHourlyForcing"
                   type="input"
@@ -163,7 +170,6 @@
 	<var name="absoluteSaltError"/>
 	<var name="relativeSaltError"/>
 </stream>
-
 
 <stream name="loadBalanceOutput"
         type="output"
