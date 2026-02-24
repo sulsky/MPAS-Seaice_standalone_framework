@@ -212,16 +212,19 @@ def stress_scaling():
 
     resolutions = [2562,10242,40962,163842]
 
-    methods = ["mpmvar","mpmweak"]
+    methods = ["mpmvar","mpmweak","mpm"]
 
     lineColours = ["black","grey","red","blue","green"]
 
-    lineStyles = {"hex":"solid",
-                  "quad":"dashed"}
+    lineStyles = ["solid","dashed","dashdot"]
+
+    markers = ["o","^","*"]
+
+    labels = [r'$\sigma_{11}$', r'$\sigma_{22}$', r'$\sigma_{12}$']
 
     latitudeLimit = 20.0
 
-    fig, axes = plt.subplots(3,1,figsize=(5,10))
+    fig, axes = plt.subplots(figsize=(4,3))
 
     iStress = 0
     for stress in stresses:
@@ -239,87 +242,34 @@ def stress_scaling():
         scaleMinQuad = math.pow(xMin,2) * scale
         scaleMaxQuad = math.pow(xMax,2) * scale
 
-        axes[iStress].loglog([xMin, xMax], [scaleMinLin,scaleMaxLin], linestyle=':', color='k')
-        axes[iStress].loglog([xMin, xMax], [scaleMinQuad,scaleMaxQuad], linestyle=':', color='k')
-
-        iPlot = 0
+        iMethod = 0
         for method in methods:
+
+            axes.loglog([xMin, xMax], [scaleMinLin,scaleMaxLin], linestyle=':', color='k')
+            axes.loglog([xMin, xMax], [scaleMinQuad,scaleMaxQuad], linestyle=':', color='k')
 
             x = []
             y = []
 
             for resolution in resolutions:
-
-                filenames = sorted(glob.glob("./output_%s_%i/particles_output*" %(method,resolution)))
-                filename = filenames[-1]
-                filenameIC = "particles_%s.nc" %resolution
-
-                normE11, normE22, normE12 = get_norm_particle(filenameIC, filename, latitudeLimit)
-
-                filename = "./output_%s_%i/output.2000.nc" %(method,resolution)
-                x.append(get_resolution(filename, latitudeLimit))
-
-                if (stress == "stress11"):
-                    y.append(normE11)
-                elif (stress == "stress22"):
-                    y.append(normE22)
-                elif (stress == "stress12"):
-                    y.append(normE12)
-
-
-            axes[iStress].loglog(x,y, marker='o', color=lineColours[iPlot], ls="solid", markersize=5.0, label="StressMP_%s" %(method) )
-
-            iPlot = iPlot + 1
-
-        axes[iStress].legend(frameon=False, loc=2, fontsize=8, handlelength=4)
-
-        axes[iStress].set_xlabel("Grid resolution")
-        axes[iStress].set_ylabel(r"$L_2$ error norm")
-
-        iStress = iStress + 1
-
-    plt.tight_layout(pad=0.5, w_pad=0.5, h_pad=0.5)
-    plt.savefig("stress_scalingMP.png", dpi=400)
-
-
-    fig, axes = plt.subplots(3,1,figsize=(5,10))
-
-    iStress = 0
-    for stress in stresses:
-
-        xMin = 4e-2
-        xMax = 8e-2
-
-        # linear scaling
-        scale = 1e-3 / math.pow(xMin,1)
-        scaleMinLin = math.pow(xMin,1) * scale
-        scaleMaxLin = math.pow(xMax,1) * scale
-
-        # quadratic scaling
-        scale = 1e-3 / math.pow(xMin,2)
-        scaleMinQuad = math.pow(xMin,2) * scale
-        scaleMaxQuad = math.pow(xMax,2) * scale
-
-        axes[iStress].loglog([xMin, xMax], [scaleMinLin,scaleMaxLin], linestyle=':', color='k')
-        axes[iStress].loglog([xMin, xMax], [scaleMinQuad,scaleMaxQuad], linestyle=':', color='k')
-
-        iPlot = 0
-        for method in methods:
-
-            x = []
-            y = []
-
-            for resolution in resolutions:
-
-                filename = "./output_%s_%i/output.2000.nc" %(method,resolution)
-                filenameIC = "./ic_%i.nc" %(resolution)
-
-                print(filename, filenameIC)
 
                 if (method == "mpmvar"):
+                   filename = "./output_%s_%i/output.2000.nc" %(method,resolution)
+                   filenameIC = "./ic_%i.nc" %(resolution)
+                   print(filename, filenameIC)
                    normE11, normE22, normE12 = get_norm_vertex(filenameIC, filename, latitudeLimit)
-                else:
+                elif (method == "mpmweak"):
+                   filename = "./output_%s_%i/output.2000.nc" %(method,resolution)
+                   filenameIC = "./ic_%i.nc" %(resolution)
+                   print(filename, filenameIC)
                    normE11, normE22, normE12 = get_norm_cell(filenameIC, filename, latitudeLimit)
+                else:
+                   filenames = sorted(glob.glob("./output_%s_%i/particles_output*" %(method,resolution)))
+                   filename = filenames[-1]
+                   filenameIC = "particles_%s.nc" %resolution
+                   print(filename, filenameIC)
+                   normE11, normE22, normE12 = get_norm_particle(filenameIC, filename, latitudeLimit)
+                   filename = "./output_%s_%i/output.2000.nc" %(method,resolution)
 
                 x.append(get_resolution(filename, latitudeLimit))
 
@@ -330,19 +280,16 @@ def stress_scaling():
                 elif (stress == "stress12"):
                     y.append(normE12)
 
-
-            axes[iStress].loglog(x,y, marker='o', color=lineColours[iPlot], ls="solid", markersize=5.0, label="stress_%s" %(method))
-
-            iPlot = iPlot + 1
+            axes.loglog(x,y, marker=markers[iMethod], color=lineColours[iStress], ls=lineStyles[iMethod], markersize=5.0, label=labels[iStress]+" "+method)
 
 
-        axes[iStress].legend(frameon=False, loc=2, fontsize=8, handlelength=4)
+            axes.legend(frameon=True, loc="upper left", fontsize=8, handlelength=4, bbox_to_anchor=(1, 1))
 
-        axes[iStress].set_xlabel("Grid resolution")
-        axes[iStress].set_ylabel(r"$L_2$ error norm")
+            axes.set_xlabel("Grid resolution")
+            axes.set_ylabel(r"$L_2$ error norm")
 
+            iMethod = iMethod + 1
         iStress = iStress + 1
-
 
     plt.tight_layout(pad=0.5, w_pad=0.5, h_pad=0.5)
     plt.savefig("stress_scaling.png", dpi=400)

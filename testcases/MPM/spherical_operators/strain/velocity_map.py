@@ -83,15 +83,17 @@ def plot_subfigure(axes, fig, nVertices, vertexDegree, cellsOnVertex, xCell, yCe
     if (subfigureLabel != None):
         axes.text(0.02, 0.89, subfigureLabel, verticalalignment='bottom', horizontalalignment='left',transform=axes.transAxes, fontsize=8)
 
+    divider = make_axes_locatable(axes)
+    cax = divider.append_axes("right", size="5%", pad=0.05)
     if (colorbar):
-        divider = make_axes_locatable(axes)
-        cax = divider.append_axes("right", size="5%", pad=0.05)
-        cb = fig.colorbar(patchCollection,cax=cax)
-        if (unityBar):
-            cb.ax.set_yticklabels(['-1.0','-0.5','0.0','0.5','1.0'])
-        if (sciNote):
-            cb.formatter.set_powerlimits((0, 0))
-            cb.update_ticks()
+       cb = fig.colorbar(patchCollection,cax=cax)
+       if (unityBar):
+           cb.ax.set_yticklabels(['-1.0','-0.5','0.0','0.5','1.0'])
+       if (sciNote):
+           cb.formatter.set_powerlimits((0, 0))
+           cb.update_ticks()
+    elif (not colorbar):
+        cax.set_axis_off()
 
 #---------------------------------------------------------------
 
@@ -155,14 +157,14 @@ def velocity_map():
     mpl.rc('text', usetex=True)
     mpl.rcParams['axes.linewidth'] = 0.5
 
-    fig, axes = plt.subplots(3, 2)
-    fig.set_size_inches(6, 4)
+    fig, axes = plt.subplots(2, 2)
+    fig.set_size_inches(4, 4)
 
     minVelo = -3.3
     maxVelo =  3.3
 
-    minDiff = -5.e-4
-    maxDiff =  5.e-4
+    minDiff = -1.e-4
+    maxDiff =  1.e-4
 
     # Velocities
     plot_subfigure(axes[0,0], fig, nVertices, vertexDegreeArr, cellsOnVertex, xCell, yCell, zCell, latVertex, uVelocity, -1.0, 1.0, -1.0, 1.0, -1.0, 1.0, \
@@ -175,10 +177,6 @@ def velocity_map():
                    False, False, r'$u^\prime$ MPM.', '(c)', False)
     plot_subfigure(axes[1,1], fig, nVertices, vertexDegreeArr, cellsOnVertex, xCell, yCell, zCell, latVertex, vVelocityDiff, minDiff, maxDiff, -1.0, 1.0, -1.0, 1.0, \
                    False, False, r'$v^\prime$ MPM.', '(d)', True)
-    plot_subfigure(axes[2,0], fig, nVertices, vertexDegreeArr, cellsOnVertex, xCell, yCell, zCell, latVertex, uVelocityDiff, minDiff, maxDiff, -0.2, 0.2, -0.2, 0.2, \
-                   False, False, r'$u^\prime$ MPM.', '(e)', False)
-    plot_subfigure(axes[2,1], fig, nVertices, vertexDegreeArr, cellsOnVertex, xCell, yCell, zCell, latVertex, vVelocityDiff, minDiff, maxDiff, -0.2, 0.2, -0.2, 0.2, \
-                   False, False, r'$v^\prime$ MPM.', '(f)', True)
 
     plt.tight_layout(pad=0.5, w_pad=0.5, h_pad=0.5)
     plt.savefig("velocity_map.png",dpi=400)

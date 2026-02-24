@@ -22,9 +22,8 @@ def run_model(logFile=None):
 
     gridSizes = [2562, 10242, 40962, 163842]
     #gridSizes = [10242]
-    #gridSizes = [2562]
 
-    operatorMethods = ["mpmvar","mpmweak"]
+    operatorMethods = ["mpmvar","mpmweak","mpm"]
 
     for operatorMethod in operatorMethods:
 
@@ -47,6 +46,11 @@ def run_model(logFile=None):
             elif (operatorMethod == "mpmweak"):
                 nmlPatch = {"velocity_solver": {"config_strain_scheme":"mpm",
                                                 "config_stress_divergence_scheme":"weak",
+                                                "config_variational_basis":"wachspress"},
+                            "use_sections": {"config_use_mpm": True}}
+            elif (operatorMethod == "mpm"):
+                nmlPatch = {"velocity_solver": {"config_strain_scheme":"mpm",
+                                                "config_stress_divergence_scheme":"mpm",
                                                 "config_variational_basis":"wachspress"},
                             "use_sections": {"config_use_mpm": True}}
 

@@ -21,8 +21,8 @@ def run_model(logFile=None):
         print("Using executable in standard location: %s" %(MPAS_SEAICE_EXECUTABLE))
 
     gridSizes = [2562, 10242, 40962, 163842]
-    operatorMethods = ["wachspress","pwl","weak","weakwachs","weakpwl","wachspress_alt","pwl_alt","weakwachs_alt","mpmvar","mpmweak"]
-    #operatorMethods = ["mpmvar","mpmweak"]
+    #operatorMethods = ["wachspress","pwl","weak","weakwachs","weakpwl","wachspress_alt","pwl_alt","weakwachs_alt","mpmvar","mpmweak","mpm"]
+    operatorMethods = ["wachspress", "weak","mpmvar","mpmweak","mpm"]
 
     for operatorMethod in operatorMethods:
 
@@ -83,6 +83,11 @@ def run_model(logFile=None):
             elif (operatorMethod == "mpmweak"):
                 nmlPatch = {"velocity_solver": {"config_strain_scheme":"mpm",
                                                 "config_stress_divergence_scheme":"weak"},
+                            "use_sections": {"config_use_mpm": True}}
+
+            elif (operatorMethod == "mpm"):
+                nmlPatch = {"velocity_solver": {"config_strain_scheme":"mpm",
+                                                "config_stress_divergence_scheme":"mpm"},
                             "use_sections": {"config_use_mpm": True}}
 
             f90nml.patch("namelist.seaice.strain_stress_divergence", nmlPatch, "namelist.seaice.%s.%i" %(operatorMethod, gridSize))
