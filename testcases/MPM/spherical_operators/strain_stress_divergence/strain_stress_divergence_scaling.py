@@ -89,10 +89,9 @@ def strain_stress_divergence_scaling():
     mpl.rcParams['axes.linewidth'] = 0.5
 
     resolutions = [2562,10242,40962,163842]
-    methods = ["wachspress","pwl","weak","weakwachs","weakpwl","wachspress_alt","pwl_alt","weakwachs_alt","mpmvar","mpmweak"]
-
-    lineColours = ["black","black","grey","red","red","blue","blue","green","green","cyan","cyan"]
-    lineStyles  = ["-","--","-","-","--","-","--","-","--","-","--"]
+    methods = ["wachspress","weak","mpmvar","mpmweak","mpm"]
+    lineColours = ["black","green","cyan","red","blue","blue","blue","green","green","cyan","cyan"]
+    lineStyles  = ["--","-","--","--","--","--","--","-","--","-","--"]
 
     latitudeLimit = 20.0
 
@@ -137,7 +136,7 @@ def strain_stress_divergence_scaling():
         iPlot = iPlot + 1
 
     #legendLabels = ["Quadratic scaling","Wachspress", "PWL", "Weak", "WeakWachs"]
-    legendLabels = ["Linear scaling","Wachspress", "PWL", "Weak", "WeakWachs", "WeakPWL", "Wachspress Alt", "PWL Alt","WeakWachs Alt","MPM_var","MPM_weak"]
+    legendLabels = ["Linear scaling","MPAS_var", "MPAS_weak", "MPM_var","MPM_weak","MPM"]
 
     plt.legend(legendLabels, frameon=False, loc=2, fontsize=8, handlelength=4)
 

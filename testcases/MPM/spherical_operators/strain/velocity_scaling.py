@@ -169,7 +169,7 @@ def velocity_scaling():
 
     latitudeLimit = 20.0
 
-    fig, axes = plt.subplots(1,1,figsize=(4,3))
+    fig, axes = plt.subplots(1,1,figsize=(3,3))
 
     iVelo = 0
     for velocity in velocities:
@@ -211,7 +211,6 @@ def velocity_scaling():
                 elif (velocity == "v"):
                     y.append(normV)
 
-
         axes.loglog(x,y, marker='o', color=lineColours[iVelo], ls="solid", markersize=5.0, label=labels[iVelo] )
         print('resolution',x)
         print('normMP',y)
@@ -236,20 +235,15 @@ def velocity_scaling():
                 elif (velocity == "v"):
                     y.append(normV)
 
-
         axes.loglog(x,y, marker='o', color=lineColours[iVelo], ls="solid", markersize=5.0, label=labels[iVelo] )
         print('resolution',x)
         print('normVertex',y)
         iVelo = iVelo + 1
 
-
         axes.legend(frameon=False, loc=2, fontsize=8, handlelength=4)
 
         axes.set_xlabel("Grid resolution")
         axes.set_ylabel(r"$L_2$ error norm")
-
-        #iVelo = iVelo + 1
-
 
     plt.tight_layout(pad=0.5, w_pad=0.5, h_pad=0.5)
     plt.savefig("velocity_scaling.png", dpi=400)

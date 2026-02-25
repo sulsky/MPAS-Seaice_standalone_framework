@@ -46,7 +46,6 @@ def get_mpas_patch_collection(nVertices, vertexDegree, cellsOnVertex, xCell, yCe
                 patches.append(polygon)
 
                 colours.append(mpasArray[iVertex])
-
                 minval = min(minval,mpasArray[iVertex])
                 maxval = max(maxval,mpasArray[iVertex])
 
@@ -83,15 +82,54 @@ def plot_subfigure(axes, fig, nVertices, vertexDegree, cellsOnVertex, xCell, yCe
     if (subfigureLabel != None):
         axes.text(0.02, 0.89, subfigureLabel, verticalalignment='bottom', horizontalalignment='left',transform=axes.transAxes, fontsize=8)
 
+    divider = make_axes_locatable(axes)
+    cax = divider.append_axes("right", size="5%", pad=0.05)
     if (colorbar):
-        divider = make_axes_locatable(axes)
-        cax = divider.append_axes("right", size="5%", pad=0.05)
         cb = fig.colorbar(patchCollection,cax=cax)
         if (unityBar):
             cb.ax.set_yticklabels(['-1.0','-0.5','0.0','0.5','1.0'])
         if (sciNote):
             cb.formatter.set_powerlimits((0, 0))
             cb.update_ticks()
+    else:
+        cax.set_axis_off()
+
+#---------------------------------------------------------------
+
+def scatter_plot(axes, fig, posnMP, color, vmin, vmax, minX, maxX, minY, maxY, sciNote=False, diffPlot=False, title=None, subfigureLabel=None, colorbar=True, unityBar=False):
+
+    if (not diffPlot):
+        #colourMap = mpl.cm.jet
+        colourMap = mpl.cm.seismic
+    else:
+        #colourMap = mpl.cm.RdBu
+        colourMap = mpl.cm.seismic
+
+    scatter = axes.scatter(posnMP[:,0], posnMP[:,1], posnMP[:,2], c = color, cmap=colourMap)
+    axes.set_ylim([minY,maxY])
+    axes.set_xlim([minX,maxX])
+    axes.set_xticks([])
+    axes.set_yticks([])
+    axes.set_aspect('equal', adjustable='box')
+
+    if (title != None):
+        axes.set_title(title, fontsize=8)
+
+    if (subfigureLabel != None):
+        axes.text(0.02, 0.89, subfigureLabel, verticalalignment='bottom', horizontalalignment='left',transform=axes.transAxes, fontsize=8)
+
+    divider = make_axes_locatable(axes)
+    cax = divider.append_axes("right", size="5%", pad=0.05)
+    scatter.set_clim(vmin=vmin, vmax=vmax)
+    if (colorbar):
+        cb = fig.colorbar(scatter,cax=cax)
+        if (unityBar):
+            cb.ax.set_yticklabels(['-1.0','-0.5','0.0','0.5','1.0'])
+        if (sciNote):
+            cb.formatter.set_powerlimits((0, 0))
+            cb.update_ticks()
+    else:
+        cax.set_axis_off()
 
 #---------------------------------------------------------------
 
@@ -148,15 +186,25 @@ def strain_map():
     fileIC.close()
 
     # mpm
-    fileMPM = Dataset("./output_mpm_40962/output.2000.nc","r")
 
-    strain11 = fileMPM.variables["strain11AvgVertex"][0,:]
-    strain22 = fileMPM.variables["strain22AvgVertex"][0,:]
-    strain12 = fileMPM.variables["strain12AvgVertex"][0,:]
+    fileIC = Dataset("particles_40962.nc","r")
 
-    strain11Diff = strain11 - strain11VertexAnalytical
-    strain22Diff = strain22 - strain22VertexAnalytical
-    strain12Diff = strain12 - strain12VertexAnalytical
+    strain11AnalyticalMP = fileIC.variables["strainAnalyticalMP"][:,0]
+    strain22AnalyticalMP = fileIC.variables["strainAnalyticalMP"][:,1]
+    strain12AnalyticalMP = fileIC.variables["strainAnalyticalMP"][:,2]
+    posnMP = fileIC.variables["posnMP"][:,:]
+
+    fileIC.close()
+
+    fileMPM = Dataset("./output_mpm_40962/particles_output.2000-01-01_01.00.00.nc","r")
+
+    strain11 = fileMPM.variables["strainRateMP"][0,:,0]
+    strain22 = fileMPM.variables["strainRateMP"][0,:,1]
+    strain12 = fileMPM.variables["strainRateMP"][0,:,2]
+
+    strain11Diff = strain11 - strain11AnalyticalMP
+    strain22Diff = strain22 - strain22AnalyticalMP
+    strain12Diff = strain12 - strain12AnalyticalMP
 
     print("MPM: ",
           np.amin(strain11Diff), np.amax(strain11Diff),
@@ -169,14 +217,14 @@ def strain_map():
     mpl.rc('text', usetex=True)
     mpl.rcParams['axes.linewidth'] = 0.5
 
-    fig, axes = plt.subplots(6, 6)
-    fig.set_size_inches(9, 8)
+    fig, axes = plt.subplots(4, 6)
+    fig.set_size_inches(9, 6)
 
-    minStrain = -3.3
-    maxStrain =  3.3
+    minStrain = -3.5
+    maxStrain =  3.5
 
-    minDiff = -0.043
-    maxDiff =  0.043
+    minDiff = -0.10
+    maxDiff =  0.10
 
     # Velocities
     plot_subfigure(axes[0,0], fig, nVertices, vertexDegreeArr, cellsOnVertex, xCell, yCell, zCell, latVertex, uVelocity, -1.0, 1.0, -1.0, 1.0, -1.0, 1.0, \
@@ -203,18 +251,31 @@ def strain_map():
                    False, False, r'$\epsilon_{12}$', '(h)', True)
 
     # MPM
-    plot_subfigure(axes[2,0], fig, nVertices, vertexDegreeArr, cellsOnVertex, xCell, yCell, zCell, latVertex, strain11Diff, minDiff, maxDiff, -1.0, 1.0, -1.0, 1.0, \
+    scatter_plot(axes[2,0], fig, posnMP, strain11, minStrain, maxStrain, -1.0, 1.0, -1.0, 1.0, \
                    False, False, r'$\epsilon_{11}$ MPM.', '(i)', False)
-    plot_subfigure(axes[2,1], fig, nVertices, vertexDegreeArr, cellsOnVertex, xCell, yCell, zCell, latVertex, strain11Diff, minDiff, maxDiff, -0.2, 0.2, -0.2, 0.2, \
+    scatter_plot(axes[2,1], fig, posnMP, strain11, minStrain, maxStrain, -0.2, 0.2, -0.2, 0.2, \
                    False, False, r'$\epsilon_{11}$ MPM.', '(j)', False)
-    plot_subfigure(axes[2,2], fig, nVertices, vertexDegreeArr, cellsOnVertex, xCell, yCell, zCell, latVertex, strain22Diff, minDiff, maxDiff, -1.0, 1.0, -1.0, 1.0, \
+    scatter_plot(axes[2,2], fig, posnMP, strain22, minStrain, maxStrain, -1.0, 1.0, -1.0, 1.0, \
                    False, False, r'$\epsilon_{22}$ MPM.', '(k)', False)
-    plot_subfigure(axes[2,3], fig, nVertices, vertexDegreeArr, cellsOnVertex, xCell, yCell, zCell, latVertex, strain22Diff, minDiff, maxDiff, -0.2, 0.2, -0.2, 0.2, \
+    scatter_plot(axes[2,3], fig, posnMP, strain22, minStrain, maxStrain, -0.2, 0.2, -0.2, 0.2, \
                    False, False, r'$\epsilon_{22}$ MPM.', '(l)', False)
-    plot_subfigure(axes[2,4], fig, nVertices, vertexDegreeArr, cellsOnVertex, xCell, yCell, zCell, latVertex, strain12Diff, minDiff, maxDiff, -1.0, 1.0, -1.0, 1.0, \
+    scatter_plot(axes[2,4], fig, posnMP, strain12, minStrain, maxStrain, -1.0, 1.0, -1.0, 1.0, \
                    False, False, r'$\epsilon_{12}$ MPM.', '(m)', False)
-    plot_subfigure(axes[2,5], fig, nVertices, vertexDegreeArr, cellsOnVertex, xCell, yCell, zCell, latVertex, strain12Diff, minDiff, maxDiff, -0.2, 0.2, -0.2, 0.2, \
+    scatter_plot(axes[2,5], fig, posnMP, strain12, minStrain, maxStrain, -0.2, 0.2, -0.2, 0.2, \
                    False, False, r'$\epsilon_{12}$ MPM.', '(n)', True)
+
+    scatter_plot(axes[3,0], fig, posnMP, strain11Diff, minDiff, maxDiff, -1.0, 1.0, -1.0, 1.0, \
+                   False, True, r'$\epsilon_{11}$ MPM.', '(i)', False)
+    scatter_plot(axes[3,1], fig, posnMP, strain11Diff, minDiff, maxDiff, -0.2, 0.2, -0.2, 0.2, \
+                   False, True, r'$\epsilon_{11}$ MPM.', '(j)', False)
+    scatter_plot(axes[3,2], fig, posnMP, strain22Diff, minDiff, maxDiff, -1.0, 1.0, -1.0, 1.0, \
+                   False, True, r'$\epsilon_{22}$ MPM.', '(k)', False)
+    scatter_plot(axes[3,3], fig, posnMP, strain22Diff, minDiff, maxDiff, -0.2, 0.2, -0.2, 0.2, \
+                   False, True, r'$\epsilon_{22}$ MPM.', '(l)', False)
+    scatter_plot(axes[3,4], fig, posnMP, strain12Diff, minDiff, maxDiff, -1.0, 1.0, -1.0, 1.0, \
+                   False, True, r'$\epsilon_{12}$ MPM.', '(m)', False)
+    scatter_plot(axes[3,5], fig, posnMP, strain12Diff, minDiff, maxDiff, -0.2, 0.2, -0.2, 0.2, \
+                   False, True, r'$\epsilon_{12}$ MPM.', '(n)', True)
 
     plt.tight_layout(pad=0.5, w_pad=0.5, h_pad=0.5)
     plt.savefig("strain_map.png",dpi=400)

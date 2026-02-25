@@ -84,6 +84,7 @@
     config_limit_air_temperatures = true
 /
 &velocity_solver
+    config_two_pass_mpm_strain = false
     config_dynamics_subcycle_number = 1
     config_rotate_cartesian_grid = true
     config_include_metric_terms = true

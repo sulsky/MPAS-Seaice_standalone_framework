@@ -1,0 +1,25 @@
+This test case looks at accuracy of strain rate, stress, and velocity computations.
+
+The problem consists of assigning u,v components of velocity, computing strain
+rate and stress. The MP velocity is initialized so that each component is
+a spherical harmonic.  The MP velocity is reconstructed on the mesh.  Strain
+rate is computed from the mesh velocity field.  MPM computes strains using the
+mpm algorithm: differentiate Wachspress basis functions in the tangent plane to
+get a strain rate for each material point.
+
+The constitutive model for stress is 'linear'.  So each material point has a stress equal to the strain rate.
+-mpmvar takes material point stress to mesh vertices (in preparation for the variational stress divergence)
+-mpmweak takes material point stress to mesh cell centers (in preparatation for the weak stress divergence)
+-mpm has stress only at material points (used in the mpm stress divergence)
+
+velocity_map plots the vertex values of velocity reconstructed from the MP values, and the error for one mesh size.
+velocity_scaling plots the error in the reconstructed velocity as a function of grid resolution.
+
+strain_map plots the analytical solution for the strain on a mesh and a scatter plot of MPs for one mesh
+resolution. The error is also plotted.
+strain_scaling plots the norm of the error in each strain component.
+
+stess_scaling plots the norm of the error in each stress component as a function of mesh resolution for
+each method.
+stress_map plots the analytical solution for stress on a mesh and a scatter plot of MPs for one mesh resolution.
+The error is also plotted.
