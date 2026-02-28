@@ -72,8 +72,6 @@
         <var name="posnMP"/>
         <var name="decohesionOpeningMP"/>
         <var name="decohesionStrainMP"/>
-        <var name="decohesionCrackEndPoints"/>
-        <var name="decohesionCrackEdgeIndex"/>
         <var name="stressMP"/>
         <var name="uvVelMP"/>
 </stream>

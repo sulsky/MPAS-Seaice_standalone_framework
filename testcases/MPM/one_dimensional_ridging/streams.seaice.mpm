@@ -64,8 +64,6 @@
         <var name="uvVelMP"/>
         <var name="stressMP"/>
         <var name="decohesionOpeningMP"/>
-        <var name="decohesionCrackEndPoints"/>
-        <var name="decohesionCrackEdgeIndex"/>
         <var name="iceAreaCellMP"/>
         <var name="iceVolumeCellMP"/>
         <var name="snowVolumeCellMP"/>
