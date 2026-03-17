@@ -9,6 +9,30 @@
                   filename_interval="none"
                   input_interval="initial_only" />
 
+<stream name="initialConditions"
+        type="input"
+        filename_template="ic.nc"
+        filename_interval="none"
+        input_interval="initial_only">
+
+   <var name="iceAreaCell"/>
+   <var name="iceVolumeCell"/>
+   <var name="iceAreaCategory"/>
+   <var name="iceVolumeCategory"/>
+   <var name="fVertex"/>
+   <var name="uAirVelocity"/>
+   <var name="vAirVelocity"/>
+   <var name="airStressVertexU"/>
+   <var name="airStressVertexV"/>
+</stream>
+
+
+<immutable_stream name="particleInput"
+                  type="input"
+                  filename_template="particles.nc"
+                  filename_interval="none"
+                  input_interval="initial_only" />
+
 <immutable_stream name="restart"
                   type="input;output"
                   filename_template="restarts/restart.$Y-$M-$D_$h.$m.$s.nc"
@@ -21,7 +45,7 @@
         filename_template="output/output.$Y.nc"
         filename_interval="01-00-00_00:00:00"
         clobber_mode="replace_files"
-        output_interval="00-00-01_00:00:00" >
+        output_interval="00-00-00_01:00:00" >
 	<var name="xtime"/>
 	<var name="daysSinceStartOfSim"/>
 	<var name="iceAreaCell"/>
@@ -38,21 +62,21 @@
         filename_template="output/particles_output.$Y-$M-$D_$h.$m.$s.nc"
         filename_interval="00-00-00_00:00:01"
         clobber_mode="replace_files"
-        output_interval="00-00-01_00:00:00" >
-
-   <var name="statusMP"/>
-   <var name="iCellMP"/>
-   <var name="cellIDCreationMP"/>
-   <var name="creationIndexMP"/>
-   <var name="indexToCellIDMP"/>
-   <var name="procIDParticle"/>
-   <var name="posnMP"/>
-   <var name="iceAreaCellMP"/>
-   <var name="iceVolumeCellMP"/>
-   <var name="uvVelMP"/>
-   <var name="decohesionOpeningMP"/>
+        output_interval="00-00-00_01:00:00" >
+        <var name="statusMP"/>
+        <var name="iCellMP"/>
+        <var name="cellIDCreationMP"/>
+        <var name="creationIndexMP"/>
+        <var name="indexToCellIDMP"/>
+        <var name="procIDParticle"/>
+        <var name="posnMP"/>
+        <var name="iceAreaCellMP"/>
+        <var name="iceVolumeCellMP"/>
+        <var name="decohesionOpeningMP"/>
+        <var name="decohesionStrainMP"/>
+        <var name="stressMP"/>
+        <var name="uvVelMP"/>
 </stream>
-
 
 <immutable_stream name="LYqSixHourlyForcing"
                   type="input"
@@ -167,7 +191,6 @@
 	<var name="absoluteSaltError"/>
 	<var name="relativeSaltError"/>
 </stream>
-
 
 <stream name="loadBalanceOutput"
         type="output"

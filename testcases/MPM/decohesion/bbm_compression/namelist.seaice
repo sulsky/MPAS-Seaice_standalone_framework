@@ -1,5 +1,5 @@
 &seaice_model
-    config_dt = 900.0
+    config_dt = 900.
     config_calendar_type = 'noleap'
     config_start_time = '2000-01-01_00:00:00'
     config_stop_time = 'none'
@@ -127,13 +127,13 @@
     config_mpm_polympo_init_test = false
 /
 &elastic_decohesion_model
-    config_youngs_modulus = 1.e6
-    config_poissons_ratio = 0.36
-    config_tensile_strength = 1200.
-    config_compressive_strength = 6000.
-    config_shear_strength = 720.
+    config_youngs_modulus = 1.0e6
+    config_poissons_ratio = 0.33
+    config_tensile_strength = 3000.0
+    config_compressive_strength = 10000.0
+    config_shear_strength = 2000.0
     config_shear_magnification_factor = 4.0
-    config_jump_scale_factor = 25.0
+    config_jump_scale_factor = 100.0
 /
 &column_package
     config_column_physics_type = 'icepack'

@@ -231,6 +231,12 @@ def in_geom(x,
             iceArea = 1.0
             iceVolume = 1.0
 
+    elif (geomType == 'BBMsquare'):
+        if (x < 1000000 and x > 0 and y < 1020000 and y > 20000):
+            in_geom = True
+            iceArea = 1.0
+            iceVolume = 1.0
+
     elif (geomType == 'disks'):
         if ((x-0.25)*(x-0.25)+(y-0.25)*(y-0.25) < 0.04 or
             (x-0.75)*(x-0.75)+(y-0.75)*(y-0.75) < 0.04):
