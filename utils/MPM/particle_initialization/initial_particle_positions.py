@@ -1,5 +1,5 @@
 import sys
-from math import fabs, sqrt, pow, pi, sin, cos, asin, acos, atan2
+from math import fabs, sqrt, pow, pi, sin, cos, asin, acos, atan2, tan, atan
 import numpy as np
 import numpy.ma as ma
 import argparse
@@ -106,6 +106,47 @@ def mpas_mirror_point(xPoint,
                                                          zA)
 
     return xMirror, yMirror, zMirror
+
+#-------------------------------------------------------------------------------
+
+@njit
+def mpas_signed_triangle_area_sphere(ax, ay, az, bx, by, bz, cx, cy, cz, radius):
+
+     ab = mpas_arc_length(ax, ay, az, bx, by, bz)/radius
+     bc = mpas_arc_length(bx, by, bz, cx, cy, cz)/radius
+     ca = mpas_arc_length(cx, cy, cz, ax, ay, az)/radius
+     semiperim = 0.5 * (ab + bc + ca)
+
+     tanqe = sqrt(max(0.0,tan(0.5 * semiperim) * tan(0.5 * (semiperim - ab)) \
+                  * tan(0.5* (semiperim - bc)) * tan(0.5 * (semiperim - ca))))
+
+     area = 4.0 * radius * radius * atan(tanqe)
+
+     ablenx = bx - ax
+     ableny = by - ay
+     ablenz = bz - az
+
+     aclenx = cx - ax
+     acleny = cy - ay
+     aclenz = cz - az
+
+     dlenx =   (ableny * aclenz) - (ablenz * acleny)
+     dleny = -((ablenx * aclenz) - (ablenz * aclenx))
+     dlenz =   (ablenx * acleny) - (ableny * aclenx)
+
+     if ((dlenx*ax + dleny*ay + dlenz*az) < 0.0):
+          return -area
+     else:
+          return area
+
+#-------------------------------------------------------------------------------
+
+@njit
+def mpas_signed_triangle_area_plane(ax, ay, az, bx, by, bz, cx, cy, cz):
+
+     area = 0.5*(ax*(by-cy) - bx*(ay-cy) + cx*(ay-by))
+
+     return area
 
 #-------------------------------------------------------------------------------
 
@@ -219,21 +260,14 @@ def in_geom(x,
             iceArea = 1.0
             iceVolume = 1.0
 
-    elif (geomType == 'bar'):
-        if (x < 160000 and x > 0 and y < 160000 and y > 80000):
-            in_geom = True
-            iceArea = 1.0
-            iceVolume = 1.0
-
     elif (geomType == 'square'):
-        if (x < 100000 and x > 0 and y < 120000 and y > 20000):
+        if (x < 160000 and x > 80000 and y < 160000 and y > 80000):
             in_geom = True
             iceArea = 1.0
             iceVolume = 1.0
 
     elif (geomType == 'disks'):
-        if ((x-0.25)*(x-0.25)+(y-0.25)*(y-0.25) < 0.04 or
-            (x-0.75)*(x-0.75)+(y-0.75)*(y-0.75) < 0.04):
+        if ((x-0.25)*(x-0.25)+(y-0.25)*(y-0.25) < 0.04 or (x-0.75)*(x-0.75)+(y-0.75)*(y-0.75) < 0.04):
             in_geom = True
             iceArea = 1.0
             iceVolume = 1.0
@@ -274,6 +308,7 @@ def place_particles_in_cell(particleInitType,
     xTrial = []
     yTrial = []
     zTrial = []
+    areaTrial = []
 
     if (particlePositionInitType.strip() == 'even'):
 
@@ -316,9 +351,12 @@ def place_particles_in_cell(particleInitType,
                     y = earthRadius * sin(lon) * cos(lat)
                     z = earthRadius * sin(lat)
 
+                    area = earthRadius*earthRadius*((sin(lat) - sin(lat-dx))*(dy))
+
                     xTrial.append(x)
                     yTrial.append(y)
                     zTrial.append(z)
+                    areaTrial.append(area)
 
         else: # not on a sphere
 
@@ -344,10 +382,12 @@ def place_particles_in_cell(particleInitType,
                     x = xmin + dx * float(2 * i + 1)
                     y = ymin + dy * float(2 * j + 1)
                     z = 0.0
+                    area = dx*dy
 
                     xTrial.append(x)
                     yTrial.append(y)
                     zTrial.append(z)
+                    areaTrial.append(area)
 
     elif (particlePositionInitType.strip() == 'onePerEdge'):
         # place one particle per edge in the polygon
@@ -393,10 +433,24 @@ def place_particles_in_cell(particleInitType,
                 x = x*earthRadius/R
                 y = y*earthRadius/R
                 z = z*earthRadius/R
+                v1[0]=v1[0]*earthRadius
+                v1[1]=v1[1]*earthRadius
+                v1[2]=v1[2]*earthRadius
+                v2[0]=v2[0]*earthRadius
+                v2[1]=v2[1]*earthRadius
+                v2[2]=v2[2]*earthRadius
+                v3[0]=v3[0]*earthRadius
+                v3[1]=v3[1]*earthRadius
+                v3[2]=v3[2]*earthRadius
+                area = mpas_signed_triangle_area_sphere(v1[0], v1[1], v1[2], v2[0], v2[1], v2[2], v3[0], v3[1], v3[2], earthRadius)
+
+            else:
+                area = mpas_signed_triangle_area_plane(v1[0], v1[1], v1[2], v2[0], v2[1], v2[2], v3[0], v3[1], v3[2])
 
             xTrial.append(x)
             yTrial.append(y)
             zTrial.append(z)
+            areaTrial.append(area)
 
     elif (particlePositionInitType.strip() == 'poisson'):
         # place points using a poisson distribution
@@ -411,8 +465,9 @@ def place_particles_in_cell(particleInitType,
     xInCell = []
     yInCell = []
     zInCell = []
+    areaInCell = []
 
-    for x, y, z in zip(xTrial, yTrial, zTrial):
+    for x, y, z, area in zip(xTrial, yTrial, zTrial, areaTrial):
 
         if (on_a_sphere):
             inCell = mpas_in_cell(x,
@@ -438,17 +493,20 @@ def place_particles_in_cell(particleInitType,
             xInCell.append(x)
             yInCell.append(y)
             zInCell.append(z)
+            areaInCell.append(area)
 
     return \
         xInCell, \
         yInCell, \
-        zInCell
+        zInCell, \
+        areaInCell
 
 #-------------------------------------------------------------------------------
 
 def check_cell_particles_in_geom(xInCell,
                                  yInCell,
                                  zInCell,
+                                 areaInCell,
                                  on_a_sphere,
                                  earthRadius,
                                  geomType,
@@ -456,6 +514,7 @@ def check_cell_particles_in_geom(xInCell,
                                  posnMP,
                                  latCellMP,
                                  lonCellMP,
+                                 areaMP,
                                  cellIDCreationMP,
                                  creationIndexMP,
                                  iceAreaCellMP,
@@ -464,7 +523,7 @@ def check_cell_particles_in_geom(xInCell,
 
     # check if cell particles are in geometry
     k = 0
-    for x, y, z in zip(xInCell, yInCell, zInCell):
+    for x, y, z, area in zip(xInCell, yInCell, zInCell, areaInCell):
 
         if (on_a_sphere):
 
@@ -491,6 +550,7 @@ def check_cell_particles_in_geom(xInCell,
             posnMP.append([x, y, z])
             latCellMP.append(lat)
             lonCellMP.append(lon)
+            areaMP.append(area)
             cellIDCreationMP.append(iCell+1)
             creationIndexMP.append(k)
             iceAreaCellMP.append(iceArea)
@@ -502,6 +562,7 @@ def check_cell_particles_in_geom(xInCell,
         posnMP, \
         latCellMP, \
         lonCellMP, \
+        areaMP, \
         cellIDCreationMP, \
         creationIndexMP, \
         iceAreaCellMP, \
@@ -517,6 +578,7 @@ def create_particles_file(filenameOut,
                           posnMP,
                           latCellMP,
                           lonCellMP,
+                          areaMP,
                           cellIDCreationMP,
                           creationIndexMP,
                           nParticlesCell,
@@ -543,6 +605,9 @@ def create_particles_file(filenameOut,
 
     var = fileOut.createVariable("lonCellMP","d",dimensions=["nParticles"])
     var[:] = lonCellMP[:]
+
+    var = fileOut.createVariable("areaMP","d",dimensions=["nParticles"])
+    var[:] = areaMP[:]
 
     var = fileOut.createVariable("cellIDCreationMP","i",dimensions=["nParticles"])
     var[:] = cellIDCreationMP[:]
@@ -649,6 +714,7 @@ def initial_particle_positions(filenameMesh,
     posnMP = []
     latCellMP = []
     lonCellMP = []
+    areaMP = []
     cellIDCreationMP = []
     creationIndexMP = []
     iceAreaCellMP = []
@@ -658,7 +724,8 @@ def initial_particle_positions(filenameMesh,
 
         xInCell, \
             yInCell, \
-            zInCell = place_particles_in_cell(particleInitType,
+            zInCell, \
+            areaInCell = place_particles_in_cell(particleInitType,
                                               particleInitNumber,
                                               areaCell[iCell],
                                               averageCellSize,
@@ -679,6 +746,7 @@ def initial_particle_positions(filenameMesh,
         posnMP, \
             latCellMP, \
             lonCellMP, \
+            areaMP, \
             cellIDCreationMP, \
             creationIndexMP, \
             iceAreaCellMP, \
@@ -686,6 +754,7 @@ def initial_particle_positions(filenameMesh,
             nParticlesCell[iCell] = check_cell_particles_in_geom(xInCell,
                                                                  yInCell,
                                                                  zInCell,
+                                                                 areaInCell,
                                                                  on_a_sphere,
                                                                  earthRadius,
                                                                  geomType,
@@ -693,6 +762,7 @@ def initial_particle_positions(filenameMesh,
                                                                  posnMP,
                                                                  latCellMP,
                                                                  lonCellMP,
+                                                                 areaMP,
                                                                  cellIDCreationMP,
                                                                  creationIndexMP,
                                                                  iceAreaCellMP,
@@ -703,6 +773,7 @@ def initial_particle_positions(filenameMesh,
     posnMP = np.array(posnMP)
     latCellMP = np.array(latCellMP)
     lonCellMP = np.array(lonCellMP)
+    areaMP = np.array(areaMP)
     cellIDCreationMP = np.array(cellIDCreationMP)
     creationIndexMP = np.array(creationIndexMP)
     nParticlesCell = np.array(nParticlesCell)
@@ -719,6 +790,7 @@ def initial_particle_positions(filenameMesh,
                           posnMP,
                           latCellMP,
                           lonCellMP,
+                          areaMP, 
                           cellIDCreationMP,
                           creationIndexMP,
                           nParticlesCell,

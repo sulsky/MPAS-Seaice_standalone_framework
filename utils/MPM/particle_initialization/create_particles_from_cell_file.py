@@ -65,6 +65,7 @@ def create_particles_from_cell_file(filenameMesh,
     posnMP = []
     latCellMP = []
     lonCellMP = []
+    areaMP = []
     cellIDCreationMP = []
     creationIndexMP = []
     iceAreaCellMP = []
@@ -78,7 +79,8 @@ def create_particles_from_cell_file(filenameMesh,
 
             xInCell, \
                 yInCell, \
-                zInCell = place_particles_in_cell(particleInitType,
+                zInCell, \
+                areaInCell = place_particles_in_cell(particleInitType,
                                                   particleInitNumber,
                                                   areaCell[iCell],
                                                   averageCellSize,
@@ -97,10 +99,11 @@ def create_particles_from_cell_file(filenameMesh,
                                                   zCell[iCell])
 
             k = 0
-            for x, y, z in zip(xInCell, yInCell, zInCell):
+            for x, y, z, area in zip(xInCell, yInCell, zInCell, areaInCell):
                 posnMP.append([x, y, z])
                 latCellMP.append(0.0)
                 lonCellMP.append(0.0)
+                areaMP.append(area)
                 cellIDCreationMP.append(indexToCellID[iCell])
                 creationIndexMP.append(k)
                 iceAreaCellMP.append(iceAreaCell[iCell])
@@ -113,6 +116,7 @@ def create_particles_from_cell_file(filenameMesh,
     posnMP = np.array(posnMP)
     latCellMP = np.array(latCellMP)
     lonCellMP = np.array(lonCellMP)
+    areaMP = np.array(areaMP)
     cellIDCreationMP = np.array(cellIDCreationMP)
     creationIndexMP = np.array(creationIndexMP)
     nParticlesCell = np.array(nParticlesCell)
@@ -129,6 +133,7 @@ def create_particles_from_cell_file(filenameMesh,
                           posnMP,
                           latCellMP,
                           lonCellMP,
+                          areaMP,
                           cellIDCreationMP,
                           creationIndexMP,
                           nParticlesCell,
