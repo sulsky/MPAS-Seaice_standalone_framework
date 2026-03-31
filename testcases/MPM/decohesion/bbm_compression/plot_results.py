@@ -52,7 +52,7 @@ def plot_results(gridFilename):
     axes[0,0].set_xlabel("x")
     axes[0,0].set_ylabel("y")
     axes[0,0].set_title("normal opening")
-    scatter.set_clim(vmin=0, vmax=0.15)
+    scatter.set_clim(vmin=0, vmax=10)
     fig.colorbar(scatter)
 
     color = decohesionOpeningMP[0,:,1]
@@ -66,7 +66,7 @@ def plot_results(gridFilename):
     axes[0,1].set_xlabel("x")
     axes[0,1].set_ylabel("y")
     axes[0,1].set_title("tangential opening")
-    scatter.set_clim(vmin=-0.2, vmax=0.2)
+    scatter.set_clim(vmin=-10, vmax=10)
     fig.colorbar(scatter)
 
     color = abs(decohesionOpeningMP[0,:,0]) + abs(decohesionOpeningMP[0,:,1])
@@ -80,7 +80,7 @@ def plot_results(gridFilename):
     axes[1,0].set_xlabel("x")
     axes[1,0].set_ylabel("y")
     axes[1,0].set_title("combined (1-norm) opening")
-    scatter.set_clim(vmin=0, vmax=0.4)
+    scatter.set_clim(vmin=0, vmax=10)
     fig.colorbar(scatter)
 
     color = uvVelMP[0,:,0]
@@ -94,7 +94,7 @@ def plot_results(gridFilename):
     axes[1,1].set_xlabel("x")
     axes[1,1].set_ylabel("y")
     axes[1,1].set_title("u-Velocity")
-    scatter.set_clim(vmin=-0.008, vmax=0.0)
+    scatter.set_clim(vmin=-0.05, vmax=1.e-5)
     fig.colorbar(scatter)
 
     plt.tight_layout()

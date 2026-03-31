@@ -86,7 +86,7 @@
     config_include_metric_terms = false
     config_elastic_subcycle_number = 1200
     config_strain_scheme = 'mpm'
-    config_constitutive_relation_type = 'evp'
+    config_constitutive_relation_type = 'decohesion'
     config_stress_divergence_scheme = 'mpm'
     config_variational_basis = 'wachspress'
     config_variational_denominator_type = 'alternate'
@@ -126,11 +126,11 @@
 &elastic_decohesion_model
     config_youngs_modulus = 1.e6
     config_poissons_ratio = 0.3
-    config_tensile_strength = 25.e3
-    config_compressive_strength = 125.e3
-    config_shear_strength = 75.e3
+    config_tensile_strength = 1200.0
+    config_compressive_strength = 6000.0
+    config_shear_strength = 720.0
     config_shear_magnification_factor = 4.0
-    config_jump_scale_factor = 4000.0
+    config_jump_scale_factor = 100.0
 /
 &column_package
     config_column_physics_type = 'icepack'

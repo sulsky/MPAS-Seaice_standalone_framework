@@ -42,11 +42,15 @@
 
    <var name="statusMP"/>
    <var name="iCellMP"/>
-        <var name="cellIDCreationMP"/>
-        <var name="creationIndexMP"/>
-        <var name="indexToCellIDMP"/>
-        <var name="procIDParticle"/>
-        <var name="posnMP"/>
+   <var name="cellIDCreationMP"/>
+   <var name="creationIndexMP"/>
+   <var name="indexToCellIDMP"/>
+   <var name="procIDParticle"/>
+   <var name="posnMP"/>
+   <var name="iceAreaCellMP"/>
+   <var name="iceVolumeCellMP"/>
+   <var name="uvVelMP"/>
+   <var name="decohesionOpeningMP"/>
 </stream>
 
 
