@@ -13,6 +13,7 @@ from mpl_toolkits.axes_grid1 import make_axes_locatable
 import argparse
 from tqdm import tqdm
 from matplotlib import colors
+from iceberg_plot_utils import projection_scalar, projection_list
 
 #-------------------------------------------------------------------------------
 
@@ -78,7 +79,19 @@ def colored_line(x, y, c, ax, **lc_kwargs):
 #-------------------------------------------------------------------------------
 
 def iceberg_trajectories(filenameTemplate,
-                         nskip):
+                         nskip,
+                         location):
+
+    if (location == "antarctica"):
+        xMin = -4e6
+        xMax =  4e6
+        yMin = -4e6
+        yMax =  4e6
+    elif (location == "greenland"):
+        xMin = -3e6
+        xMax =  3e6
+        yMin = -3e6
+        yMax =  3e6
 
     plt.rcParams["font.family"] = "Times New Roman"
 
@@ -108,9 +121,10 @@ def iceberg_trajectories(filenameTemplate,
             for iIceberg in range(0,nIcebergs):
                 if (statusIB[iIceberg] == 1):
                     if (icebergID[iIceberg] not in positions):
-                        positions[icebergID[iIceberg]] = {"x": [], "y": [], "v": []}
+                        positions[icebergID[iIceberg]] = {"x": [], "y": [], "z": [], "v": []}
                     positions[icebergID[iIceberg]]["x"].append(posnIB[iIceberg,0])
                     positions[icebergID[iIceberg]]["y"].append(posnIB[iIceberg,1])
+                    positions[icebergID[iIceberg]]["z"].append(posnIB[iIceberg,2])
                     positions[icebergID[iIceberg]]["v"].append(icebergVolume[iIceberg])
 
         filein.close()
@@ -135,6 +149,7 @@ def iceberg_trajectories(filenameTemplate,
     verticesOnEdge = fileMesh.variables["verticesOnEdge"][:]-1
     xVertex = fileMesh.variables["xVertex"][:]
     yVertex = fileMesh.variables["yVertex"][:]
+    zVertex = fileMesh.variables["zVertex"][:]
 
     fileMesh.close()
 
@@ -149,28 +164,33 @@ def iceberg_trajectories(filenameTemplate,
         if (boundaryEdge[iEdge] == 1):
             iVertex1 = verticesOnEdge[iEdge,0]
             iVertex2 = verticesOnEdge[iEdge,1]
-            lineSegments.append([[yVertex[iVertex1],xVertex[iVertex1]],
-                                 [yVertex[iVertex2],xVertex[iVertex2]]])
+            x1, y1 = projection_scalar(xVertex[iVertex1],
+                                       yVertex[iVertex1],
+                                       zVertex[iVertex1],
+                                       location)
+            x2, y2 = projection_scalar(xVertex[iVertex2],
+                                       yVertex[iVertex2],
+                                       zVertex[iVertex2],
+                                       location)
+            lineSegments.append([[x1,y2],
+                                 [x1,y2]])
 
     lc = LineCollection(lineSegments, color="black", linestyle='solid', linewidth=0.2)
 
 
     # plot mesh
     patches = []
-    xMin =  sys.float_info.max
-    xMax = -sys.float_info.max
-    yMin =  sys.float_info.max
-    yMax = -sys.float_info.max
     for iCell in range(0,nCells):
-        if (latCell[iCell] < radians(-40.0)):
+        if ((location == "antarctica" and latCell[iCell] < radians(-40.0)) or
+            (location == "greenland"  and latCell[iCell] > radians( 40.0))):
             vertices = []
             for iVertexOnCell in range(0,nEdgesOnCell[iCell]):
                 iVertex = verticesOnCell[iCell,iVertexOnCell]
-                vertices.append([yVertex[iVertex],xVertex[iVertex]])
-                xMin = min(xMin,xVertex[iVertex])
-                xMax = max(xMax,xVertex[iVertex])
-                yMin = min(yMin,yVertex[iVertex])
-                yMax = max(yMax,yVertex[iVertex])
+                x, y = projection_scalar(xVertex[iVertex],
+                                         yVertex[iVertex],
+                                         zVertex[iVertex],
+                                         location)
+                vertices.append([x,y])
             patches.append(Polygon(vertices, closed=True, edgecolor="grey", facecolor="white", linewidth=0.1))
 
     pc = PatchCollection(patches, match_original=True)
@@ -184,8 +204,12 @@ def iceberg_trajectories(filenameTemplate,
     for icebergID, trajectory in tqdm(positions.items()):
 
         if (iIceberg % nskip == 0):
-            lc = colored_line(trajectory["y"],
-                              trajectory["x"],
+            x, y = projection_list(trajectory["x"],
+                                   trajectory["y"],
+                                   trajectory["z"],
+                                   location)
+            lc = colored_line(x,
+                              y,
                               trajectory["v"],
                               axis,
                               linewidth=0.2,
@@ -194,8 +218,8 @@ def iceberg_trajectories(filenameTemplate,
         iIceberg += 1
 
     #axis.autoscale_view()
-    axis.set_xlim(-4e6,4e6)
-    axis.set_ylim(-4e6,4e6)
+    axis.set_xlim(xMin,xMax)
+    axis.set_ylim(yMin,yMax)
 
     axis.set_aspect("equal")
     axis.set_xlabel("x (m)")
@@ -214,8 +238,10 @@ if __name__ == "__main__":
 
     parser.add_argument('-f', dest='filenameTemplate', required=True, help='')
     parser.add_argument('-n', dest='nskip', type=int, default=1, help='')
+    parser.add_argument('-l', dest='location', choices=["antarctica","greenland"], default="antarctica", help='')
 
     args = parser.parse_args()
 
     iceberg_trajectories(args.filenameTemplate,
-                         args.nskip)
+                         args.nskip,
+                         args.location)

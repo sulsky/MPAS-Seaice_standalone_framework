@@ -192,7 +192,10 @@ def meltrate_comparison(month):
     axes[0].set_title("MPAS-Seaice - %s" %(dateStr))
     
     # Merino plot
-    sc = axes[1].pcolormesh(longitudeMerino, latitudeMerino, icebergMeltfluxMerino, shading='nearest', cmap='jet', norm=mcolors.LogNorm(vmin=vmin, vmax=vmax))
+    sc = axes[1].pcolormesh(longitudeMerino,
+                            latitudeMerino,
+                            icebergMeltfluxMerino,
+                            shading='nearest', cmap='jet', norm=mcolors.LogNorm(vmin=vmin, vmax=vmax))
     divider = make_axes_locatable(axes[1])
     cax = divider.append_axes('right', size='2%', pad=0.02)
     cb = fig.colorbar(sc, cax=cax)
