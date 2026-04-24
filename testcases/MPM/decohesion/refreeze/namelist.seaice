@@ -1,9 +1,9 @@
 &seaice_model
-    config_dt = 900.
+    config_dt = 3600.0
     config_calendar_type = 'noleap'
     config_start_time = '2000-01-01_00:00:00'
     config_stop_time = 'none'
-    config_run_duration = '00-00-01_00:00:00'
+    config_run_duration = '00-00-90_00:00:00'
     config_num_halos = 2
 /
 &io
@@ -57,19 +57,18 @@
     config_use_velocity_solver = true
     config_use_mpm = true
     config_use_advection = true
-    config_use_forcing = false
+    config_use_forcing = true
     config_use_column_physics = true
-    config_use_mpm_icebergs = false
     config_use_prescribed_ice = false
     config_use_prescribed_ice_forcing = false
 /
 &forcing
-    config_atmospheric_forcing_type = 'none'
+    config_atmospheric_forcing_type = 'CORE'
     config_forcing_start_time = '2000-01-01_00:00:00'
     config_forcing_cycle_start = '2000-01-01_00:00:00'
-    config_forcing_cycle_duration = '2-00-00_00:00:00'
+    config_forcing_cycle_duration = '1-00-00_00:00:00'
     config_forcing_precipitation_units = 'mm_per_sec'
-    config_forcing_sst_type = 'none'
+    config_forcing_sst_type = 'ncar'
     config_forcing_bgc_type = 'none'
     config_update_ocean_fluxes = false
     config_frazil_coupling_type = 'external'
@@ -127,21 +126,21 @@
     config_mpm_polympo_init_test = false
 /
 &elastic_decohesion_model
-    config_youngs_modulus = 1.0e6
-    config_poissons_ratio = 0.33
-    config_tensile_strength = 3000.0
-    config_compressive_strength = 10000.0
-    config_shear_strength = 2000.0
+    config_youngs_modulus = 1.e6
+    config_poissons_ratio = 0.36
+    config_tensile_strength = 25.e3
+    config_compressive_strength = 125.e3
+    config_shear_strength = 75.e3
     config_shear_magnification_factor = 4.0
-    config_jump_scale_factor = 50.0
+    config_jump_scale_factor = 4000.0
 /
 &column_package
     config_column_physics_type = 'icepack'
     config_column_element_type = 'particles'
-    config_use_column_shortwave = false
-    config_use_column_vertical_thermodynamics = false
+    config_use_column_shortwave = true
+    config_use_column_vertical_thermodynamics = true
     config_use_column_biogeochemistry = false
-    config_use_column_itd_thermodynamics = false
+    config_use_column_itd_thermodynamics = true
     config_use_column_ridging = true
     config_use_column_snow_tracers = false
 /
