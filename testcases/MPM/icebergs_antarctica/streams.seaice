@@ -30,6 +30,7 @@
         <var name="uVelocity"/>
         <var name="vVelocity"/>
         <var name="icebergMeltRateCell"/>
+        <var name="bathymetry"/>
 </stream>
 
 <stream name="icebergsOut"
@@ -37,7 +38,7 @@
         filename_template="output/icebergs_output.$Y-$M-$D_$h.$m.$s.nc"
         filename_interval="00-00-00_00:00:01"
         clobber_mode="replace_files"
-        output_interval="00-00-05_00:00:00" >
+        output_interval="00-00-10_00:00:00" >
 
         <var name="statusIB"/>
         <var name="iCellIB"/>

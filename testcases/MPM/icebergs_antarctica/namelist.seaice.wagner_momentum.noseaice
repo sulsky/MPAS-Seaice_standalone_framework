@@ -140,10 +140,12 @@
     config_iceberg_use_bouyant_convection_ablation = true
     config_iceberg_use_basal_melt_ablation = true
     config_iceberg_velocity_update_type = "momentum"
-    config_iceberg_coastal_movement_type = "fixed"
+    config_iceberg_coastal_movement_type = "slip"
     config_iceberg_use_rollover = true
     config_iceberg_max_number_of_rollovers = 5
     config_iceberg_density = 850.0
+    config_iceberg_minimum_volume = 1000.0
+    config_iceberg_dynamics_subcycle_number = 10
     config_iceberg_use_coriolis_force = true
     config_iceberg_use_air_drag_force = true
     config_iceberg_air_form_drag_coefficient = 0.9
@@ -164,6 +166,7 @@
     config_iceberg_seaice_pressure_limit_force = 1e4
     config_iceberg_seaice_drag_coefficient = 1.0
     config_iceberg_use_captured_force_on_sea_ice = false
+    config_iceberg_motion_limit_scale_factor = 0.95
     config_iceberg_use_grounding = true
     config_iceberg_size_type = "angle_integral"
     config_iceberg_use_conservation_check = false
