@@ -14,6 +14,7 @@ import argparse
 from tqdm import tqdm
 from matplotlib import colors
 from iceberg_plot_utils import projection_scalar, projection_list
+from copy import copy
 
 #-------------------------------------------------------------------------------
 
@@ -78,6 +79,65 @@ def colored_line(x, y, c, ax, **lc_kwargs):
 
 #-------------------------------------------------------------------------------
 
+def plot_trajectories(location,
+                      pc,
+                      lc,
+                      positions,
+                      nskip,
+                      fieldName,
+                      vmin,
+                      vmax,
+                      colorbarTitle,
+                      filenameOut,
+                      xMin,
+                      xMax,
+                      yMin,
+                      yMax):
+
+    # start plot
+    fig, axis = plt.subplots()
+
+    axis.set_facecolor('grey')
+
+    pcCopy = copy(pc)
+    lcCopy = copy(lc)
+    axis.add_collection(pcCopy)
+    axis.add_collection(lcCopy)
+
+    # plot positions
+    iIceberg = 0
+    for icebergID, trajectory in tqdm(positions.items()):
+
+        if (iIceberg % nskip == 0):
+            x, y = projection_list(trajectory["x"],
+                                   trajectory["y"],
+                                   trajectory["z"],
+                                   location)
+            lcLines = colored_line(x,
+                                   y,
+                                   trajectory[fieldName],
+                                   axis,
+                                   linewidth=0.1,
+                                   cmap="jet",
+                                   norm=colors.LogNorm(vmin=vmax*0.001, vmax=vmax))
+        iIceberg += 1
+
+    #axis.autoscale_view()
+    axis.set_xlim(xMin,xMax)
+    axis.set_ylim(yMin,yMax)
+
+    axis.set_aspect("equal")
+    axis.set_xlabel("x (m)")
+    axis.set_ylabel("y (m)")
+    axis.set_title("Iceberg trajectories")
+    fig.colorbar(lcLines,label=colorbarTitle)
+
+    plt.tight_layout()
+    plt.savefig(filenameOut,dpi=600)
+    plt.close()
+
+#-------------------------------------------------------------------------------
+
 def iceberg_trajectories(filenameTemplate,
                          nskip,
                          location):
@@ -88,10 +148,10 @@ def iceberg_trajectories(filenameTemplate,
         yMin = -4e6
         yMax =  4e6
     elif (location == "greenland"):
-        xMin = -3e6
-        xMax =  3e6
-        yMin = -3e6
-        yMax =  3e6
+        xMin = -1.5e6
+        xMax =  1.5e6
+        yMin = -2e6
+        yMax =  1e6
 
     plt.rcParams["font.family"] = "Times New Roman"
 
@@ -101,6 +161,8 @@ def iceberg_trajectories(filenameTemplate,
 
     vmin =  sys.float_info.max
     vmax = -sys.float_info.max
+    smin =  sys.float_info.max
+    smax = -sys.float_info.max
 
     for filename in tqdm(filenames):
 
@@ -114,26 +176,29 @@ def iceberg_trajectories(filenameTemplate,
             statusIB = filein.variables["statusIB"][0,:]
             posnIB = filein.variables["posnIBGeo"][0,:,:]
             icebergVolume = filein.variables["icebergVolume"][0,:]
+            uVelocityIcebergGeo = filein.variables["uVelocityIcebergGeo"][0,:]
+            vVelocityIcebergGeo = filein.variables["vVelocityIcebergGeo"][0,:]
+            icebergSpeed = np.sqrt(np.add(np.power(uVelocityIcebergGeo,2),
+                                          np.power(vVelocityIcebergGeo,2)))
 
             vmin = min(vmin,np.amin(icebergVolume))
             vmax = max(vmax,np.amax(icebergVolume))
+            smin = min(smin,np.amin(icebergSpeed))
+            smax = max(smax,np.amax(icebergSpeed))
 
             for iIceberg in range(0,nIcebergs):
                 if (statusIB[iIceberg] == 1):
                     if (icebergID[iIceberg] not in positions):
-                        positions[icebergID[iIceberg]] = {"x": [], "y": [], "z": [], "v": []}
+                        positions[icebergID[iIceberg]] = {"x": [], "y": [], "z": [], "v": [], "s": []}
                     positions[icebergID[iIceberg]]["x"].append(posnIB[iIceberg,0])
                     positions[icebergID[iIceberg]]["y"].append(posnIB[iIceberg,1])
                     positions[icebergID[iIceberg]]["z"].append(posnIB[iIceberg,2])
                     positions[icebergID[iIceberg]]["v"].append(icebergVolume[iIceberg])
+                    positions[icebergID[iIceberg]]["s"].append(icebergSpeed[iIceberg])
 
         filein.close()
 
-
-    # start plot
-    fig, axis = plt.subplots()
-
-    axis.set_facecolor('grey')
+    print("nIcebergs: ", len(positions))
 
 
     # load mesh data
@@ -177,7 +242,6 @@ def iceberg_trajectories(filenameTemplate,
 
     lc = LineCollection(lineSegments, color="black", linestyle='solid', linewidth=0.2)
 
-
     # plot mesh
     patches = []
     for iCell in range(0,nCells):
@@ -195,40 +259,36 @@ def iceberg_trajectories(filenameTemplate,
 
     pc = PatchCollection(patches, match_original=True)
 
-    axis.add_collection(pc)
-    axis.add_collection(lc)
 
-    # plot positions
-    print("nIcebergs: ", len(positions))
-    iIceberg = 0
-    for icebergID, trajectory in tqdm(positions.items()):
+    plot_trajectories(location,
+                      pc,
+                      lc,
+                      positions,
+                      nskip,
+                      "v",
+                      vmin,
+                      vmax,
+                      "Volume (m^3)",
+                      "iceberg_trajectories_volume.png",
+                      xMin,
+                      xMax,
+                      yMin,
+                      yMax)
 
-        if (iIceberg % nskip == 0):
-            x, y = projection_list(trajectory["x"],
-                                   trajectory["y"],
-                                   trajectory["z"],
-                                   location)
-            lc = colored_line(x,
-                              y,
-                              trajectory["v"],
-                              axis,
-                              linewidth=0.2,
-                              cmap="jet",
-                              norm=colors.LogNorm(vmin=vmax*0.001, vmax=vmax))
-        iIceberg += 1
-
-    #axis.autoscale_view()
-    axis.set_xlim(xMin,xMax)
-    axis.set_ylim(yMin,yMax)
-
-    axis.set_aspect("equal")
-    axis.set_xlabel("x (m)")
-    axis.set_ylabel("y (m)")
-    axis.set_title("Iceberg trajectories")
-    fig.colorbar(lc,label="Volume (m^3)")
-
-    plt.tight_layout()
-    plt.savefig("iceberg_trajectories.png",dpi=600)
+    plot_trajectories(location,
+                      pc,
+                      lc,
+                      positions,
+                      nskip,
+                      "s",
+                      smin,
+                      smax,
+                      "Speed (m/s)",
+                      "iceberg_trajectories_speed.png",
+                      xMin,
+                      xMax,
+                      yMin,
+                      yMax)
 
 #-------------------------------------------------------------------------------
 
