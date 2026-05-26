@@ -181,7 +181,8 @@ def run_testcase(nProcs,
                   "mpm": {"config_use_mpm_velocity_solver":False,
                           "config_use_mpm_freeze_melt":False,
                           "config_mpm_particle_init_type":'cell',
-                          "config_mpm_particle_posn_init_type":'cell'},
+                          "config_mpm_particle_posn_init_type":'cell',
+                          "config_mpm_column_on_particle_test":True},
                   "use_sections": {"config_use_mpm":True},
                   "column_package": {"config_column_element_type":'particles'}}
     nmlChanges = add_pio_namelist_changes(nmlChanges, nProcs)
