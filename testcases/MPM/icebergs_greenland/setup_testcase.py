@@ -15,6 +15,8 @@ def setup_testcase():
     os.symlink("../icebergs_antarctica/namelist.seaice.wagner_momentum.noseaice","namelist.seaice")
     os.symlink("../icebergs_antarctica/streams.seaice","streams.seaice")
 
+    os.symlink("calving_mpas_greenland_no_regions.nc calving_mpas.nc")
+
 #-------------------------------------------------------------------------------
 
 if __name__ == "__main__":
