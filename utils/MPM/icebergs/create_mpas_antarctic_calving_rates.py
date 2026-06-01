@@ -1,4 +1,4 @@
-from netCDF4 import Dataset
+from netCDF4 import Dataset, stringtochar
 import geopandas as gpd
 from math import degrees, sqrt, radians
 import numpy as np
@@ -225,82 +225,17 @@ def plot_calving_cells(calvingCells,
     plt.title("MPAS cells, regions and calving linkage")
     plt.xlabel("x")
     plt.ylabel("y")
-    plt.savefig("calving_locations.pdf")
+    plt.savefig("calving_locations_antarctica.pdf")
 
 #-------------------------------------------------------------------------------
 
-def create_mpas_calving_file(calvingCells,
-                             calvingRate,
-                             coastalCellIndices,
-                             meshFilename,
-                             calvingFilename):
-
-    # create the output MPAS calving rate file
-
-    fileMesh = Dataset(meshFilename, "r")
-
-    nCells = len(fileMesh.dimensions["nCells"])
-
-    latCell = fileMesh.variables["latCell"][:]
-    nEdgesOnCell = fileMesh.variables["nEdgesOnCell"][:]
-    verticesOnCell = fileMesh.variables["verticesOnCell"][:]-1
-    xVertex = fileMesh.variables["xVertex"][:]
-    yVertex = fileMesh.variables["yVertex"][:]
-
-    fileMesh.close()
-
-    calvingRateCells = np.zeros(nCells)
-    nCalvingRegionsPerCell = np.zeros(nCells,dtype="i")
-
-    for iCalve in range(0,len(calvingCells)):
-        nCellsCalve = len(calvingCells[iCalve])
-        for iCell in list(calvingCells[iCalve]):
-            calvingRateCells[coastalCellIndices[iCell]] += calvingRate[iCalve] / float(nCellsCalve)
-            nCalvingRegionsPerCell[coastalCellIndices[iCell]] += 1
-
-    maxCalvingRegionsPerCell = np.amax(nCalvingRegionsPerCell)
-
-    calvingRegionsPerCell = np.zeros((nCells,maxCalvingRegionsPerCell),dtype="i")
-
-    nCalvingRegionsPerCell2 = np.zeros(nCells,dtype="i")
-
-    for iCalve in range(0,len(calvingCells)):
-        nCellsCalve = len(calvingCells[iCalve])
-        for iCell in list(calvingCells[iCalve]):
-            calvingRegionsPerCell[coastalCellIndices[iCell],nCalvingRegionsPerCell2[coastalCellIndices[iCell]]] = iCalve
-            nCalvingRegionsPerCell2[coastalCellIndices[iCell]] += 1
-
-    fileMPASCalving = Dataset(calvingFilename,"w",format="NETCDF3_CLASSIC")
-
-    fileMPASCalving.totalCalvingRate = np.sum(calvingRateCells)
-    fileMPASCalving.src = \
-        "Greene, C.A., Gardner, A.S., Schlegel, NJ. et al. Antarctic calving loss " + \
-        "rivals ice-shelf thinning. Nature 609, 948–953 (2022). " + \
-        "https://doi.org/10.1038/s41586-022-05037-w"
-    fileMPASCalving.regions = \
-        "Mouginot, J., B. Scheuchl, and E. Rignot. 2017. MEaSUREs Antarctic Boundaries for IPY 2007-2009 " + \
-        "from Satellite Radar, Version 2. [IceBoundaries_Antarctica_v02]. Boulder, Colorado USA. NASA National Snow " + \
-        "and Ice Data Center Distributed Active Archive Center. https://doi.org/10.5067/AXE4121732AD. [28th Oct 2025]"
-
-    fileMPASCalving.createDimension("nCells", nCells)
-    fileMPASCalving.createDimension("nCalvingRegions", len(calvingCells))
-    fileMPASCalving.createDimension("maxCalvingRegionsPerCell", maxCalvingRegionsPerCell)
-
-    var = fileMPASCalving.createVariable("calvingRate", "d", dimensions=["nCells"])
-    var.units = "Gt/y"
-    var[:] = calvingRateCells[:]
-
-    var = fileMPASCalving.createVariable("nCalvingRegionsPerCell", "i", dimensions=["nCells"])
-    var[:] = nCalvingRegionsPerCell[:]
-
-    var = fileMPASCalving.createVariable("calvingRateRegions", "d", dimensions=["nCalvingRegions"])
-    var.units = "Gt/y"
-    var[:] = calvingRate[:]
-
-    var = fileMPASCalving.createVariable("calvingRegionsPerCell", "i", dimensions=["nCells","maxCalvingRegionsPerCell"])
-    var[:] = calvingRegionsPerCell[:]
-
-    fileMPASCalving.close()
+def plot_calving_rate(nCells,
+                      nEdgesOnCell,
+                      verticesOnCell,
+                      latCell,
+                      xVertex,
+                      yVertex,
+                      calvingRateCells):
 
     # plot the calving rate
     patches = []
@@ -320,7 +255,7 @@ def create_mpas_calving_file(calvingCells,
                 yMin = min(yMin,yVertex[iVertex])
                 yMax = max(yMax,yVertex[iVertex])
             patches.append(Polygon(vertices))
-            colors.append(calvingRateCells[iCell])
+            colors.append(np.sum(calvingRateCells[iCell,:]))
 
     pc = PatchCollection(patches)
     pc.set_array(np.array(colors))
@@ -344,23 +279,131 @@ def create_mpas_calving_file(calvingCells,
     cb.set_label("Calving rate (Gt/y)")
 
     plt.tight_layout()
-    plt.savefig("mpas_calving_rate.png",dpi=600)
+    plt.savefig("mpas_calving_rate_antarctica.png",dpi=600)
+
+#-------------------------------------------------------------------------------
+
+def create_mpas_calving_file(calvingCells,
+                             calvingRate,
+                             calvingNames,
+                             coastalCellIndices,
+                             meshFilename,
+                             calvingFilename,
+                             multipleCalvingRegionsPerCell):
+
+    nCalvingRegions = len(calvingCells)
+
+    # create the output MPAS calving rate file
+
+    fileMesh = Dataset(meshFilename, "r")
+
+    nCells = len(fileMesh.dimensions["nCells"])
+
+    latCell = fileMesh.variables["latCell"][:]
+    nEdgesOnCell = fileMesh.variables["nEdgesOnCell"][:]
+    verticesOnCell = fileMesh.variables["verticesOnCell"][:]-1
+    xVertex = fileMesh.variables["xVertex"][:]
+    yVertex = fileMesh.variables["yVertex"][:]
+
+    fileMesh.close()
+
+    # number of calving regions per cell
+    nCalvingRegionsPerCell = np.zeros(nCells,dtype="i")
+
+    for iCalve in range(0,nCalvingRegions):
+        nCellsCalve = len(calvingCells[iCalve])
+        for iCell in list(calvingCells[iCalve]):
+            nCalvingRegionsPerCell[coastalCellIndices[iCell]] += 1
+
+    maxCalvingRegionsPerCell = np.amax(nCalvingRegionsPerCell)
+    print("maxCalvingRegionsPerCell: ", maxCalvingRegionsPerCell)
+
+    # calving rate per calving region per cell
+    calvingRateCells = np.zeros((nCells,maxCalvingRegionsPerCell))
+    calvingRegionsPerCell = np.zeros((nCells,maxCalvingRegionsPerCell),dtype="i")
+
+    iCalvingRegionsPerCell = np.zeros(nCells,dtype="i")
+    for iCalve in range(0,nCalvingRegions):
+        nCellsCalve = len(calvingCells[iCalve])
+        for iCell in list(calvingCells[iCalve]):
+            calvingRateCells     [coastalCellIndices[iCell],iCalvingRegionsPerCell[coastalCellIndices[iCell]]] += calvingRate[iCalve] / float(nCellsCalve)
+            calvingRegionsPerCell[coastalCellIndices[iCell],iCalvingRegionsPerCell[coastalCellIndices[iCell]]] = iCalve
+            iCalvingRegionsPerCell[coastalCellIndices[iCell]] += 1
+
+    # create file
+    if (not multipleCalvingRegionsPerCell):
+        maxCalvingRegionsPerCell = 1
+        calvingRegionsPerCell = np.zeros((nCells,1))
+        nCalvingRegions = 1
+        calvingNames = ["NONE"]
+        calvingRateCellsNew = np.zeros((nCells,1))
+        calvingRateCellsNew[:,0] = np.sum(calvingRateCells,axis=1)
+        calvingRateCells = calvingRateCellsNew
+        calvingRate = np.array([np.sum(calvingRateCells)])
+
+    fileMPASCalving = Dataset(calvingFilename,"w",format="NETCDF3_CLASSIC")
+
+    fileMPASCalving.totalCalvingRate = np.sum(calvingRateCells)
+    fileMPASCalving.src = \
+        "Greene, C.A., Gardner, A.S., Schlegel, NJ. et al. Antarctic calving loss " + \
+        "rivals ice-shelf thinning. Nature 609, 948–953 (2022). " + \
+        "https://doi.org/10.1038/s41586-022-05037-w"
+    fileMPASCalving.regions = \
+        "Mouginot, J., B. Scheuchl, and E. Rignot. 2017. MEaSUREs Antarctic Boundaries for IPY 2007-2009 " + \
+        "from Satellite Radar, Version 2. [IceBoundaries_Antarctica_v02]. Boulder, Colorado USA. NASA National Snow " + \
+        "and Ice Data Center Distributed Active Archive Center. https://doi.org/10.5067/AXE4121732AD. [28th Oct 2025]"
+
+    fileMPASCalving.createDimension("nCells", nCells)
+    fileMPASCalving.createDimension("maxCalvingRegionsPerCell", maxCalvingRegionsPerCell)
+    fileMPASCalving.createDimension("nCalvingRegions", nCalvingRegions)
+    StrLen = 64
+    fileMPASCalving.createDimension("StrLen", StrLen)
+
+    var = fileMPASCalving.createVariable("nCalvingRegionsPerCell", "i", dimensions=["nCells"])
+    var[:] = nCalvingRegionsPerCell[:]
+
+    var = fileMPASCalving.createVariable("calvingRate", "d", dimensions=["nCells","maxCalvingRegionsPerCell"])
+    var.units = "Gt/y"
+    var[:] = calvingRateCells[:]
+
+    var = fileMPASCalving.createVariable("calvingRegionIndex", "i", dimensions=["nCells","maxCalvingRegionsPerCell"])
+    var[:] = calvingRegionsPerCell[:]
+
+    var = fileMPASCalving.createVariable("calvingRegionNames", "c", dimensions=["nCalvingRegions","StrLen"])
+    fixed = np.asarray(calvingNames, dtype=f'S{StrLen}')
+    for iCalvingRegion in range(0,nCalvingRegions):
+        var[:,:] = stringtochar(fixed)
+
+    var = fileMPASCalving.createVariable("calvingRateRegions", "d", dimensions=["nCalvingRegions"])
+    var.units = "Gt/y"
+    var[:] = calvingRate[:]
+
+    fileMPASCalving.close()
+
+    plot_calving_rate(nCells,
+                      nEdgesOnCell,
+                      verticesOnCell,
+                      latCell,
+                      xVertex,
+                      yVertex,
+                      calvingRateCells)
 
 #-------------------------------------------------------------------------------
 
 def create_mpas_antarctic_calving_rates(meshFilename,
-                                        calvingFilename):
+                                        calvingFilename,
+                                        multipleCalvingRegionsPerCell):
 
     # get input calving and region files
     MPAS_SEAICE_STANDALONE_DATA = os.environ.get('MPAS_SEAICE_STANDALONE_DATA')
     if (MPAS_SEAICE_STANDALONE_DATA is None):
         raise Exception("MPAS_SEAICE_STANDALONE_DATA must be set")
 
-    filenameCalvingRate = "%s/icebergs/calving_rates.nc" %(MPAS_SEAICE_STANDALONE_DATA)
+    filenameCalvingRate = "%s/icebergs/Antarctica/calving_rates.nc" %(MPAS_SEAICE_STANDALONE_DATA)
     if (not os.path.isfile(filenameCalvingRate)):
         raise Exception("Could not find calving file: %s" %(filenameCalvingRate))
 
-    filenameAntarcticRegions = "%s/icebergs/IceBoundaries_Antarctica_v02.shp" %(MPAS_SEAICE_STANDALONE_DATA)
+    filenameAntarcticRegions = "%s/icebergs/Antarctica/IceBoundaries_Antarctica_v02.shp" %(MPAS_SEAICE_STANDALONE_DATA)
     if (not os.path.isfile(filenameAntarcticRegions)):
         raise Exception("Could not find antarctic regions file: %s" %(filenameCalvingRate))
 
@@ -452,20 +495,24 @@ def create_mpas_antarctic_calving_rates(meshFilename,
 
     create_mpas_calving_file(calvingCells,
                              calvingRate,
+                             calvingNames,
                              coastalCellIndices,
                              meshFilename,
-                             calvingFilename)
+                             calvingFilename,
+                             multipleCalvingRegionsPerCell)
 
 #-------------------------------------------------------------------------------
 
 if __name__ == "__main__":
 
-    parser = argparse.ArgumentParser(description='')
+    parser = argparse.ArgumentParser(description='Create MPAS-Seaice input iceberg calving file for Antarctica')
 
-    parser.add_argument('-m', dest='meshFilename', required=True, help='')
-    parser.add_argument('-o', dest='calvingFilename', default="calving_mpas.nc", help='')
+    parser.add_argument('-m', dest='meshFilename', required=True, help='Create MPAS-Seaice input iceberg calving file for Antarctica')
+    parser.add_argument('-o', dest='calvingFilename', default="calving_mpas_antarctica.nc", help='MPAS calving input file name')
+    parser.add_argument('-r', dest='multipleCalvingRegionsPerCell', action='store_true', help='List calving by source calving region')
 
     args = parser.parse_args()
 
     create_mpas_antarctic_calving_rates(args.meshFilename,
-                                        args.calvingFilename)
+                                        args.calvingFilename,
+                                        args.multipleCalvingRegionsPerCell)

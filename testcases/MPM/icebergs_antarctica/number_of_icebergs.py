@@ -2,6 +2,7 @@ import glob
 from netCDF4 import Dataset
 import numpy as np
 import argparse
+import matplotlib.pyplot as plt
 
 #-------------------------------------------------------------------------------
 
@@ -10,6 +11,8 @@ def number_of_icebergs(filenameTemplate):
     filenames = sorted(glob.glob(filenameTemplate))
 
     print("nIcebergsStatus, nIcebergs, nIcebergsCell, nIcebergsPhysical")
+
+    nIcebergsPhysicalArray = []
 
     for filename in filenames:
 
@@ -41,6 +44,14 @@ def number_of_icebergs(filenameTemplate):
         print(filename, nIcebergsStatus, nIcebergs, nIcebergsCell, nIcebergsPhysical)
 
         filein.close()
+
+        nIcebergsPhysicalArray.append(nIcebergsPhysical)
+
+    fig, axis = plt.subplots()
+
+    axis.plot(nIcebergsPhysicalArray)
+
+    plt.savefig("iceberg_number.png", dpi=400)
 
 #-------------------------------------------------------------------------------
 

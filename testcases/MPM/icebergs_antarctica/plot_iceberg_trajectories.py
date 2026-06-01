@@ -1,20 +1,16 @@
-from netCDF4 import Dataset
+from netCDF4 import Dataset, chartostring
 import matplotlib.pyplot as plt
 import glob
-import re
 import numpy as np
-import os
 import sys
-from math import radians
-from matplotlib.patches import Polygon
-from matplotlib.collections import PatchCollection
 from matplotlib.collections import LineCollection
-from mpl_toolkits.axes_grid1 import make_axes_locatable
 import argparse
 from tqdm import tqdm
 from matplotlib import colors
-from iceberg_plot_utils import projection_scalar, projection_list
+from iceberg_plot_utils import plot_limits, projection, projection_list, setup_maps_projection, mesh_patches
 from copy import copy
+
+secsToDays = 1.0 / 86400.0
 
 #-------------------------------------------------------------------------------
 
@@ -80,6 +76,8 @@ def colored_line(x, y, c, ax, **lc_kwargs):
 #-------------------------------------------------------------------------------
 
 def plot_trajectories(location,
+                      proj,
+                      src_crs,
                       pc,
                       lc,
                       positions,
@@ -89,13 +87,12 @@ def plot_trajectories(location,
                       vmax,
                       colorbarTitle,
                       filenameOut,
-                      xMin,
-                      xMax,
-                      yMin,
-                      yMax):
+                      calvingRegionIndices=None,
+                      useLogPlot=True):
 
     # start plot
-    fig, axis = plt.subplots()
+    fig = plt.figure(figsize=(7,6))
+    axis = plt.axes(projection=proj)
 
     axis.set_facecolor('grey')
 
@@ -104,23 +101,41 @@ def plot_trajectories(location,
     axis.add_collection(pcCopy)
     axis.add_collection(lcCopy)
 
-    # plot positions
+
+    if (useLogPlot):
+        norm = colors.LogNorm(vmin=vmax*0.001, vmax=vmax)
+    else:
+        norm = colors.Normalize(vmin=vmin, vmax=730)
+
+    xMin =  sys.float_info.max
+    xMax = -sys.float_info.max
+    yMin =  sys.float_info.max
+    yMax = -sys.float_info.max
     iIceberg = 0
     for icebergID, trajectory in tqdm(positions.items()):
+        if (calvingRegionIndices is None or
+            trajectory["o"][0] in calvingRegionIndices):
 
-        if (iIceberg % nskip == 0):
-            x, y = projection_list(trajectory["x"],
-                                   trajectory["y"],
-                                   trajectory["z"],
-                                   location)
-            lcLines = colored_line(x,
-                                   y,
-                                   trajectory[fieldName],
-                                   axis,
-                                   linewidth=0.1,
-                                   cmap="jet",
-                                   norm=colors.LogNorm(vmin=vmax*0.001, vmax=vmax))
+            if (iIceberg % nskip == 0):
+                x, y = projection_list(np.degrees(trajectory["lat"]),
+                                       np.degrees(trajectory["lon"]),
+                                       proj,src_crs)
+                lcLines = colored_line(x,
+                                       y,
+                                       trajectory[fieldName],
+                                       axis,
+                                       linewidth=0.1,
+                                       cmap="viridis",
+                                       norm=norm)
+                xMin = min(xMin,np.amin(x))
+                xMax = max(xMax,np.amax(x))
+                yMin = min(yMin,np.amin(y))
+                yMax = max(yMax,np.amax(y))
         iIceberg += 1
+
+    xMin, xMax, yMin, yMax = plot_limits(xMin, xMax, yMin, yMax)
+
+    gl = axis.gridlines(linewidth=0.5,linestyle="dashed",draw_labels=False)
 
     #axis.autoscale_view()
     axis.set_xlim(xMin,xMax)
@@ -140,20 +155,15 @@ def plot_trajectories(location,
 
 def iceberg_trajectories(filenameTemplate,
                          nskip,
-                         location):
+                         location,
+                         calvingRegion):
 
-    if (location == "antarctica"):
-        xMin = -4e6
-        xMax =  4e6
-        yMin = -4e6
-        yMax =  4e6
-    elif (location == "greenland"):
-        xMin = -1.5e6
-        xMax =  1.5e6
-        yMin = -2e6
-        yMax =  1e6
+    src_crs, proj = setup_maps_projection(location)
 
-    plt.rcParams["font.family"] = "Times New Roman"
+    plt.rcParams.update({
+        "text.usetex": True,
+        "font.family": "Times New Roman",
+    })
 
     filenames = sorted(glob.glob(filenameTemplate))
 
@@ -163,6 +173,21 @@ def iceberg_trajectories(filenameTemplate,
     vmax = -sys.float_info.max
     smin =  sys.float_info.max
     smax = -sys.float_info.max
+    amin =  sys.float_info.max
+    amax = -sys.float_info.max
+
+    if (calvingRegion is not None):
+        filein = Dataset(filenames[0],"r")
+        nCalvingRegions = len(filein.dimensions["nCalvingRegions"])
+        calvingRegionNames = filein.variables["calvingRegionNames"][:]
+        calvingRegionNames = chartostring(calvingRegionNames)
+        filein.close()
+        calvingRegionIndices = []
+        for iName in range(0,nCalvingRegions):
+            if (calvingRegionNames[iName] == calvingRegion):
+                calvingRegionIndices.append(iName)
+    else:
+        calvingRegionIndices = None
 
     for filename in tqdm(filenames):
 
@@ -174,27 +199,36 @@ def iceberg_trajectories(filenameTemplate,
 
             icebergID = filein.variables["icebergID"][0,:]
             statusIB = filein.variables["statusIB"][0,:]
-            posnIB = filein.variables["posnIBGeo"][0,:,:]
+            icebergCalvingRegionIndex = filein.variables["icebergCalvingRegionIndex"][0,:]
+            latIceberg = filein.variables["latIceberg"][0,:]
+            lonIceberg = filein.variables["lonIceberg"][0,:]
             icebergVolume = filein.variables["icebergVolume"][0,:]
-            uVelocityIcebergGeo = filein.variables["uVelocityIcebergGeo"][0,:]
-            vVelocityIcebergGeo = filein.variables["vVelocityIcebergGeo"][0,:]
-            icebergSpeed = np.sqrt(np.add(np.power(uVelocityIcebergGeo,2),
-                                          np.power(vVelocityIcebergGeo,2)))
+            icebergSpeed = filein.variables["icebergSpeed"][0,:]
+            icebergAge = filein.variables["icebergAge"][0,:]
+            icebergAge[:] *= secsToDays
 
             vmin = min(vmin,np.amin(icebergVolume))
             vmax = max(vmax,np.amax(icebergVolume))
             smin = min(smin,np.amin(icebergSpeed))
             smax = max(smax,np.amax(icebergSpeed))
+            amin = min(amin,np.amin(icebergAge))
+            amax = max(amax,np.amax(icebergAge))
 
             for iIceberg in range(0,nIcebergs):
                 if (statusIB[iIceberg] == 1):
                     if (icebergID[iIceberg] not in positions):
-                        positions[icebergID[iIceberg]] = {"x": [], "y": [], "z": [], "v": [], "s": []}
-                    positions[icebergID[iIceberg]]["x"].append(posnIB[iIceberg,0])
-                    positions[icebergID[iIceberg]]["y"].append(posnIB[iIceberg,1])
-                    positions[icebergID[iIceberg]]["z"].append(posnIB[iIceberg,2])
+                        positions[icebergID[iIceberg]] = {"o": [],
+                                                          "lat": [],
+                                                          "lon": [],
+                                                          "v": [],
+                                                          "s": [],
+                                                          "a": []}
+                    positions[icebergID[iIceberg]]["o"].append(icebergCalvingRegionIndex[iIceberg])
+                    positions[icebergID[iIceberg]]["lat"].append(latIceberg[iIceberg])
+                    positions[icebergID[iIceberg]]["lon"].append(lonIceberg[iIceberg])
                     positions[icebergID[iIceberg]]["v"].append(icebergVolume[iIceberg])
                     positions[icebergID[iIceberg]]["s"].append(icebergSpeed[iIceberg])
+                    positions[icebergID[iIceberg]]["a"].append(icebergAge[iIceberg])
 
         filein.close()
 
@@ -215,52 +249,30 @@ def iceberg_trajectories(filenameTemplate,
     xVertex = fileMesh.variables["xVertex"][:]
     yVertex = fileMesh.variables["yVertex"][:]
     zVertex = fileMesh.variables["zVertex"][:]
+    latVertex = fileMesh.variables["latVertex"][:]
+    lonVertex = fileMesh.variables["lonVertex"][:]
+    latEdge = fileMesh.variables["latEdge"][:]
+    lonEdge = fileMesh.variables["lonEdge"][:]
 
     fileMesh.close()
 
-    boundaryEdge = np.zeros(nEdges,dtype="i")
-    for iEdge in range(0,nEdges):
-        if (cellsOnEdge[iEdge,0] == -1 or
-            cellsOnEdge[iEdge,1] == -1):
-            boundaryEdge[iEdge] = 1
-
-    lineSegments = []
-    for iEdge in range(0,nEdges):
-        if (boundaryEdge[iEdge] == 1):
-            iVertex1 = verticesOnEdge[iEdge,0]
-            iVertex2 = verticesOnEdge[iEdge,1]
-            x1, y1 = projection_scalar(xVertex[iVertex1],
-                                       yVertex[iVertex1],
-                                       zVertex[iVertex1],
-                                       location)
-            x2, y2 = projection_scalar(xVertex[iVertex2],
-                                       yVertex[iVertex2],
-                                       zVertex[iVertex2],
-                                       location)
-            lineSegments.append([[x1,y2],
-                                 [x1,y2]])
-
-    lc = LineCollection(lineSegments, color="black", linestyle='solid', linewidth=0.2)
-
-    # plot mesh
-    patches = []
-    for iCell in range(0,nCells):
-        if ((location == "antarctica" and latCell[iCell] < radians(-40.0)) or
-            (location == "greenland"  and latCell[iCell] > radians( 40.0))):
-            vertices = []
-            for iVertexOnCell in range(0,nEdgesOnCell[iCell]):
-                iVertex = verticesOnCell[iCell,iVertexOnCell]
-                x, y = projection_scalar(xVertex[iVertex],
-                                         yVertex[iVertex],
-                                         zVertex[iVertex],
-                                         location)
-                vertices.append([x,y])
-            patches.append(Polygon(vertices, closed=True, edgecolor="grey", facecolor="white", linewidth=0.1))
-
-    pc = PatchCollection(patches, match_original=True)
-
+    pc, lc = mesh_patches(location,
+                          proj,
+                          src_crs,
+                          nEdges,
+                          nCells,
+                          nEdgesOnCell,
+                          cellsOnEdge,
+                          latEdge,
+                          latCell,
+                          verticesOnEdge,
+                          verticesOnCell,
+                          latVertex,
+                          lonVertex)
 
     plot_trajectories(location,
+                      proj,
+                      src_crs,
                       pc,
                       lc,
                       positions,
@@ -268,14 +280,13 @@ def iceberg_trajectories(filenameTemplate,
                       "v",
                       vmin,
                       vmax,
-                      "Volume (m^3)",
+                      r'Volume ($\mathrm{m}^3$)',
                       "iceberg_trajectories_volume.png",
-                      xMin,
-                      xMax,
-                      yMin,
-                      yMax)
+                      calvingRegionIndices=calvingRegionIndices)
 
     plot_trajectories(location,
+                      proj,
+                      src_crs,
                       pc,
                       lc,
                       positions,
@@ -283,12 +294,24 @@ def iceberg_trajectories(filenameTemplate,
                       "s",
                       smin,
                       smax,
-                      "Speed (m/s)",
+                      r'Speed ($\mathrm{m}/\mathrm{s}$)',
                       "iceberg_trajectories_speed.png",
-                      xMin,
-                      xMax,
-                      yMin,
-                      yMax)
+                      calvingRegionIndices=calvingRegionIndices)
+
+    plot_trajectories(location,
+                      proj,
+                      src_crs,
+                      pc,
+                      lc,
+                      positions,
+                      nskip,
+                      "a",
+                      amin,
+                      amax,
+                      r'Age (days)',
+                      "iceberg_trajectories_age.png",
+                      calvingRegionIndices=calvingRegionIndices,
+                      useLogPlot=False)
 
 #-------------------------------------------------------------------------------
 
@@ -296,12 +319,14 @@ if __name__ == "__main__":
 
     parser = argparse.ArgumentParser(description='')
 
-    parser.add_argument('-f', dest='filenameTemplate', required=True, help='')
-    parser.add_argument('-n', dest='nskip', type=int, default=1, help='')
-    parser.add_argument('-l', dest='location', choices=["antarctica","greenland"], default="antarctica", help='')
+    parser.add_argument('-f', dest='filenameTemplate', required=True, help='Input iceberg filename template to plot')
+    parser.add_argument('-n', dest='nskip', type=int, default=1, help='Stride for plotting iceberg subset')
+    parser.add_argument('-l', dest='location', choices=["antarctica","greenland"], default="antarctica", help='Plotting location')
+    parser.add_argument('-c', dest='calvingRegion', default=None, help='plots only icebergs from this calving region')
 
     args = parser.parse_args()
 
     iceberg_trajectories(args.filenameTemplate,
                          args.nskip,
-                         args.location)
+                         args.location,
+                         args.calvingRegion)
