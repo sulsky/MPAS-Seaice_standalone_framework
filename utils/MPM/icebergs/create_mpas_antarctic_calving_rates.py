@@ -340,6 +340,7 @@ def create_mpas_calving_file(calvingCells,
         calvingRateCellsNew[:,0] = np.sum(calvingRateCells,axis=1)
         calvingRateCells = calvingRateCellsNew
         calvingRate = np.array([np.sum(calvingRateCells)])
+        nCalvingRegionsPerCell = np.clip(nCalvingRegionsPerCell,a_min=None,a_max=1)
 
     fileMPASCalving = Dataset(calvingFilename,"w",format="NETCDF3_CLASSIC")
 
