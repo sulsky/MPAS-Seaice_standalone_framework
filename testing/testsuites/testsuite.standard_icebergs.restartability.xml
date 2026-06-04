@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <testsuite name="standard_icebergs">
     <configuration name="standard_icebergs">
-        <domain name="domain_QU30km_icebergs">
+        <domain name="domain_QU30km_icebergs_antarctica">
             <test name="restartability">
                 <option name="runDuration" value="DAYS:120"/>
                 <option name="restart2ChangeStreamFilename" value="icebergsEmpty:no_file.nc"/>

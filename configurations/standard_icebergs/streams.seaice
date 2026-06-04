@@ -69,7 +69,10 @@
         filename_interval="none"
         input_interval="initial_only">
 
+        <var name="nCalvingRegionsPerCell"/>
         <var name="calvingRate"/>
+        <var name="calvingRegionIndex"/>
+        <var name="calvingRegionNames"/>
 </stream>
 
 <stream name="icebergCategories"
