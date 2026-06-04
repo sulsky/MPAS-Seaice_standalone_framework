@@ -167,6 +167,8 @@
     config_iceberg_use_grounding = false
     config_iceberg_size_type = "angle_integral"
     config_iceberg_use_conservation_check = false
+    config_iceberg_couple_freshwater_flux = false
+    config_iceberg_couple_heat_flux = false
 /
 &column_package
     config_column_physics_type = 'icepack'
