@@ -47,32 +47,27 @@ def create_final_report():
     a baseline checkout of the testcases
     """
 
-    MPAS_SEAICE_TESTCASE_BASELINES = os.environ.get('MPAS_SEAICE_TESTCASE_BASELINES')
-    if (MPAS_SEAICE_TESTCASE_BASELINES is None):
-        raise Exception("MPAS_SEAICE_TESTCASE_BASELINES must be set")
-
-    testLocation = "../../"
-
-    plots = ["/testcases/MPM/polynya/cells_scatter.png",
-             "/testcases/MPM/polynya/particles_scatter.png",
-             "/testcases/MPM/spherical_operators/interpolation/interpolation_scaling.png",
-             "/testcases/MPM/spherical_operators/reconstruction/reconstruction_map.png",
-             "/testcases/MPM/spherical_operators/reconstruction/reconstruction_scaling.png"]
+    testcases = {"polynya1":{"testcaseLocation":"polynya",
+                             "plotFilename":"cells_scatter.pdf"},
+                 "polynya2":{"testcaseLocation":"polynya",
+                             "plotFilename":"particles_scatter.pdf"},
+                 "interpolation":{"testcaseLocation":"spherical_operators/interpolation",
+                                  "plotFilename":"interpolation_scaling.pdf"},
+                 "reconstruction1":{"testcaseLocation":"spherical_operators/reconstruction",
+                                    "plotFilename":"reconstruction_scaling.pdf"},
+                 "reconstruction2":{"testcaseLocation":"spherical_operators/reconstruction",
+                                    "plotFilename":"reconstruction_map.pdf"}}
 
     writer = PdfWriter()
 
-    for i, plot in enumerate(plots):
+    for testcase in testcases.keys():
 
-        filename1 = MPAS_SEAICE_TESTCASE_BASELINES+plot
-        filename2 = testLocation+plot
+        filename1 = "./" + testcases[testcase]["testcaseLocation"] + "/" + testcases[testcase]["plotFilename"]
+        filename2 =  "./baseline_plots/" + testcases[testcase]["plotFilename"]
 
-        with open("tmp1.pdf", "wb") as f:
-            f.write(img2pdf.convert(filename1))
-        with open("tmp2.pdf", "wb") as f:
-            f.write(img2pdf.convert(filename2))
-        stitch_pdfs_side_by_side("tmp1.pdf", "tmp2.pdf", "tmp3.pdf")
+        stitch_pdfs_side_by_side(filename1, filename2, "tmp.pdf")
 
-        writer.append("tmp3.pdf")
+        writer.append("tmp.pdf")
 
     with open("final_report.pdf", "wb") as f:
         writer.write(f)

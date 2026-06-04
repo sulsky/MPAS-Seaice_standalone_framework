@@ -36,12 +36,13 @@ def plot_cells_scatter():
     colors = cmap(np.linspace(0, 1, nTimes))
 
     for iTime in range(0,nTimes):
-        axis.scatter(xCell[indices], arrayCell[iTime,indices], color=colors[iTime], s=1)
+        axis.scatter(xCell[indices], arrayCell[iTime,indices], color=colors[iTime], s=1, rasterized=True)
 
     axis.set_xlim((0,1000000))
     axis.set_ylim((0,0.6))
     plt.tight_layout()
     plt.savefig("cells_scatter.png",dpi=300)
+    plt.savefig("cells_scatter.pdf",dpi=300)
 
 #-------------------------------------------------------------------------------
 

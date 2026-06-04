@@ -171,6 +171,7 @@ def interpolation_scaling():
 
     plt.tight_layout(pad=0.5, w_pad=0.5, h_pad=0.5)
     plt.savefig("interpolation_scaling.png",dpi=400)
+    plt.savefig("interpolation_scaling.pdf")
 
 #-------------------------------------------------------------------------------
 

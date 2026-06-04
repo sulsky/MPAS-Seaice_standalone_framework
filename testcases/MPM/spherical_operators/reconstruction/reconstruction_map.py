@@ -184,6 +184,7 @@ def reconstruction_map():
 
     #plt.tight_layout(pad=0.5, w_pad=0.5, h_pad=0.5)
     plt.savefig("reconstruction_map.png",dpi=400)
+    plt.savefig("reconstruction_map.pdf")
 
     plt.clf()
     plt.cla()

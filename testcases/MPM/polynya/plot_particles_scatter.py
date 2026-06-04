@@ -51,12 +51,13 @@ def plot_particles_scatter():
 
             filein.close()
 
-            axis.scatter(x[indices], arrayParticle[indices], color=colors[iTime], s=1)
+            axis.scatter(x[indices], arrayParticle[indices], color=colors[iTime], s=1, rasterized=True)
 
     axis.set_xlim((0,1000000))
     axis.set_ylim((0,0.6))
     plt.tight_layout()
     plt.savefig("particles_scatter.png",dpi=300)
+    plt.savefig("particles_scatter.pdf",dpi=300)
 
 #-------------------------------------------------------------------------------
 
