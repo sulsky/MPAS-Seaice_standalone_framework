@@ -10,7 +10,7 @@ from mpl_toolkits.axes_grid1 import make_axes_locatable
 
 def plot_testcase_diff(testDir, baseDir, strainType, filenameOut):
 
-    if (strainType not in ["varvar","weakvar"]):
+    if (strainType not in ["varvar","weakvar","mpmvar","mpmweak","mpmmpm"]):
         raise RuntimeError("Unknown strainType: %s" %(strainType))
 
     iTime = -1
@@ -85,6 +85,19 @@ def plot_testcase_diff(testDir, baseDir, strainType, filenameOut):
         principalStress1 = filein.variables["principalStress1Weak"][iTime,:]
         principalStress2 = filein.variables["principalStress2Weak"][iTime,:]
 
+    else:
+
+        fileMPM= Dataset("./%s/particles_output.2000-01-01_10.00.00.nc" %(testDir),"r")
+
+        posnMP = fileMPM.variables["posnMP"][0,:,:]
+
+        strainRateMP = fileMPM.variables["strainRateMP"][0,:,:]
+
+        principalStress1 = fileMPM.variables["principalStress1MP"][0,:]
+        principalStress2 = fileMPM.variables["principalStress2MP"][0,:]
+
+        fileMPM.close()
+
     filein.close()
 
     # differences
@@ -95,14 +108,13 @@ def plot_testcase_diff(testDir, baseDir, strainType, filenameOut):
     stressDivergenceV = stressDivergenceVTest[:]# - stressDivergenceVBase[:]
 
     if (strainType == "varvar"):
-        strain11var = strain11varTest[:] - strain11varBase[:]
-        strain22var = strain22varTest[:] - strain22varBase[:]
-        strain12var = strain12varTest[:] - strain12varBase[:]
+        strain11var = strain11varTest[:]# - strain11varBase[:]
+        strain22var = strain22varTest[:]# - strain22varBase[:]
+        strain12var = strain12varTest[:]# - strain12varBase[:]
     elif (strainType == "weakvar"):
         strain11weak = strain11weakTest[:]
         strain22weak = strain22weakTest[:]
         strain12weak = strain12weakTest[:]
-
 
     xmin = np.amin(xVertex) - 10000.0
     xmax = np.amax(xVertex) + 10000.0
@@ -206,7 +218,6 @@ def plot_testcase_diff(testDir, baseDir, strainType, filenameOut):
         pcStrain12.set_array(strain12weak.flatten())
         pcStrain12.set_clim([strainMin, strainMax])
 
-
     # plot
     fig, axes = plt.subplots(2,4,figsize=(10,5))
 
@@ -254,48 +265,86 @@ def plot_testcase_diff(testDir, baseDir, strainType, filenameOut):
     cax = divider.append_axes('right', size='5%', pad=0.05)
     fig.colorbar(pcStressDivergenceV, cax=cax)
 
-    axes[1,0].add_collection(pcStrain11)
-    axes[1,0].set_xlim((xmin,xmax))
-    axes[1,0].set_ylim((ymin,ymax))
-    axes[1,0].set_aspect('equal')
-    axes[1,0].set_xticks([])
-    axes[1,0].set_yticks([])
-    axes[1,0].set_title("strain11")
-    divider = make_axes_locatable(axes[1,0])
-    cax = divider.append_axes('right', size='5%', pad=0.05)
-    fig.colorbar(pcStrain11, cax=cax)
+    if (strainType == 'weakvar' or strainType == 'varvar'):
+       axes[1,0].add_collection(pcStrain11)
+       axes[1,0].set_xlim((xmin,xmax))
+       axes[1,0].set_ylim((ymin,ymax))
+       axes[1,0].set_aspect('equal')
+       axes[1,0].set_xticks([])
+       axes[1,0].set_yticks([])
+       axes[1,0].set_title("strain11")
+       divider = make_axes_locatable(axes[1,0])
+       cax = divider.append_axes('right', size='5%', pad=0.05)
+       fig.colorbar(pcStrain11, cax=cax)
 
-    axes[1,1].add_collection(pcStrain22)
-    axes[1,1].set_xlim((xmin,xmax))
-    axes[1,1].set_ylim((ymin,ymax))
-    axes[1,1].set_aspect('equal')
-    axes[1,1].set_xticks([])
-    axes[1,1].set_yticks([])
-    axes[1,1].set_title("strain22")
-    divider = make_axes_locatable(axes[1,1])
-    cax = divider.append_axes('right', size='5%', pad=0.05)
-    fig.colorbar(pcStrain22, cax=cax)
+       axes[1,1].add_collection(pcStrain22)
+       axes[1,1].set_xlim((xmin,xmax))
+       axes[1,1].set_ylim((ymin,ymax))
+       axes[1,1].set_aspect('equal')
+       axes[1,1].set_xticks([])
+       axes[1,1].set_yticks([])
+       axes[1,1].set_title("strain22")
+       divider = make_axes_locatable(axes[1,1])
+       cax = divider.append_axes('right', size='5%', pad=0.05)
+       fig.colorbar(pcStrain22, cax=cax)
 
-    axes[1,2].add_collection(pcStrain12)
-    axes[1,2].set_xlim((xmin,xmax))
-    axes[1,2].set_ylim((ymin,ymax))
-    axes[1,2].set_aspect('equal')
-    axes[1,2].set_xticks([])
-    axes[1,2].set_yticks([])
-    axes[1,2].set_title("strain12")
-    divider = make_axes_locatable(axes[1,2])
-    cax = divider.append_axes('right', size='5%', pad=0.05)
-    fig.colorbar(pcStrain12, cax=cax)
+       axes[1,2].add_collection(pcStrain12)
+       axes[1,2].set_xlim((xmin,xmax))
+       axes[1,2].set_ylim((ymin,ymax))
+       axes[1,2].set_aspect('equal')
+       axes[1,2].set_xticks([])
+       axes[1,2].set_yticks([])
+       axes[1,2].set_title("strain12")
+       divider = make_axes_locatable(axes[1,2])
+       cax = divider.append_axes('right', size='5%', pad=0.05)
+       fig.colorbar(pcStrain12, cax=cax)
+
+    else:
+
+       colorMap = plt.cm.jet
+       color = strainRateMP[:,0]
+       scatter = axes[1,0].scatter(posnMP[:,0], posnMP[:,1], c = color, cmap = colorMap)
+       axes[1,0].set_xlim((xmin,xmax))
+       axes[1,0].set_ylim((ymin,ymax))
+       axes[1,0].set_aspect('equal')
+       axes[1,0].set_xticks([])
+       axes[1,0].set_yticks([])
+       axes[1,0].set_title("strain11")
+       divider = make_axes_locatable(axes[1,0])
+       cax = divider.append_axes('right', size='5%', pad=0.05)
+       scatter.set_clim([strainMin, strainMax])
+       fig.colorbar(scatter,cax=cax)
+
+       color = strainRateMP[:,1]
+       scatter = axes[1,1].scatter(posnMP[:,0], posnMP[:,1], c = color, cmap = colorMap)
+       axes[1,1].set_xlim((xmin,xmax))
+       axes[1,1].set_ylim((ymin,ymax))
+       axes[1,1].set_aspect('equal')
+       axes[1,1].set_xticks([])
+       axes[1,1].set_yticks([])
+       axes[1,1].set_title("strain22")
+       divider = make_axes_locatable(axes[1,1])
+       cax = divider.append_axes('right', size='5%', pad=0.05)
+       scatter.set_clim([strainMin, strainMax])
+       fig.colorbar(scatter,cax=cax)
+
+       color = strainRateMP[:,2]
+       scatter = axes[1,2].scatter(posnMP[:,0], posnMP[:,1], c = color, cmap = colorMap)
+       axes[1,2].set_xlim((xmin,xmax))
+       axes[1,2].set_ylim((ymin,ymax))
+       axes[1,2].set_aspect('equal')
+       axes[1,2].set_xticks([])
+       axes[1,2].set_yticks([])
+       axes[1,2].set_title("strain12")
+       divider = make_axes_locatable(axes[1,2])
+       cax = divider.append_axes('right', size='5%', pad=0.05)
+       scatter.set_clim([strainMin, strainMax])
+       fig.colorbar(scatter,cax=cax)
 
     axes[1,3].scatter(principalStress1, principalStress2, s=1, c="k")
     axes[1,3].set_aspect('equal')
     axes[1,3].set_xticks([])
     axes[1,3].set_yticks([])
-
-
-
-    #axes[1,1].axis('off')
-
 
     plt.tight_layout()
     plt.savefig(filenameOut,dpi=1200)
@@ -304,25 +353,55 @@ def plot_testcase_diff(testDir, baseDir, strainType, filenameOut):
 
 def plot_testcase():
 
-    plot_testcase_diff("output_hex_pwl_0082x0094_120",
-                       "output_hex_wachspress_0082x0094_120",
-                       "varvar",
-                       "square_pwl_wachs_diff.png")
-
-    plot_testcase_diff("output_hex_pwlavg_0082x0094_120",
-                       "output_hex_wachsavg_0082x0094_120",
-                       "varvar",
-                       "square_pwlavg_wachsavg_diff.png")
-
     plot_testcase_diff("output_hex_weak_0082x0094_120",
                        "output_hex_wachspress_0082x0094_120",
                        "weakvar",
-                       "square_weak_wachs_diff.png")
+                       "square_hex_weak_wachs.png")
 
-    plot_testcase_diff("output_hex_weakwachs_0082x0094_120",
+    plot_testcase_diff("output_quad_weak_0080x0080_120",
+                       "output_quad_wachspress_0080x0080_120",
+                       "weakvar",
+                       "square_quad_weak_wachs.png")
+
+    plot_testcase_diff("output_hex_wachspress_0082x0094_120",
                        "output_hex_wachspress_0082x0094_120",
                        "varvar",
-                       "square_weakwachs_wachs_diff.png")
+                       "square_hex_wachs_wachs.png")
+
+    plot_testcase_diff("output_quad_wachspress_0080x0080_120",
+                       "output_quad_wachspress_0080x0080_120",
+                       "varvar",
+                       "square_quad_wachs_wachs.png")
+
+    plot_testcase_diff("output_hex_mpmvar_0082x0094_120",
+                       "output_hex_wachspress_0082x0094_120",
+                       "mpmvar",
+                       "square_hex_mpmvar_wachs.png")
+
+    plot_testcase_diff("output_hex_mpmweak_0082x0094_120",
+                       "output_hex_weak_0082x0094_120",
+                       "mpmweak",
+                       "square_hex_mpmweak_wachs.png")
+
+    plot_testcase_diff("output_hex_mpmmpm_0082x0094_120",
+                       "output_hex_wachspress_0082x0094_120",
+                       "mpmmpm",
+                       "square_hex_mpmmpm_wachs.png")
+
+    plot_testcase_diff("output_quad_mpmvar_0080x0080_120",
+                       "output_quad_wachspress_0080x0080_120",
+                       "mpmvar",
+                       "square_quad_mpmvar_wachs.png")
+
+    plot_testcase_diff("output_quad_mpmweak_0080x0080_120",
+                       "output_quad_weak_0080x0080_120",
+                       "mpmweak",
+                       "square_quad_mpmweak_wachs.png")
+
+    plot_testcase_diff("output_quad_mpmmpm_0080x0080_120",
+                       "output_quad_wachspress_0080x0080_120",
+                       "mpmmpm",
+                       "square_quad_mpmmpm_wachs.png")
 
 #-------------------------------------------------------------------------------
 

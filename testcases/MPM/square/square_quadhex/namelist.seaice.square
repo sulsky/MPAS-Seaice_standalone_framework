@@ -106,6 +106,7 @@
     config_recover_tracer_means_check = false
 /
 &mpm
+    config_use_mpm_tracers = false
     config_use_mpm_velocity_solver = true
     config_use_mpm_freeze_melt = false
     config_use_mpm_polympo = false
