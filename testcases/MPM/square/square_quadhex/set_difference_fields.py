@@ -9,9 +9,6 @@ def set_difference_fields():
              "./output_quad_wachspress_0080x0080_120/output.2000.nc":
              ["./output_quad_weak_0080x0080_120/output.2000.nc"]}
 
-    #files = {"./output_hex_wachspress_0082x0094_120/output.2000.nc":
-    #         ["./output/output.2000.nc"]}
-
     fieldnames = ["uVelocity","vVelocity","stressDivergenceU","stressDivergenceV"]
     #fieldnames = ["stressDivergenceU"]
     #fieldnames = ["uVelocity","vVelocity","stressDivergenceU","stressDivergenceV","strain11var","strain22var","strain12var"]
