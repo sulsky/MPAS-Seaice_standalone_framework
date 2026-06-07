@@ -3,7 +3,9 @@ import sys
 sys.path.append("../../../../utils/testcases")
 from get_testcase_data_square import get_testcase_data_square
 
+sys.path.append("../../../square/square_quadhex")
 from create_grids import create_grids
+
 from create_ics import create_ics
 from create_particles import create_particles
 from run_model import run_model
