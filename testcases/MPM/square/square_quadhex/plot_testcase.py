@@ -147,9 +147,6 @@ def plot_testcase_diff(testDir, baseDir, strainType, filenameOut):
             iEdgeOnCell1 = (iVertexOnCell - 1)
             if (iEdgeOnCell1 < 0): iEdgeOnCell1 += maxEdges
             iEdgeOnCell2 = iVertexOnCell
-            #iEdgeOnCell1 = iVertexOnCell
-            #iEdgeOnCell2 = iVertexOnCell + 1
-            #if (iEdgeOnCell2 > maxEdges-1): iEdgeOnCell2 -= maxEdges
             iEdge1 = edgesOnCell[iCell,iEdgeOnCell1]
             iEdge2 = edgesOnCell[iCell,iEdgeOnCell2]
             vertices = [(xCell[iCell],yCell[iCell]),
@@ -187,8 +184,8 @@ def plot_testcase_diff(testDir, baseDir, strainType, filenameOut):
     pcStressDivergenceV = PatchCollection(patchesVertex, cmap=plt.get_cmap("jet"))
     pcStressDivergenceV.set_array(stressDivergenceV)
 
-    strainMin = None#-5e-7
-    strainMax = None# 5e-7
+    strainMin = None
+    strainMax = None
 
     if (strainType == "varvar"):
 

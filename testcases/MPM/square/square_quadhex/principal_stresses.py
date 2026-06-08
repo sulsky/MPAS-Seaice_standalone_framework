@@ -47,8 +47,6 @@ def generate_ellipse(nEllipse):
 
 def plot_yield_curve(axes, sig1, sig2, title, subfigureLabel, addAxisLabels=True):
 
-    #axes.scatter(sig1, sig2, s=0.01, color="black", zorder=5, rasterized=False, marker=',')
-    #axes.scatter(sig1, sig2, s=0.1, color="black", zorder=5, rasterized=True, marker=',')
     axes.scatter(sig1, sig2, s=0.08, color="black", rasterized=True)
 
     axes.plot((0.0,0.0), (-1.2,0.2), '--', color="grey", zorder=2, linewidth=0.5)
@@ -74,25 +72,6 @@ def plot_yield_curve(axes, sig1, sig2, title, subfigureLabel, addAxisLabels=True
     if (addAxisLabels):
         axes.set_xlabel(r"$\sigma_1$")
         axes.set_ylabel(r"$\sigma_2$")
-
-    #axes.text(0.12, 0.9, subfigureLabel, verticalalignment='bottom', horizontalalignment='right',transform=axes.transAxes, fontsize=8)
-
-    # circles
-    #x = [-0.71,-0.63,-0.6,-0.55]
-    #y = [-0.88,-0.78,-0.7,-0.6]
-    #radius = [0.06,0.06,0.06,0.06]
-
-    #nCircles = len(radius)
-
-    #patches = []
-
-    #for iCircle in range(0, nCircles):
-
-    #    patches.append(Circle((x[iCircle], y[iCircle]), radius[iCircle], fill=False, edgecolor='r', linewidth=0.3))
-
-    #pc = PatchCollection(patches, match_original=True)
-
-    #axes.add_collection(pc)
 
 #------------------------------------------------------------
 
@@ -240,11 +219,6 @@ plot_yield_curve(axes[1,1], sig1MPASHexMPMVar,   sig2MPASHexMPMVar,   "Hex MPM V
 plot_yield_curve(axes[1,2], sig1MPASHexWeak,  sig2MPASHexWeak,  "Hex Wachs. Weak",    "(h)", False)
 plot_yield_curve(axes[1,3], sig1MPASHexMPMWeak,  sig2MPASHexMPMWeak,  "Hex MPM Weak",    "(i)", False)
 plot_yield_curve(axes[1,4], sig1MPASHexMPM,   sig2MPASHexMPM,   "Hex MPM MPM",     "(j)", False)
-
-#axes[1,0].get_xaxis().set_visible(False)
-#axes[1,0].get_yaxis().set_visible(False)
-#axes[1,0].axis('off')
-
 
 plt.tight_layout(pad=0.2, w_pad=0.2, h_pad=0.2)
 plt.savefig("principal_stresses.eps",dpi=300)
