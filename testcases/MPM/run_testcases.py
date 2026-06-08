@@ -16,11 +16,14 @@ def run_testcases(optional=False):
     testCaseDirs = [
         "advection",
         "advection_convergence",
+        "advection_convergence_mapping",
         "assembly",
         "column_on_particles",
         "polynya",
         "spherical_operators/interpolation",
         "spherical_operators/reconstruction",
+        "spherical_operators/interpolation_cell",
+        "spherical_operators/reconstruction_cell",
         "standard_physics"
     ]
     testCaseDirsOptional = [
