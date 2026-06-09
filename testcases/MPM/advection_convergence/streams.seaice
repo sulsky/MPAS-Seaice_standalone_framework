@@ -43,11 +43,10 @@
         filename_template="output/output.$Y.nc"
         filename_interval="01-00-00_00:00:00"
         clobber_mode="replace_files"
-        output_interval="00-00-00_04:00:00" >
+        output_interval="none" >
 
 	<var name="xtime"/>
 	<var name="daysSinceStartOfSim"/>
-	<stream name="mesh"/>
 	<var name="iceAreaCell"/>
 	<var name="iceVolumeCell"/>
 	<var name="snowVolumeCell"/>
@@ -68,13 +67,10 @@
 
 	<var name="statusMP"/>
 	<var name="iCellMP"/>
-        <var name="cellIDCreationMP"/>
-        <var name="creationIndexMP"/>
-        <var name="indexToCellIDMP"/>
-        <var name="procIDParticle"/>
-        <var name="posnMP"/>
         <var name="iceAreaCellMP"/>
-        <var name="deluDyn"/>
+        <var name="creationIndexMP"/>
+        <var name="cellIDCreationMP"/>
+        <var name="posnMP"/>
 </stream>
 
 <immutable_stream name="LYqSixHourlyForcing"

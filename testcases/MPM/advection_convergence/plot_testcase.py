@@ -92,7 +92,7 @@ def plot_testcase(runtype):
                 print("  Test type: ", testType)
 
                 # mesh
-                filenamein = "./output_%s_%i_%s/output.2000.nc" %(testType,nGrid,runtype)
+                filenamein = "./grid.%i.nc" %(nGrid)
 
                 filein = Dataset(filenamein,"r")
 

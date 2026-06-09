@@ -137,7 +137,8 @@ def create_forcing():
     vAirVelocity = 0.0
 
     # atmos six hourly
-    nTimes = 365*4
+    #nTimes = 365*4 # don't need a whole year of forcing for run
+    nTimes = 20*4
     
     fileout = Dataset("atmosphere_forcing_six_hourly.2000.nc","w",format="NETCDF3_CLASSIC")
 

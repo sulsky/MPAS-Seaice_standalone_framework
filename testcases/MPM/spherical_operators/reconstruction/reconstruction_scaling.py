@@ -27,7 +27,7 @@ def L2_norm(numerical, analytical, nVertices, latVertex, areaTriangle, latitudeL
 
 #--------------------------------------------------------
 
-def get_norm(filenameIC, filename, latitudeLimit):
+def get_norm(filenameIC, filename, filenameMesh, latitudeLimit):
 
     fileIC = Dataset(filenameIC, "r")
 
@@ -36,13 +36,17 @@ def get_norm(filenameIC, filename, latitudeLimit):
 
     fileIC.close()
 
+    fileMesh = Dataset(filenameMesh, "r")
+
+    nVertices = len(fileMesh.dimensions["nVertices"])
+
+    latVertex = fileMesh.variables["latVertex"][:]
+
+    areaTriangle = fileMesh.variables["areaTriangle"][:]
+
+    fileMesh.close()
+
     fileMPAS = Dataset(filename, "r")
-
-    nVertices = len(fileMPAS.dimensions["nVertices"])
-
-    latVertex = fileMPAS.variables["latVertex"][:]
-
-    areaTriangle = fileMPAS.variables["areaTriangle"][:]
 
     uVelocity = fileMPAS.variables["uVelocityInitial"][0,:]
     vVelocity = fileMPAS.variables["vVelocityInitial"][0,:]
@@ -56,9 +60,9 @@ def get_norm(filenameIC, filename, latitudeLimit):
 
 #--------------------------------------------------------
 
-def get_resolution(filename, latitudeLimit):
+def get_resolution(filenameMesh, latitudeLimit):
 
-    fileMPAS = Dataset(filename, "r")
+    fileMPAS = Dataset(filenameMesh, "r")
 
     nCells = len(fileMPAS.dimensions["nCells"])
     nEdges = len(fileMPAS.dimensions["nEdges"])
@@ -131,6 +135,7 @@ def reconstruction_scaling():
 
             for resolution in resolutions:
 
+                filenameMesh = "./grid.%i.nc" %(resolution)
                 filename = "./output_%s_%i/output.2000.nc" %(test,resolution)
                 filenameIC = "./ic_%s_%i.nc" %(test,resolution)
 
@@ -140,9 +145,9 @@ def reconstruction_scaling():
                 if (not os.path.exists(filenameIC)):
                     raise Exception("Missing IC file: %s" %(filenameIC))
 
-                normU, normV = get_norm(filenameIC, filename, latitudeLimit)
+                normU, normV = get_norm(filenameIC, filename, filenameMesh, latitudeLimit)
 
-                x.append(get_resolution(filename, latitudeLimit))
+                x.append(get_resolution(filenameMesh, latitudeLimit))
 
                 if (velocity == "u"):
                     y.append(normU)

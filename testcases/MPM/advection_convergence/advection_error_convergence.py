@@ -54,9 +54,9 @@ def get_norm_area(filenameMesh, filenameParticlesTemplate):
 
 #--------------------------------------------------------
 
-def get_resolution(filename):
+def get_resolution(filenameMesh):
 
-    fileMPAS = Dataset(filename, "r")
+    fileMPAS = Dataset(filenameMesh, "r")
 
     nCells = len(fileMPAS.dimensions["nCells"])
     nEdges = len(fileMPAS.dimensions["nEdges"])
@@ -73,16 +73,6 @@ def get_resolution(filename):
     fileMPAS.close()
 
     return resolution / 1000.0
-
-#--------------------------------------------------------
-
-def get_grid_size(filename):
-
-    fileMPAS = Dataset(filename, "r")
-
-    nCells = len(fileMPAS.dimensions["nCells"])
-
-    return nCells
 
 #--------------------------------------------------------
 
@@ -156,12 +146,12 @@ def advection_error_convergence(runtype,
 
          for resolution in resolutions:
 
-             filename = "./output_%s_%i_%s/output.2000.nc" %(experiment,resolution,runtype)
+             filenameMesh = "./grid.%i.nc" %(resolution)
              filenameParticlesTemplate = "./output_%s_%i_%s/particles_output*" %(experiment,resolution,runtype)
 
-             #norm = get_norm_area(filename, filenameParticlesTemplate)
+             #norm = get_norm_area(filenameMesh, filenameParticlesTemplate)
              norm = check_particle_positions_start_end(filenameParticlesTemplate)
-             xPos.append(get_resolution(filename))
+             xPos.append(get_resolution(filenameMesh))
              yPos.append(norm)
 
          error = float('nan')
@@ -205,11 +195,11 @@ def advection_error_convergence(runtype,
 
          for resolution in resolutions:
 
-             filename = "./output_%s_%i_%s/output.2000.nc" %(experiment,resolution,runtype)
+             filenameMesh = "./grid.%i.nc" %(resolution)
              filenameParticlesTemplate = "./output_%s_%i_%s/particles_output*" %(experiment,resolution,runtype)
 
-             norm = get_norm_area(filename, filenameParticlesTemplate)
-             xArea.append(get_resolution(filename))
+             norm = get_norm_area(filenameMesh, filenameParticlesTemplate)
+             xArea.append(get_resolution(filenameMesh))
              yArea.append(norm)
 
          error = float('nan')

@@ -671,6 +671,7 @@ def plot_particles(on_a_sphere,
 
     plt.tight_layout()
     plt.savefig(filenameOut)
+    plt.close()
 
 #-------------------------------------------------------------------------------
 

@@ -56,9 +56,9 @@ def get_norm_area(filenameIC, filename, latitudeLimit):
 
 #--------------------------------------------------------
 
-def get_resolution(filename, latitudeLimit):
+def get_resolution(filenameMesh, latitudeLimit):
 
-    fileMPAS = Dataset(filename, "r")
+    fileMPAS = Dataset(filenameMesh, "r")
 
     nCells = len(fileMPAS.dimensions["nCells"])
     nEdges = len(fileMPAS.dimensions["nEdges"])
@@ -142,8 +142,8 @@ def interpolation_cell_scaling():
             if (not os.path.exists(filenameIC)):
                 raise Exception("Missing IC file: %s" %(filenameIC))
 
-            gridname = "./output_%s_%i/output.2000.nc" %(test,resolution)
-            x.append(get_resolution(gridname, latitudeLimit))
+            filenameMesh = "./grid.%i.nc" %(resolution)
+            x.append(get_resolution(filenameMesh, latitudeLimit))
 
             norm = get_norm_area(filenameIC, filename, latitudeLimit)
             y.append(norm)
@@ -163,6 +163,7 @@ def interpolation_cell_scaling():
 
     plt.tight_layout(pad=0.5, w_pad=0.5, h_pad=0.5)
     plt.savefig("interpolation_cell_scaling.png",dpi=400)
+    plt.savefig("interpolation_cell_scaling.pdf")
 
 #-------------------------------------------------------------------------------
 

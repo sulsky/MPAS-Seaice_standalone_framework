@@ -43,13 +43,7 @@
 
 	<var name="xtime"/>
 	<var name="daysSinceStartOfSim"/>
-	<stream name="mesh"/>
-	<var name="cellVerticesAtVertex"/>
 	<var name="iceAreaCell"/>
-	<var name="iceVolumeCell"/>
-	<var name="snowVolumeCell"/>
-	<var name="uVelocity"/>
-	<var name="vVelocity"/>
 </stream>
 
 <stream name="particlesOut"
@@ -57,10 +51,10 @@
         filename_template="output/particles_output.$Y-$M-$D_$h.$m.$s.nc"
         filename_interval="00-00-00_00:00:01"
         clobber_mode="replace_files"
-        output_interval="00-00-00_01:00:00" >
+        output_interval="none" >
 
-   <var name="statusMP"/>
-   <var name="iCellMP"/>
+        <var name="statusMP"/>
+        <var name="iCellMP"/>
         <var name="cellIDCreationMP"/>
         <var name="creationIndexMP"/>
         <var name="indexToCellIDMP"/>

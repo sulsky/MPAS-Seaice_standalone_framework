@@ -28,7 +28,7 @@ def L2_norm(numerical, analytical, nPoints, areaCell, latCell, latitudeLimit):
 
 #--------------------------------------------------------
 
-def get_norm_area(filenameIC, filename, latitudeLimit):
+def get_norm_area(filenameIC, filename, filenameMesh, latitudeLimit):
 
     fileIC = Dataset(filenameIC, "r")
 
@@ -36,14 +36,19 @@ def get_norm_area(filenameIC, filename, latitudeLimit):
 
     fileIC.close()
 
+    # mesh
+    fileMesh = Dataset(filenameMesh, "r")
 
+    nCells = len(fileMesh.dimensions["nCells"])
+
+    areaCell = fileMesh.variables["areaCell"][:]
+
+    latCell = fileMesh.variables["latCell"][:]
+
+    fileMesh.close()
+
+    # data
     fileMPAS = Dataset(filename, "r")
-
-    nCells = len(fileMPAS.dimensions["nCells"])
-
-    areaCell = fileMPAS.variables["areaCell"][:]
-
-    latCell = fileMPAS.variables["latCell"][:]
 
     iceAreaCell = fileMPAS.variables["iceAreaCell"][0,:]
 
@@ -56,9 +61,9 @@ def get_norm_area(filenameIC, filename, latitudeLimit):
 
 #--------------------------------------------------------
 
-def get_resolution(filename, latitudeLimit):
+def get_resolution(filenameMesh, latitudeLimit):
 
-    fileMPAS = Dataset(filename, "r")
+    fileMPAS = Dataset(filenameMesh, "r")
 
     nCells = len(fileMPAS.dimensions["nCells"])
     nEdges = len(fileMPAS.dimensions["nEdges"])
@@ -128,16 +133,17 @@ def reconstruction_cell_scaling():
 
             filename = "./output_%s_%i/output.2000.nc" %(test,resolution)
             filenameIC = "./ic_%s_%i.nc" %(test,resolution)
+            filenameMesh = "./grid.%i.nc" %(resolution)
 
-            print(filename, filenameIC)
+            print(filename, filenameIC, filenameMesh)
             if (not os.path.exists(filename)):
                 raise Exception("Missing output file: %s" %(filename))
             if (not os.path.exists(filenameIC)):
                 raise Exception("Missing IC file: %s" %(filenameIC))
 
-            x.append(get_resolution(filename, latitudeLimit))
+            x.append(get_resolution(filenameMesh, latitudeLimit))
 
-            norm = get_norm_area(filenameIC, filename, latitudeLimit)
+            norm = get_norm_area(filenameIC, filename, filenameMesh, latitudeLimit)
             y.append(norm)
 
         plt.loglog(x,y, marker='o', color=lineColours[iPlot], ls=lineStyles[iPlot], markersize=5.0)
@@ -155,6 +161,7 @@ def reconstruction_cell_scaling():
 
     plt.tight_layout(pad=0.5, w_pad=0.5, h_pad=0.5)
     plt.savefig("reconstruction_cell_scaling.png",dpi=400)
+    plt.savefig("reconstruction_cell_scaling.pdf")
 
 #-------------------------------------------------------------------------------
 

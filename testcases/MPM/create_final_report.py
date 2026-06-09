@@ -56,7 +56,11 @@ def create_final_report():
                  "reconstruction1":{"testcaseLocation":"spherical_operators/reconstruction",
                                     "plotFilename":"reconstruction_scaling.pdf"},
                  "reconstruction2":{"testcaseLocation":"spherical_operators/reconstruction",
-                                    "plotFilename":"reconstruction_map.pdf"}}
+                                    "plotFilename":"reconstruction_map.pdf"},
+                 "interpolation_cell":{"testcaseLocation":"spherical_operators/interpolation_cell",
+                                       "plotFilename":"interpolation_cell_scaling.pdf"},
+                 "reconstruction_cell":{"testcaseLocation":"spherical_operators/reconstruction_cell",
+                                        "plotFilename":"reconstruction_cell_scaling.pdf"}}
 
     writer = PdfWriter()
 
