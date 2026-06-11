@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <testsuite name="standard_icebergs">
     <configuration name="standard_icebergs">
-	<domain name="domain_QU30km_icebergs_antarctica">
-	    <test name="regression">
+        <domain name="domain_QU30km_icebergs_antarctica">
+            <test name="regression">
                 <option name="runDuration" value="DAYS:120"/>
             </test>
-	</domain>
+        </domain>
     </configuration>
 </testsuite>
