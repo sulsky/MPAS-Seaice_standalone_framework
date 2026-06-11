@@ -12,8 +12,6 @@ def setup_testcase():
 
     os.system("python %s" %(domainScript))
 
-    os.symlink("calving_mpas_antarctica_no_regions.nc calving_mpas.nc")
-
 #-------------------------------------------------------------------------------
 
 if __name__ == "__main__":
