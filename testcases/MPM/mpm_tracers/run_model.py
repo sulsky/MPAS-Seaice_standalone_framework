@@ -33,16 +33,19 @@ def run_model(logFileOverview):
 
         if (operatorMethod == "mpm_tracers"):
             nmlPatch = {"use_sections": {"config_use_mpm": True},
-                                 "mpm": {"config_use_mpm_tracers": True}}
+                                 "mpm": {"config_use_mpm_tracers": True},
+                      "column_package": {"config_column_element_type":"particles"},
+                           "advection": {"config_advection_type":"mpm"}}
         elif (operatorMethod == "mpas"):
             nmlPatch = {"use_sections": {"config_use_mpm": False},
-                                 "mpm": {"config_use_mpm_tracers": False}}
+                                 "mpm": {"config_use_mpm_tracers": False},
+                      "column_package": {"config_column_element_type":"cells"},
+                           "advection": {"config_advection_type":"incremental_remap"}}
 
         f90nml.patch("namelist.seaice.default", nmlPatch, "namelist.seaice.%s" %(operatorMethod))
 
         os.system("rm -rf namelist.seaice")
         os.system("ln -s namelist.seaice.%s namelist.seaice" %(operatorMethod))
-
 
         if (not os.path.isdir("output")):
             os.mkdir("output")
