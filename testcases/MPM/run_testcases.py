@@ -8,6 +8,8 @@ import subprocess
 import time
 import argparse
 
+from create_final_report import create_final_report
+
 #-------------------------------------------------------------------------------
 
 def run_testcases(optional=False):
@@ -91,6 +93,8 @@ def run_testcases(optional=False):
     logFile.write("\nTesting Completed\n")
     logFile.flush()
     logFile.close()
+
+    create_final_report()
 
 #-------------------------------------------------------------------------------
 

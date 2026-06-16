@@ -37,19 +37,6 @@
 	<var name="daysSinceStartOfSim"/>
 	<var name="iceAreaCell"/>
 	<var name="iceVolumeCell"/>
-	<var name="snowVolumeCell"/>
-	<var name="iceAreaCategory"/>
-	<var name="iceVolumeCategory"/>
-	<var name="snowVolumeCategory"/>
-	<var name="uVelocity"/>
-	<var name="vVelocity"/>
-        <var name="congelation"/>
-        <var name="basalIceMelt"/>
-        <var name="frazilFormation"/>
-        <var name="surfaceIceMelt"/>
-        <var name="lateralIceMelt"/>
-        <var name="freezingMeltingPotential"/>
-        <var name="seaSurfaceTemperature"/>
 </stream>
 
 <stream name="particlesOut"
@@ -61,22 +48,10 @@
 
         <var name="daysSinceStartOfSim"/>
         <var name="statusMP"/>
-        <var name="iCellMP"/>
-        <var name="cellIDCreationMP"/>
-        <var name="creationIndexMP"/>
         <var name="indexToCellIDMP"/>
-        <var name="procIDParticle"/>
         <var name="posnMP"/>
         <var name="iceAreaCellMP"/>
 	<var name="iceVolumeCellMP"/>
-	<var name="snowVolumeCellMP"/>
-        <var name="uvVelMP"/>
-        <var name="congelationMP"/>
-        <var name="basalIceMeltMP"/>
-        <var name="frazilFormationMP"/>
-        <var name="surfaceIceMeltMP"/>
-        <var name="lateralIceMeltMP"/>
-        <var name="seaSurfaceTemperatureMP"/>
 </stream>
 
 

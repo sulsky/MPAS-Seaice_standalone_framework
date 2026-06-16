@@ -53,9 +53,9 @@ def get_norm_particle(filenameIC, filename, latitudeLimit):
 
 #--------------------------------------------------------
 
-def get_resolution(filename, latitudeLimit):
+def get_resolution(filenameMesh, latitudeLimit):
 
-    fileMPAS = Dataset(filename, "r")
+    fileMPAS = Dataset(filenameMesh, "r")
 
     nCells = len(fileMPAS.dimensions["nCells"])
     nEdges = len(fileMPAS.dimensions["nEdges"])
@@ -146,8 +146,8 @@ def interpolation_scaling():
 
                 normU, normV = get_norm_particle(filenameIC, filename, latitudeLimit)
 
-                filename = "./output_%s_%i/output.2000.nc" %(test,resolution)
-                x.append(get_resolution(filename, latitudeLimit))
+                filenameMesh = "./grid.%i.nc" %(resolution)
+                x.append(get_resolution(filenameMesh, latitudeLimit))
 
                 if (velocity == "u"):
                     y.append(normU)
@@ -171,6 +171,7 @@ def interpolation_scaling():
 
     plt.tight_layout(pad=0.5, w_pad=0.5, h_pad=0.5)
     plt.savefig("interpolation_scaling.png",dpi=400)
+    plt.savefig("interpolation_scaling.pdf")
 
 #-------------------------------------------------------------------------------
 
