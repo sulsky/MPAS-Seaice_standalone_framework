@@ -40,7 +40,7 @@
         filename_template="output/icebergs_output.$Y-$M-$D_$h.$m.$s.nc"
         filename_interval="00-00-00_00:00:01"
         clobber_mode="replace_files"
-        output_interval="00-00-10_00:00:00" >
+        output_interval="none" >
 
         <var name="statusIB"/>
         <var name="iCellIB"/>
@@ -65,16 +65,6 @@
         <var name="icebergAreaCell"/>
         <var name="uVelocityIcebergGeo"/>
         <var name="vVelocityIcebergGeo"/>
-        <var name="uAirForceIceberg"/>
-        <var name="vAirForceIceberg"/>
-        <var name="uOceanForceIceberg"/>
-        <var name="vOceanForceIceberg"/>
-        <var name="uSurfaceTiltForceIceberg"/>
-        <var name="vSurfaceTiltForceIceberg"/>
-        <var name="uCoriolisForceIceberg"/>
-        <var name="vCoriolisForceIceberg"/>
-        <var name="uInertialForceIceberg"/>
-        <var name="vInertialForceIceberg"/>
         <var name="icebergCategoryFluxScaling"/>
         <var name="icebergCategory"/>
         <var name="icebergAge"/>

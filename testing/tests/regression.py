@@ -1,6 +1,8 @@
 import os, shutil
 from compare_mpas_files import compare_files
 from testing_utils import *
+from datetime import datetime
+import cftime
 
 #-------------------------------------------------------------------------
 
@@ -16,6 +18,24 @@ def regression(mpasDevelopmentDir,
                oversubscribe,
                np1,
                np2):
+
+    # start time
+    startTimeStr = "2000-01-01_00:00:00"
+    if ("startTime" in options.keys()):
+        startTimeStr = options["startTime"]
+    dt = datetime.strptime(startTimeStr, "%Y-%m-%d_%H:%M:%S")
+    startTime = cftime.DatetimeNoLeap(dt.year, dt.month,  dt.day,
+                                      dt.hour, dt.minute, dt.second)
+
+    # run duration
+    runDurationInterval = "HOURS:24"
+    if ("runDuration" in options.keys()):
+        runDurationInterval = options["runDuration"]
+    runDuration, runDurationStr = run_duration(runDurationInterval)
+
+    # compare time
+    compareTime = startTime + runDuration
+    compareTimeStr = compareTime.strftime("%Y-%m-%d_%H.%M.%S")
 
     # find available directory name
     iTest = 1
@@ -38,12 +58,13 @@ def regression(mpasDevelopmentDir,
     # development run
     nProcs = np1
 
-    nmlChanges = {"seaice_model": {"config_run_duration":'24:00:00'}}
+    nmlChanges = {"seaice_model": {"config_start_time":startTimeStr,
+                                   "config_run_duration":runDurationStr}}
     if (check):
         nmlChanges["unit_test"] = {"config_testing_system_test":True}
     nmlChanges = add_pio_namelist_changes(nmlChanges, nProcs)
 
-    streamChanges = [{"streamName":"restart", "attributeName":"output_interval", "newValue":"24:00:00"}, \
+    streamChanges = [{"streamName":"restart", "attributeName":"output_interval", "newValue":runDurationStr}, \
                      {"streamName":"output" , "attributeName":"output_interval", "newValue":"none"}]
 
     if (run_model("development",
@@ -64,13 +85,14 @@ def regression(mpasDevelopmentDir,
     # base run
     nProcs = np1
 
-    nmlChanges = {"seaice_model": {"config_run_duration":'24:00:00'}}
+    nmlChanges = {"seaice_model": {"config_start_time":startTimeStr,
+                                   "config_run_duration":runDurationStr}}
     if (check):
         nmlChanges["unit_test"] = {"config_testing_system_test":True}
     nmlChanges = add_pio_namelist_changes(nmlChanges, nProcs)
 
 
-    streamChanges = [{"streamName":"restart", "attributeName":"output_interval", "newValue":"24:00:00"}, \
+    streamChanges = [{"streamName":"restart", "attributeName":"output_interval", "newValue":runDurationStr}, \
                      {"streamName":"output" , "attributeName":"output_interval", "newValue":"none"}]
 
     if (run_model("base",
@@ -90,7 +112,7 @@ def regression(mpasDevelopmentDir,
 
 
     # compare
-    restart_file = "restart.2000-01-02_00.00.00.nc"
+    restart_file = "restart.%s.nc" %(compareTimeStr)
 
     file1 = "./development/restarts/%s" %(restart_file)
     file2 = "./base/restarts/%s" %(restart_file)
