@@ -32,7 +32,7 @@ def run_model(logFile):
     operatorMethods = ["mpmvar", "mpmweak", "mpm"]
     #operatorMethods = ["mpm"]
 
-    os.system("cp ../../../configurations/standard_physics_mpm/namelist.seaice namelist.seaice.default")
+    os.system("cp ../../../configurations/standard_physics_mpm_evp/namelist.seaice namelist.seaice.default")
 
     for operatorMethod in operatorMethods:
         print("   operatorMethod: ", operatorMethod)

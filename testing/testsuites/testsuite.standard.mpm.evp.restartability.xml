@@ -1,9 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <testsuite name="standard">
-	<configuration name="standard_physics_mpm_decoh">
+	<configuration name="standard_physics_mpm_evp">
 		<domain name="domain_QU120km">
-			<test name="regression"/>
-			<test name="parallelism"/>
 			<test name="restartability"/>
 		</domain>
 	</configuration>
