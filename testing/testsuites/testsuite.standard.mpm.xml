@@ -14,4 +14,11 @@
 			<test name="restartability"/>
 		</domain>
 	</configuration>
+	<configuration name="standard_physics_mpm_bbm">
+		<domain name="domain_QU120km">
+			<test name="regression"/>
+			<test name="parallelism"/>
+			<test name="restartability"/>
+		</domain>
+	</configuration>
 </testsuite>
