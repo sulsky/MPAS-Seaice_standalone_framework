@@ -28,17 +28,18 @@
         filename_interval="01-00-00_00:00:00"
         clobber_mode="replace_files"
         output_interval="00-00-00_01:00:00" >
-	<var name="xtime"/>
-	<var name="daysSinceStartOfSim"/>
-	<var name="iceAreaCell"/>
-	<var name="iceVolumeCell"/>
-	<var name="snowVolumeCell"/>
-	<var name="uVelocity"/>
-	<var name="vVelocity"/>
-	<var name="uAirVelocity"/>
-	<var name="vAirVelocity"/>
-   <var name="deluDyn"/>
-   <var name="delvDyn"/>
+        <var name="xtime"/>
+        <var name="daysSinceStartOfSim"/>
+        <var name="iceAreaCell"/>
+        <var name="iceVolumeCell"/>
+        <var name="snowVolumeCell"/>
+        <var name="uVelocity"/>
+        <var name="vVelocity"/>
+        <var name="uAirVelocity"/>
+        <var name="vAirVelocity"/>
+        <var name="deluDyn"/>
+        <var name="delvDyn"/>
+        <var name="areaCell"/>
 </stream>
 
 <stream name="particlesOut"
@@ -47,6 +48,8 @@
         filename_interval="00-00-00_00:00:01"
         clobber_mode="replace_files"
         output_interval="00-00-00_01:00:00" >
+        <var name="xtime"/>
+        <var name="daysSinceStartOfSim"/>
         <var name="statusMP"/>
         <var name="iCellMP"/>
         <var name="cellIDCreationMP"/>
