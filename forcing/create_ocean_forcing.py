@@ -9,6 +9,7 @@ import math
 from scipy.interpolate import griddata
 from create_forcing import create_scrip_grid_file, get_mpas_grid_info, create_scrip_file_MPAS, write_scrip_in_file, create_output_times, get_remapping_data
 import subprocess
+import argparse
 
 #-------------------------------------------------------------------------------
 
@@ -305,6 +306,23 @@ def perform_remapping(\
 
 #-------------------------------------------------------------------------------
 
+def create_forcing_from_config(configFilename):
+
+    config = configparser.ConfigParser()
+    config.read(configFilename)
+
+    filenameMPASGrid       = config.get('forcing_generation','filenameMPASGrid')
+    filenameGx1Grid        = config.get('forcing_generation','filenameGx1Grid')
+    filenameGx1OceanMixed  = config.get('forcing_generation','filenameGx1OceanMixed')
+    filenameMPASOceanMixed = config.get('forcing_generation','filenameMPASOceanMixed')
+
+    perform_remapping(filenameMPASGrid, \
+                      filenameGx1Grid, \
+                      filenameGx1OceanMixed, \
+                      filenameMPASOceanMixed)
+
+#-------------------------------------------------------------------------------
+
 '''
 create_ocean_forcing.py
 =======================
@@ -314,7 +332,7 @@ Usage
 
 This script creates ocean forcing using CESM output.
 
-Usage: python create_ocean_forcing.py configFilename
+Usage: python create_ocean_forcing.py -c configFilename
 
 where configFilename is a python config file with the following example format:
 
@@ -341,20 +359,12 @@ https://web.lcrc.anl.gov/public/e3sm/mpas_standalonedata/mpas-seaice/forcing/
 MPAS-Seaice_clim_data.tar.gz
 '''
 
-if (len(sys.argv) != 2):
-    print("Usage: python create_ocean_forcing.py configFilename")
-    sys.exit()
+if __name__ == "__main__":
 
-config = configparser.ConfigParser()
-config.read(sys.argv[1])
+    parser = argparse.ArgumentParser(description='Create oceanic forcing')
 
-filenameMPASGrid       = config.get('forcing_generation','filenameMPASGrid')
-filenameGx1Grid        = config.get('forcing_generation','filenameGx1Grid')
-filenameGx1OceanMixed  = config.get('forcing_generation','filenameGx1OceanMixed')
-filenameMPASOceanMixed = config.get('forcing_generation','filenameMPASOceanMixed')
+    parser.add_argument('-c', dest='configFilename', required=True, help='Config filename')
 
-perform_remapping(\
-        filenameMPASGrid, \
-        filenameGx1Grid, \
-        filenameGx1OceanMixed, \
-        filenameMPASOceanMixed)
+    args = parser.parse_args()
+
+    create_forcing_from_config(args.configFilename)
