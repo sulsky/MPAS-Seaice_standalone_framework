@@ -9,13 +9,16 @@ except ImportError:
 sys.path.append("../../../utils/testcases")
 from log_messages import log_message
 from execute_model import execute_model
+from stream_manipulation import add_output_fields_to_stream
 
 sys.path.append("../../../testing")
 from testing_utils import add_pio_namelist_changes, create_new_namelist
 
 #-------------------------------------------------------------------------------
 
-def run_model(logFileOverview):
+def run_model(runDuration,
+              outputInterval,
+              logFileOverview):
 
     MPAS_SEAICE_EXECUTABLE = os.environ.get('MPAS_SEAICE_EXECUTABLE')
     if (MPAS_SEAICE_EXECUTABLE is None):
@@ -32,12 +35,14 @@ def run_model(logFileOverview):
         print("   operatorMethod: ", operatorMethod)
 
         if (operatorMethod == "mpm_tracers"):
-            nmlPatch = {"use_sections": {"config_use_mpm": True},
+            nmlPatch = {"seaice_model": {"config_run_duration":runDuration},
+                        "use_sections": {"config_use_mpm": True},
                                  "mpm": {"config_use_mpm_tracers": True},
                       "column_package": {"config_column_element_type":"particles"},
                            "advection": {"config_advection_type":"mpm"}}
         elif (operatorMethod == "mpas"):
-            nmlPatch = {"use_sections": {"config_use_mpm": False},
+            nmlPatch = {"seaice_model": {"config_run_duration":runDuration},
+                        "use_sections": {"config_use_mpm": False},
                                  "mpm": {"config_use_mpm_tracers": False},
                       "column_package": {"config_column_element_type":"cells"},
                            "advection": {"config_advection_type":"incremental_remap"}}
@@ -46,6 +51,13 @@ def run_model(logFileOverview):
 
         os.system("rm -rf namelist.seaice")
         os.system("ln -s namelist.seaice.%s namelist.seaice" %(operatorMethod))
+
+        changes = [{"streamName":'output',
+                    "attributeName":'output_interval',
+                    "newValue":outputInterval}]
+        add_output_fields_to_stream("streams.seaice.orig",
+                                    "streams.seaice",
+                                    changes)
 
         if (not os.path.isdir("output")):
             os.mkdir("output")
