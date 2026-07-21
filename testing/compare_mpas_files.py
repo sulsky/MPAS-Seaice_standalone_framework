@@ -328,7 +328,9 @@ def compare_files(filename1, filename2, logfile, variableNamesIgnore=[]):
                             if (not arraysEqual):
                                 diff = arr2[:] - arr1[:]
                                 minVal = np.amin(diff)
+                                minGlobalID = globalID1[particlesOrder1[variableDimensionName][np.argmin(diff)]]
                                 maxVal = np.amax(diff)
+                                maxGlobalID = globalID1[particlesOrder1[variableDimensionName][np.argmax(diff)]]
                                 L2Norm = np.linalg.norm(diff)
                                 tmp = np.sum(np.power(diff,2))/np.sum(np.power(arr1,2))
                                 if (tmp < 0.0):
@@ -336,7 +338,8 @@ def compare_files(filename1, filename2, logfile, variableNamesIgnore=[]):
                                 else:
                                     L2ErrorNorm = math.sqrt(tmp)
 
-                                logfile.write("Arrays %s differ! min: %g, max: %g, L2: %g L2 rel: %g\n" %(variableName,minVal,maxVal,L2Norm,L2ErrorNorm))
+                                logfile.write("Arrays %s differ! min: %i, %g, max: %i, %g, L2: %g L2 rel: %g\n" \
+                                              %(variableName,minGlobalID,minVal,maxGlobalID,maxVal,L2Norm,L2ErrorNorm))
                                 add_variable_to_diag_file(file1,
                                                           arr1,
                                                           arr2,
@@ -352,11 +355,17 @@ def compare_files(filename1, filename2, logfile, variableNamesIgnore=[]):
                         if (variableArray1.ndim != 0):
                             diff = variableArray2[:] - variableArray1[:]
                             minVal = np.amin(diff)
+                            minIndex = np.argmin(diff)
                             maxVal = np.amax(diff)
+                            maxIndex = np.argmax(diff)
                             L2Norm = np.linalg.norm(diff)
                             L2ErrorNorm = math.sqrt(np.sum(np.power(diff,2))/np.sum(np.power(variableArray1,2)))
 
-                            logfile.write("Arrays %s differ! min: %g, max: %g, L2: %g L2 rel: %g\n" %(variableName,minVal,maxVal,L2Norm,L2ErrorNorm))
+                            logfile.write("Arrays %s differ! min: %i, %g, %g, %g, max: %i, %g, %g, %g, L2: %g L2 rel: %g\n" \
+                                          %(variableName,
+                                            minIndex,minVal,variableArray1.flatten()[minIndex],variableArray2.flatten()[minIndex],
+                                            maxIndex,maxVal,variableArray1.flatten()[maxIndex],variableArray2.flatten()[maxIndex],
+                                            L2Norm,L2ErrorNorm))
                             add_variable_to_diag_file(file1,
                                                       variableArray1,
                                                       variableArray2,
@@ -397,7 +406,7 @@ if __name__ == "__main__":
         fileIgnoreList.close()
     variableNamesIgnore = [word.strip() for word in variableNamesIgnore]
 
-    logfile = open("log_test.txt")
+    logfile = open("log_test.txt","w")
 
     nErrorsArray, nErrorsNonArray = compare_files(args.filename1, args.filename2, logfile, variableNamesIgnore)
     print("Number of array errors:     ", nErrorsArray)

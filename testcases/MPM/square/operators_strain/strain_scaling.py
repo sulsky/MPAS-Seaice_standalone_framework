@@ -287,7 +287,7 @@ def get_norm_particle(filenamePartIC, filenamePart, filename):
 
     nParticles = len(fileMPAS.dimensions["nParticles"])
 
-    strainMP = fileMPAS.variables["strainMP"][:]
+    strainMP = fileMPAS.variables["strainRateMP"][:]
     iCellMP  = fileMPAS.variables["iCellMP"][0, :]
 
     useCell = get_use_cell(filename)

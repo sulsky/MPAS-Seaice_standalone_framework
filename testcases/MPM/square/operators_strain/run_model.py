@@ -1,3 +1,8 @@
+import sys
+
+sys.path.append("../../../../utils/testcases/")
+from execute_model import execute_model
+
 import os
 try:
     import f90nml
@@ -11,7 +16,8 @@ def run_model():
 
     MPAS_SEAICE_EXECUTABLE = os.environ.get('MPAS_SEAICE_EXECUTABLE')
     if (MPAS_SEAICE_EXECUTABLE is None):
-        raise Exception("MPAS_SEAICE_EXECUTABLE must be set")
+        MPAS_SEAICE_EXECUTABLE = "../../../../../MPAS-Seaice-MPM/components/mpas-seaice/seaice_model"
+        print("Using executable in standard location: %s" %(MPAS_SEAICE_EXECUTABLE))
     MPAS_SEAICE_TESTCASES_RUN_COMMAND = os.environ.get('MPAS_SEAICE_TESTCASES_RUN_COMMAND')
     if (MPAS_SEAICE_TESTCASES_RUN_COMMAND is None):
         MPAS_SEAICE_TESTCASES_RUN_COMMAND = ""
@@ -79,7 +85,9 @@ def run_model():
                 os.system("ln -s namelist.seaice.%s namelist.seaice" %(operatorMethod))
                 os.system("ln -s streams.seaice.strain streams.seaice")
 
-                os.system("%s %s" %(MPAS_SEAICE_TESTCASES_RUN_COMMAND, MPAS_SEAICE_EXECUTABLE))
+                execute_model(MPAS_SEAICE_EXECUTABLE,
+                              1,
+                              None)
 
                 os.system("mv output output_%s_%s_%s" %(gridType, operatorMethod, grid))
 

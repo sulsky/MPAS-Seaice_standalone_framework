@@ -20,7 +20,7 @@ import argparse
 def add_output_fields_to_stream(filenameIn,
                                 filenameOut,
                                 changes,
-                                fieldsToAdd):
+                                fieldsToAdd=[]):
 
     try:
         import xml.etree.ElementTree as ET
@@ -56,7 +56,8 @@ def add_output_fields_to_stream(filenameIn,
 def run_testcase(nProcs,
                  runDuration,
                  outputInterval,
-                 logFilenameOverview=None):
+                 logFilenameOverview,
+                 filenameFieldNamesCell):
 
     if (logFilenameOverview is not None):
         logFileOverview = open(logFilenameOverview,"a")
@@ -66,7 +67,7 @@ def run_testcase(nProcs,
     else:
         logFileOverview = None
 
-    fieldNamesCell = [
+    fieldNamesCellDefault = [
         "iceAreaCell",
         "iceVolumeCell",
         "snowVolumeCell",
@@ -86,6 +87,16 @@ def run_testcase(nProcs,
         "surfaceIceMelt",
         "basalIceMelt",
         "lateralIceMelt"]
+
+    if (filenameFieldNamesCell is not None):
+        fileFieldNamesCell = open(filenameFieldNamesCell,"r")
+        lines = fileFieldNamesCell.readlines()
+        fileFieldNamesCell.close()
+        fieldNamesCell = []
+        for line in lines:
+            fieldNamesCell.append(line.strip())
+    else:
+        fieldNamesCell = fieldNamesCellDefault
 
     fieldNamesParticle = []
     for fieldName in fieldNamesCell:
@@ -235,10 +246,18 @@ def run_testcase(nProcs,
     file2 = "./output_mpm/output.2000.particles.nc"
     logfile.write("  file1: %s\n" %(file1))
     logfile.write("  file2: %s\n" %(file2))
+    print("  file1: %s" %(file1))
+    print("  file2: %s" %(file2))
 
     cmd = "rm vars_differ.nc"
     os.system(cmd)
-    nErrorsArray, nErrorsNonArray = compare_files(file1,file2,logfile)
+
+    fileIgnore = open("ignore_varnames.txt","r")
+    variableNamesIgnore = fileIgnore.readlines()
+    variableNamesIgnore = [varname.strip() for varname in variableNamesIgnore]
+    fileIgnore.close()
+
+    nErrorsArray, nErrorsNonArray = compare_files(file1,file2,logfile,variableNamesIgnore=variableNamesIgnore)
 
     failed = test_summary(nErrorsNonArray, nErrorsArray, logfile, "particles_on_column")
     regression_summary(nErrorsNonArray, nErrorsArray, logFileOverview, "particles_on_column")
@@ -251,13 +270,15 @@ if __name__ == "__main__":
 
     parser = argparse.ArgumentParser()
     parser.add_argument('-n', dest="nProcs", type=int, default=1)
-    parser.add_argument('-d', dest="runDuration", default='00-00-01_00:00:00')
-    parser.add_argument('-o', dest="outputInterval", default='00-00-01_00:00:00')
-    parser.add_argument('-l', dest='logFilename')
+    parser.add_argument('-d', dest="runDuration", default='00-00-00_01:00:00')
+    parser.add_argument('-o', dest="outputInterval", default='00-00-00_01:00:00')
+    parser.add_argument('-l', dest='logFilename', default=None)
+    parser.add_argument('-v', dest='filenameFieldNamesCell', default=None)
 
     args = parser.parse_args()
 
     run_testcase(args.nProcs,
                  args.runDuration,
                  args.outputInterval,
-                 args.logFilename)
+                 args.logFilename,
+                 args.filenameFieldNamesCell)
