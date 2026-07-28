@@ -252,10 +252,13 @@ def run_testcase(nProcs,
     cmd = "rm vars_differ.nc"
     os.system(cmd)
 
-    fileIgnore = open("ignore_varnames.txt","r")
-    variableNamesIgnore = fileIgnore.readlines()
-    variableNamesIgnore = [varname.strip() for varname in variableNamesIgnore]
-    fileIgnore.close()
+    if (os.path.isfile("ignore_varnames.txt")):
+        fileIgnore = open("ignore_varnames.txt","r")
+        variableNamesIgnore = fileIgnore.readlines()
+        variableNamesIgnore = [varname.strip() for varname in variableNamesIgnore]
+        fileIgnore.close()
+    else:
+        variableNamesIgnore = []
 
     nErrorsArray, nErrorsNonArray = compare_files(file1,file2,logfile,variableNamesIgnore=variableNamesIgnore)
 
