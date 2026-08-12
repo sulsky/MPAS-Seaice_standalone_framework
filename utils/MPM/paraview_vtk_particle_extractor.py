@@ -26,17 +26,47 @@ exists, then the script adds files to it.
 
 from netCDF4 import Dataset
 from netCDF4 import Dataset as NetCDFFile
+from netCDF4 import chartostring
 import glob
 import math
 import argparse
 import os
+from datetime import datetime
+
 #-------------------------------------------------------------------------------
+
+def fractional_year_noleap(time_str):
+
+    dt = datetime.strptime(time_str, "%Y-%m-%d_%H:%M:%S")
+
+    day_of_year = dt.timetuple().tm_yday
+
+    return (
+        dt.year
+        + (
+            (day_of_year - 1)
+            + dt.hour / 24
+            + dt.minute / 1440
+            + dt.second / 86400
+        ) / 365.0
+    )
+
+#-------------------------------------------------------------------------------
+
 def print_vtp_file(filenameIn, filenameOut, variable_names):
+
     iTime = 0
     filein = Dataset(filenameIn,"r")
     sphere_radius = filein.sphere_radius
     nParticles = len(filein.dimensions["nParticles"])
     posnMP = filein.variables["posnMP"][:]
+
+    try:
+        xtime = str(chartostring(filein.variables["xtime"][iTime,:]))
+        xtimeYear = fractional_year_noleap(xtime)
+    except:
+        xtime = None
+        xtimeYear = None
 
     # number of valid MPs
     nValid = 0
@@ -59,6 +89,12 @@ def print_vtp_file(filenameIn, filenameOut, variable_names):
 
     fileout = open(filenameOut, "w")
     fileout.write("<VTKFile type=\"PolyData\" version=\"1.0\" byte_order=\"LittleEndian\" header_type=\"UInt64\">\n")
+    if (xtime is not None):
+        fileout.write("   <metadata>\n")
+        fileout.write("      <xtime>\n")
+        fileout.write("         %s\n" %(xtime))
+        fileout.write("      </xtime>\n")
+        fileout.write("   </metadata>\n")
     fileout.write("   <PolyData>\n")
     fileout.write("      <Piece NumberOfPoints=\"%d\" NumberOfVerts=\"0\" NumberOfLines=\"0\" NumberOfStrips=\"0\" NumberOfPolys=\"0\">\n" %(nValid))
 
@@ -128,7 +164,7 @@ def print_vtp_file(filenameIn, filenameOut, variable_names):
     fileout.close()
     filein.close()
 
-    return nValid
+    return nValid, xtimeYear
 
 #-------------------------------------------------------------------------------
 
@@ -271,15 +307,18 @@ if __name__ == "__main__":
         filenameOut = "./vtk_files/time_series/fieldsOnParticles_%d.vtp" %(iFile)
 
         # write vtp files in vtk_files/time_series/
-        nValid = print_vtp_file(filenameIn, filenameOut, variable_names)
-        print(filenameOut, nValid)
+        nValid, xtimeYear = print_vtp_file(filenameIn, filenameOut, variable_names)
+        print(filenameOut, nValid, xtimeYear)
 
         # write the header for the vtp files
         time_index = iFile
         vtp_file_prefix = "time_series/{}_{:d}".format(out_prefix,
                                                            time_index)
         file_name = '{}/{}.vtp'.format(out_dir, vtp_file_prefix)
-        real_time = iFile
+        if (xtimeYear is not None):
+            real_time = xtimeYear
+        else:
+            real_time = iFile
         pvd_file.write('<DataSet timestep="{:.16f}" group="" '
                         'part="0"\n'.format(real_time))
         pvd_file.write('\tfile="{}.vtp"/>\n'.format(vtp_file_prefix))
