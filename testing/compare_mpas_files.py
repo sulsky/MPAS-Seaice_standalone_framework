@@ -327,10 +327,12 @@ def compare_files(filename1, filename2, logfile, variableNamesIgnore=[]):
                                                                                 particlesOrder2[variableDimensionName])
                             if (not arraysEqual):
                                 diff = arr2[:] - arr1[:]
-                                minVal = np.amin(diff)
-                                minGlobalID = globalID1[particlesOrder1[variableDimensionName][np.argmin(diff)]]
-                                maxVal = np.amax(diff)
-                                maxGlobalID = globalID1[particlesOrder1[variableDimensionName][np.argmax(diff)]]
+                                minIndices = np.unravel_index(np.argmin(diff), diff.shape)
+                                minVal = np.amin(diff[minIndices])
+                                minGlobalID = globalID1[particlesOrder1[variableDimensionName][minIndices[0]]]
+                                maxIndices = np.unravel_index(np.argmax(diff), diff.shape)
+                                maxVal = np.amax(diff[maxIndices])
+                                maxGlobalID = globalID1[particlesOrder1[variableDimensionName][maxIndices[0]]]
                                 L2Norm = np.linalg.norm(diff)
                                 tmp = np.sum(np.power(diff,2))/np.sum(np.power(arr1,2))
                                 if (tmp < 0.0):
