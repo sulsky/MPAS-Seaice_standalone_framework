@@ -31,8 +31,7 @@ def get_norm(filenameIC, filename, filenameMesh, latitudeLimit):
 
     fileIC = Dataset(filenameIC, "r")
 
-    uVelocityAnalytical = fileIC.variables["uVelocity"][:]
-    vVelocityAnalytical = fileIC.variables["vVelocity"][:]
+    iceAreaVertexAnalytical = fileIC.variables["iceAreaVertex"][:]
 
     fileIC.close()
 
@@ -48,15 +47,13 @@ def get_norm(filenameIC, filename, filenameMesh, latitudeLimit):
 
     fileMPAS = Dataset(filename, "r")
 
-    uVelocity = fileMPAS.variables["uVelocityInitial"][0,:]
-    vVelocity = fileMPAS.variables["vVelocityInitial"][0,:]
+    iceAreaVertex = fileMPAS.variables["iceAreaVertex"][0,:]
 
-    normU = L2_norm(uVelocity, uVelocityAnalytical, nVertices, latVertex, areaTriangle, latitudeLimit)
-    normV = L2_norm(vVelocity, vVelocityAnalytical, nVertices, latVertex, areaTriangle, latitudeLimit)
+    norm = L2_norm(iceAreaVertex, iceAreaVertexAnalytical, nVertices, latVertex, areaTriangle, latitudeLimit)
 
     fileMPAS.close()
 
-    return normU, normV
+    return norm
 
 #--------------------------------------------------------
 
@@ -93,12 +90,10 @@ def reconstruction_scaling():
     mpl.rc('text', usetex=True)
     mpl.rcParams['axes.linewidth'] = 0.5
 
-    tests = ["1-x", "y-z", "latlon", "nonlin"]
-    #tests = ["1-x"]
+    tests = ["1", "x", "y", "z", "lat", "lon", "nonlin"]
+    #tests = ["x","nonlin"]
 
     resolutions = [2562,10242,40962,163842]
-
-    velocities = ['u','v']
 
     lineColours = ["black","black","gray","silver","blue","blue","green","green","cyan","cyan"]
     lineStyles  = ["-","--","-","--","-","--","-","--","-","--"]
@@ -118,7 +113,6 @@ def reconstruction_scaling():
     scaleMinLin = math.pow(xMin,1) * scale
     scaleMaxLin = math.pow(xMax,1) * scale
 
-
     plt.figure(figsize=(4,3))
 
     plt.loglog([xMin, xMax],[scaleMinLin,scaleMaxLin],linestyle=':', color='k')
@@ -127,8 +121,6 @@ def reconstruction_scaling():
     iPlot = 0
 
     for test in tests:
-
-        for velocity in velocities:
 
             x = []
             y = []
@@ -145,21 +137,17 @@ def reconstruction_scaling():
                 if (not os.path.exists(filenameIC)):
                     raise Exception("Missing IC file: %s" %(filenameIC))
 
-                normU, normV = get_norm(filenameIC, filename, filenameMesh, latitudeLimit)
+                norm = get_norm(filenameIC, filename, filenameMesh, latitudeLimit)
 
                 x.append(get_resolution(filenameMesh, latitudeLimit))
-
-                if (velocity == "u"):
-                    y.append(normU)
-                elif (velocity == "v"):
-                    y.append(normV)
+                y.append(norm)
 
             plt.loglog(x,y, marker='o', color=lineColours[iPlot], ls=lineStyles[iPlot], markersize=5.0)
-            print(velocity, x, y)
+            print('iceAreaVertex', x, y)
 
             iPlot = iPlot + 1
 
-    legendLabels = ["linear scaling", "quadratic scaling", "1", "x", "y", "z", "lat", "lon", "quadratic", "1/cos(lat)+tan(lat)"]
+    legendLabels = ["linear scaling", "quadratic scaling", "1", "x", "y", "z", "lat", "lon", "nonlin"]
     plt.legend(legendLabels, frameon=False, loc=3, fontsize=6, handlelength=4)
 
     ax = plt.gca()

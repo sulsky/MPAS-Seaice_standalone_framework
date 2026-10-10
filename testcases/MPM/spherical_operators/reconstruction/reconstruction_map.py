@@ -128,33 +128,36 @@ def reconstruction_map():
     fileGrid.close()
 
     # ic
-    fileIC = Dataset("ic_latlon_40962.nc","r")
-
-    uVelocityAnalytical = fileIC.variables["uVelocity"][:]
-    vVelocityAnalytical = fileIC.variables["vVelocity"][:]
-
-    print("Velocity: ",
-          np.amin(uVelocityAnalytical), np.amax(uVelocityAnalytical),
-          np.amin(vVelocityAnalytical), np.amax(vVelocityAnalytical))
-
+    fileIC = Dataset("ic_lat_40962.nc","r")
+    iceAreaVertexAnalytical1 = fileIC.variables["iceAreaVertex"][:]
+    print("iceArea (lat): ",
+          np.amin(iceAreaVertexAnalytical1), np.amax(iceAreaVertexAnalytical1))
     fileIC.close()
 
+    fileIC = Dataset("ic_lon_40962.nc","r")
+    iceAreaVertexAnalytical2 = fileIC.variables["iceAreaVertex"][:]
+    print("iceArea (lon): ",
+          np.amin(iceAreaVertexAnalytical2), np.amax(iceAreaVertexAnalytical2))
+    fileIC.close()
     # mpm
-    filenameMPM = "./output_latlon_40962/output.2000.nc"
+    filenameMPM = "./output_lat_40962/output.2000.nc"
     if (not os.path.exists(filenameMPM)):
         raise Exception("Missing output file: %s" %(filenameMPM))
     fileMPM = Dataset(filenameMPM,"r")
+    iceAreaVertexMPM1 = fileMPM.variables["iceAreaVertex"][0,:]
+    iceAreaDiff1 = (iceAreaVertexMPM1 - iceAreaVertexAnalytical1)
+    print("MPM Reconstruction Error (lat):  ",
+          np.amin(iceAreaDiff1), np.amax(iceAreaDiff1))
+    fileMPM.close()
 
-    uVelocityMPM = fileMPM.variables["uVelocityInitial"][0,:]
-    vVelocityMPM = fileMPM.variables["vVelocityInitial"][0,:]
-
-    uVelocityDiff = (uVelocityMPM - uVelocityAnalytical)
-    vVelocityDiff = (vVelocityMPM - vVelocityAnalytical)
-
-    print("MPM Interpolation Error:  ",
-          np.amin(uVelocityDiff), np.amax(uVelocityDiff),
-          np.amin(vVelocityDiff), np.amax(vVelocityDiff))
-
+    filenameMPM = "./output_lon_40962/output.2000.nc"
+    if (not os.path.exists(filenameMPM)):
+        raise Exception("Missing output file: %s" %(filenameMPM))
+    fileMPM = Dataset(filenameMPM,"r")
+    iceAreaVertexMPM2 = fileMPM.variables["iceAreaVertex"][0,:]
+    iceAreaDiff2 = (iceAreaVertexMPM2 - iceAreaVertexAnalytical2)
+    print("MPM Reconstruction Error (lon):  ",
+          np.amin(iceAreaDiff2), np.amax(iceAreaDiff2))
     fileMPM.close()
 
 
@@ -162,25 +165,24 @@ def reconstruction_map():
     mpl.rc('text', usetex=True)
     mpl.rcParams['axes.linewidth'] = 0.5
 
-    minVelocity = -1.0
-    maxVelocity =  1.0
+    minIceArea = -1.0
+    maxIceArea =  1.0
 
-    minVelDiff = -1.0e-7
-    maxVelDiff =  1.0e-7
+    minIceAreaDiff = -1.0e-7
+    maxIceAreaDiff =  1.0e-7
 
     fig, axes = plt.subplots(2, 2)
 
     fig.set_size_inches(7, 6.75)
 
-    plot_subfigure(axes[0,0], fig, nVertices, vertexDegree, cellsOnVertex, xCell, yCell, zCell, latVertex, uVelocityAnalytical, minVelocity, maxVelocity, -1.0, 1.0, -1.0, 1.0, \
-                   False, False, r'$u^\prime$', '(a)', False)
-    plot_subfigure(axes[0,1], fig, nVertices, vertexDegree, cellsOnVertex, xCell, yCell, zCell, latVertex, vVelocityAnalytical, minVelocity, maxVelocity, -1.0, 1.0, -1.0, 1.0, \
-                   False, False, r'$v^\prime$', '(b)', False)
-
-    plot_subfigure(axes[1,0], fig, nVertices, vertexDegree, cellsOnVertex, xCell, yCell, zCell, latVertex, uVelocityDiff, minVelDiff, maxVelDiff, -1.0, 1.0, -1.0, 1.0, \
-                   False, False, r'MPM diff ($u^\prime$ direction)', '(c)', False)
-    plot_subfigure(axes[1,1], fig, nVertices, vertexDegree, cellsOnVertex, xCell, yCell, zCell, latVertex, vVelocityDiff, minVelDiff, maxVelDiff, -1.0, 1.0, -1.0, 1.0, \
-                   False, False, r'MPM diff ($v^\prime$ direction)', '(d)', False)
+    plot_subfigure(axes[0,0], fig, nVertices, vertexDegree, cellsOnVertex, xCell, yCell, zCell, latVertex, iceAreaVertexAnalytical1, minIceArea, maxIceArea, -1.0, 1.0, -1.0, 1.0, \
+                   False, False, r'iceAreaVertex (lat)', '(a)', False)
+    plot_subfigure(axes[0,1], fig, nVertices, vertexDegree, cellsOnVertex, xCell, yCell, zCell, latVertex, iceAreaVertexAnalytical2, minIceArea, maxIceArea, -1.0, 1.0, -1.0, 1.0, \
+                   False, False, r'iceAreaVertex (lon)', '(b)', False)
+    plot_subfigure(axes[1,0], fig, nVertices, vertexDegree, cellsOnVertex, xCell, yCell, zCell, latVertex, iceAreaDiff1, minIceAreaDiff, maxIceAreaDiff, -1.0, 1.0, -1.0, 1.0, \
+                   False, False, r'MPM diff', '(c)', False)
+    plot_subfigure(axes[1,1], fig, nVertices, vertexDegree, cellsOnVertex, xCell, yCell, zCell, latVertex, iceAreaDiff2, minIceAreaDiff, maxIceAreaDiff, -1.0, 1.0, -1.0, 1.0, \
+                   False, False, r'MPM diff', '(c)', False)
 
     #plt.tight_layout(pad=0.5, w_pad=0.5, h_pad=0.5)
     plt.savefig("reconstruction_map.png",dpi=400)
