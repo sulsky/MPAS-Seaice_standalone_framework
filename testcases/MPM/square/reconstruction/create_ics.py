@@ -2,6 +2,8 @@ from netCDF4 import Dataset
 import numpy as np
 from math import sin, cos, pi, pow
 
+import argparse
+
 #-------------------------------------------------------------
 
 def linear(x,y):
@@ -121,7 +123,7 @@ def create_ic(gridfile, icfile, functionType):
 
 #-------------------------------------------------------------
 
-def create_ics():
+def create_ics(functionType):
 
     gridTypes = ["hex","quad"]
 
@@ -133,8 +135,6 @@ def create_ics():
                      "0160x0160",
                      "0320x0320",
                      "0640x0640"]}
-
-    functionType = "linear"
 
     for gridType in gridTypes:
         for grid in grids[gridType]:
@@ -148,4 +148,10 @@ def create_ics():
 
 if __name__ == "__main__":
 
-    create_ics()
+    parser = argparse.ArgumentParser()
+
+    parser.add_argument('-f', dest='functionType')
+
+    args = parser.parse_args()
+
+    create_ics(args.functionType)

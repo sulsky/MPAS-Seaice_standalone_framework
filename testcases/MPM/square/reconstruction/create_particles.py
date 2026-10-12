@@ -6,6 +6,8 @@ import sys
 sys.path.append("../../../../utils/MPM/particle_initialization/")
 from initial_particle_positions import initial_particle_positions
 
+import argparse
+
 #-------------------------------------------------------------
 
 def linear(x,y):
@@ -94,7 +96,7 @@ def create_particle(gridfile, partfile, functionType):
 
 #-------------------------------------------------------------
 
-def create_particles():
+def create_particles(functionType):
 
     gridTypes = ["hex","quad"]
 
@@ -107,7 +109,6 @@ def create_particles():
                      "0320x0320",
                      "0640x0640"]}
 
-    functionType = "linear"
 
     for gridType in gridTypes:
         for grid in grids[gridType]:
@@ -121,4 +122,10 @@ def create_particles():
 
 if __name__ == "__main__":
 
-    create_particles()
+    parser = argparse.ArgumentParser()
+
+    parser.add_argument('-f', dest='functionType')
+
+    args = parser.parse_args()
+
+    create_particles(args.functionType)

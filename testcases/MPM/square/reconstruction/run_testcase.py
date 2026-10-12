@@ -32,10 +32,10 @@ def run_testcase(logFilename=None):
     create_grids()
 
     print('create ic')
-    create_ics()
+    create_ics('linear')
 
     print('create particles')
-    create_particles()
+    create_particles('linear')
 
     print('run model')
     run_model(logFile)
