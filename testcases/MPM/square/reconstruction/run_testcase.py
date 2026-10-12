@@ -29,7 +29,7 @@ def run_testcase(logFilename=None):
         logFile = None
 
     print('create grids')
-    #create_grids()
+    create_grids()
 
     print('create ic')
     create_ics()

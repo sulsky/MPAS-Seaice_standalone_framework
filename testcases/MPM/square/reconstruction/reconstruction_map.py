@@ -91,8 +91,8 @@ def reconstruction_map():
     minArea= -1.0
     maxArea=  1.0
 
-    minAreaDiff = -1.e-1
-    maxAreaDiff =  1.e-1
+    minAreaDiff = -1.e-2
+    maxAreaDiff =  1.e-2
 
     fig, axes = plt.subplots(2, 2)
 
