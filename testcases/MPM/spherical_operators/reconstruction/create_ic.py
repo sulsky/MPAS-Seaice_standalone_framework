@@ -82,10 +82,15 @@ def create_ic():
             fileIn = Dataset(filenameIn,"r")
 
             nVertices = len(fileIn.dimensions["nVertices"])
+            nCells = len(fileIn.dimensions["nCells"])
 
             xVertex = fileIn.variables["xVertex"][:]
             yVertex = fileIn.variables["yVertex"][:]
             zVertex = fileIn.variables["zVertex"][:]
+
+            xCell = fileIn.variables["xCell"][:]
+            yCell = fileIn.variables["yCell"][:]
+            zCell = fileIn.variables["zCell"][:]
 
             latVertex = fileIn.variables["latVertex"][:]
             lonVertex = fileIn.variables["lonVertex"][:]
@@ -94,15 +99,21 @@ def create_ic():
 
             # ice area
             iceAreaVertex = np.zeros(nVertices)
-
             for iVertex in range(0, nVertices):
 
                 xp, yp, zp = grid_rotation_forward(xVertex[iVertex], yVertex[iVertex], zVertex[iVertex], rotateCartesianGrid)
                 lat, lon = latlon_from_xyz(xp, yp, zp, r)
 
                 iceareavertex = icearea_analytical(xp, yp, zp, lat, lon, c)
-
                 iceAreaVertex[iVertex] = iceareavertex
+
+            iceAreaCell = np.zeros(nCells)
+            for iCell in range(0, nCells):
+                xp, yp, zp = grid_rotation_forward(xCell[iCell], yCell[iCell], zCell[iCell], rotateCartesianGrid)
+                lat, lon = latlon_from_xyz(xp, yp, zp, r)
+
+                iceareacell = icearea_analytical(xp, yp, zp, lat, lon, c)
+                iceAreaCell[iCell] = iceareacell
 
             # output
             filenameOut = "ic_%s_%i.nc" %(test,gridSize)
@@ -110,9 +121,12 @@ def create_ic():
             fileOut = Dataset(filenameOut, "w", format="NETCDF3_CLASSIC")
 
             fileOut.createDimension("nVertices", nVertices)
+            fileOut.createDimension("nCells", nCells)
 
             var = fileOut.createVariable("iceAreaVertex","d",dimensions=["nVertices"])
             var[:] = iceAreaVertex[:]
+            var = fileOut.createVariable("iceAreaCell","d",dimensions=["nCells"])
+            var[:] = iceAreaCell[:]
 
             fileOut.close()
 

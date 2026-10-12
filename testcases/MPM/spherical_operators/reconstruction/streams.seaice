@@ -22,6 +22,7 @@
         input_interval="initial_only">
 
         <var name="iceAreaVertex"/>
+        <var name="iceAreaCell"/>
 </stream>
 
 <immutable_stream name="restart"
@@ -41,6 +42,7 @@
 	<var name="xtime"/>
 	<var name="daysSinceStartOfSim"/>
 	<var name="iceAreaVertex"/>
+	<var name="iceAreaCell"/>
 </stream>
 
 <stream name="particlesOut"

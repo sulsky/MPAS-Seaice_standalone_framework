@@ -32,7 +32,7 @@ def get_mpas_patch_collection(nVertices, vertexDegree, cellsOnVertex, xCell, yCe
             polygonVertices = []
 
             useVertex = False
-            for iCellOnVertex in range(0,vertexDegree):
+            for iCellOnVertex in range(0,vertexDegree[iVertex]):
 
                 iCell = cellsOnVertex[iVertex,iCellOnVertex] - 1
 
@@ -98,8 +98,12 @@ def plot_subfigure(axes, fig, nVertices, vertexDegree, cellsOnVertex, xCell, yCe
 
 def reconstruction_map():
 
+    res = "40962" # specify the resolution to plot
+    tests = ["lat","nonlin"] # specify two tests to plot
+
     # grid
-    fileGrid = Dataset("grid.40962.nc","r")
+    filename = "grid.%s.nc" %(res)
+    fileGrid = Dataset(filename,"r")
 
     nCells = len(fileGrid.dimensions["nCells"])
     nVertices = len(fileGrid.dimensions["nVertices"])
@@ -128,61 +132,96 @@ def reconstruction_map():
     fileGrid.close()
 
     # ic
-    fileIC = Dataset("ic_lat_40962.nc","r")
+    filename = "ic_%s_%s.nc" %(tests[0],res)
+    fileIC = Dataset(filename,"r")
     iceAreaVertexAnalytical1 = fileIC.variables["iceAreaVertex"][:]
-    print("iceArea (lat): ",
+    print("iceArea ", tests[0], " vertex: ",
           np.amin(iceAreaVertexAnalytical1), np.amax(iceAreaVertexAnalytical1))
+    iceAreaCellAnalytical1= fileIC.variables["iceAreaCell"][:]
+    print("iceArea ", tests[0], "cell: ",
+          np.amin(iceAreaCellAnalytical1), np.amax(iceAreaCellAnalytical1))
     fileIC.close()
 
-    fileIC = Dataset("ic_lon_40962.nc","r")
+    filename = "ic_%s_%s.nc" %(tests[1],res)
+    fileIC = Dataset(filename,"r")
     iceAreaVertexAnalytical2 = fileIC.variables["iceAreaVertex"][:]
-    print("iceArea (lon): ",
+    print("iceArea ", tests[1], " vertex: ",
           np.amin(iceAreaVertexAnalytical2), np.amax(iceAreaVertexAnalytical2))
+    iceAreaCellAnalytical2 = fileIC.variables["iceAreaCell"][:]
+    print("iceArea ", tests[1], " cell: ",
+          np.amin(iceAreaCellAnalytical2), np.amax(iceAreaCellAnalytical2))
     fileIC.close()
+
     # mpm
-    filenameMPM = "./output_lat_40962/output.2000.nc"
+    filenameMPM = "./output_%s_%s/output.2000.nc" %(tests[0],res)
     if (not os.path.exists(filenameMPM)):
         raise Exception("Missing output file: %s" %(filenameMPM))
     fileMPM = Dataset(filenameMPM,"r")
     iceAreaVertexMPM1 = fileMPM.variables["iceAreaVertex"][0,:]
-    iceAreaDiff1 = (iceAreaVertexMPM1 - iceAreaVertexAnalytical1)
-    print("MPM Reconstruction Error (lat):  ",
-          np.amin(iceAreaDiff1), np.amax(iceAreaDiff1))
+    iceAreaVertexDiff1 = (iceAreaVertexMPM1 - iceAreaVertexAnalytical1)
+    print("MPM Reconstruction Error ", tests[0], " vertex:  ",
+          np.amin(iceAreaVertexDiff1), np.amax(iceAreaVertexDiff1))
+    iceAreaCellMPM1 = fileMPM.variables["iceAreaCell"][0,:]
+    iceAreaCellDiff1 = (iceAreaCellMPM1- iceAreaCellAnalytical1)
+    print("MPM Reconstruction Error ", tests[0], " cell:  ",
+          np.amin(iceAreaCellDiff1), np.amax(iceAreaCellDiff1))
     fileMPM.close()
 
-    filenameMPM = "./output_lon_40962/output.2000.nc"
+    filenameMPM = "./output_%s_%s/output.2000.nc" %(tests[1],res)
     if (not os.path.exists(filenameMPM)):
         raise Exception("Missing output file: %s" %(filenameMPM))
     fileMPM = Dataset(filenameMPM,"r")
     iceAreaVertexMPM2 = fileMPM.variables["iceAreaVertex"][0,:]
-    iceAreaDiff2 = (iceAreaVertexMPM2 - iceAreaVertexAnalytical2)
-    print("MPM Reconstruction Error (lon):  ",
-          np.amin(iceAreaDiff2), np.amax(iceAreaDiff2))
+    iceAreaVertexDiff2 = (iceAreaVertexMPM2 - iceAreaVertexAnalytical2)
+    print("MPM Reconstruction Error ", tests[1], "  vertex:  ",
+          np.amin(iceAreaVertexDiff2), np.amax(iceAreaVertexDiff2))
+    iceAreaCellMPM2 = fileMPM.variables["iceAreaCell"][0,:]
+    iceAreaCellDiff2 = (iceAreaCellMPM2 - iceAreaCellAnalytical2)
+    print("MPM Reconstruction Error ", tests[1], " cell:  ",
+          np.amin(iceAreaCellDiff2), np.amax(iceAreaCellDiff2))
     fileMPM.close()
-
 
     mpl.rc('font', family='Times New Roman', size=8)
     mpl.rc('text', usetex=True)
     mpl.rcParams['axes.linewidth'] = 0.5
 
-    minIceArea = -1.0
-    maxIceArea =  1.0
+    fig, axes = plt.subplots(4, 2)
 
-    minIceAreaDiff = -1.0e-7
-    maxIceAreaDiff =  1.0e-7
+    fig.set_size_inches(5, 8)
 
-    fig, axes = plt.subplots(2, 2)
+    minIceArea = -1.57
+    maxIceArea =  1.57
+    plot_subfigure(axes[0,0], fig, nVertices, vertexDegreeArr, cellsOnVertex, xCell, yCell, zCell, latVertex, iceAreaVertexAnalytical1, minIceArea, maxIceArea, -1.0, 1.0, -1.0, 1.0, \
+                   False, False, r'Vertex ' + tests[0], '(a)', True)
+    minIceArea = 0.0
+    maxIceArea = 3.0
+    plot_subfigure(axes[0,1], fig, nVertices, vertexDegreeArr, cellsOnVertex, xCell, yCell, zCell, latVertex, iceAreaVertexAnalytical2, minIceArea, maxIceArea, -1.0, 1.0, -1.0, 1.0, \
+                   False, False, r'Vertex ' + tests[1], '(b)', True)
+    minIceAreaDiff = -4.0e-6
+    maxIceAreaDiff =  4.0e-6
+    plot_subfigure(axes[1,0], fig, nVertices, vertexDegreeArr, cellsOnVertex, xCell, yCell, zCell, latVertex, iceAreaVertexDiff1, minIceAreaDiff, maxIceAreaDiff, -1.0, 1.0, -1.0, 1.0, \
+                   False, False, r'MPM vertex diff', '(c)', True)
+    minIceAreaDiff = -5.0e-5
+    maxIceAreaDiff =  5.0e-5
+    plot_subfigure(axes[1,1], fig, nVertices, vertexDegreeArr, cellsOnVertex, xCell, yCell, zCell, latVertex, iceAreaVertexDiff2, minIceAreaDiff, maxIceAreaDiff, -1.0, 1.0, -1.0, 1.0, \
+                   False, False, r'MPM vertex diff', '(d)', True)
 
-    fig.set_size_inches(7, 6.75)
-
-    plot_subfigure(axes[0,0], fig, nVertices, vertexDegree, cellsOnVertex, xCell, yCell, zCell, latVertex, iceAreaVertexAnalytical1, minIceArea, maxIceArea, -1.0, 1.0, -1.0, 1.0, \
-                   False, False, r'iceAreaVertex (lat)', '(a)', False)
-    plot_subfigure(axes[0,1], fig, nVertices, vertexDegree, cellsOnVertex, xCell, yCell, zCell, latVertex, iceAreaVertexAnalytical2, minIceArea, maxIceArea, -1.0, 1.0, -1.0, 1.0, \
-                   False, False, r'iceAreaVertex (lon)', '(b)', False)
-    plot_subfigure(axes[1,0], fig, nVertices, vertexDegree, cellsOnVertex, xCell, yCell, zCell, latVertex, iceAreaDiff1, minIceAreaDiff, maxIceAreaDiff, -1.0, 1.0, -1.0, 1.0, \
-                   False, False, r'MPM diff', '(c)', False)
-    plot_subfigure(axes[1,1], fig, nVertices, vertexDegree, cellsOnVertex, xCell, yCell, zCell, latVertex, iceAreaDiff2, minIceAreaDiff, maxIceAreaDiff, -1.0, 1.0, -1.0, 1.0, \
-                   False, False, r'MPM diff', '(c)', False)
+    minIceArea = -1.57
+    maxIceArea =  1.57
+    plot_subfigure(axes[2,0], fig, nCells, nEdgesOnCell, verticesOnCell, xVertex, yVertex, zVertex, latCell, iceAreaCellAnalytical1, minIceArea, maxIceArea, -1.0, 1.0, -1.0, 1.0, \
+                   False, False, r'Cell ' + tests[0], '(e)', True)
+    minIceArea = 0.0
+    maxIceArea = 3.0
+    plot_subfigure(axes[2,1], fig, nCells, nEdgesOnCell, verticesOnCell, xVertex, yVertex, zVertex, latCell, iceAreaCellAnalytical2, minIceArea, maxIceArea, -1.0, 1.0, -1.0, 1.0, \
+                   False, False, r'Cell ' + tests[1], '(f)', True)
+    minIceAreaDiff = -1.0e-3
+    maxIceAreaDiff =  1.0e-3
+    plot_subfigure(axes[3,0], fig, nCells, nEdgesOnCell, verticesOnCell, xVertex, yVertex, zVertex, latCell, iceAreaCellDiff1, minIceAreaDiff, maxIceAreaDiff, -1.0, 1.0, -1.0, 1.0, \
+                   False, False, r'MPM cell diff', '(g)', True)
+    minIceAreaDiff = -6.0e-4
+    maxIceAreaDiff =  6.0e-4
+    plot_subfigure(axes[3,1], fig, nCells, nEdgesOnCell, verticesOnCell, xVertex, yVertex, zVertex, latCell, iceAreaCellDiff2, minIceAreaDiff, maxIceAreaDiff, -1.0, 1.0, -1.0, 1.0, \
+                   False, False, r'MPM cell diff', '(h)', True)
 
     #plt.tight_layout(pad=0.5, w_pad=0.5, h_pad=0.5)
     plt.savefig("reconstruction_map.png",dpi=400)
